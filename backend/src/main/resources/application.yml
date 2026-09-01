@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:sqlite:nihongoai.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+  flyway:
+    enabled: true
+    url: jdbc:sqlite:nihongoai.db
+    locations: classpath:db/migration
+
+server:
+  port: 8080
