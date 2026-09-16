@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sidebar, TabType } from './Sidebar';
+import { AnkiHeader, TabType } from './AnkiHeader';
 
 interface MainLayoutProps {
   activeTab: TabType;
@@ -9,9 +9,9 @@ interface MainLayoutProps {
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ activeTab, setActiveTab, children }) => {
   return (
-    <div className="app-container">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-      <main className="main-content">
+    <div className="anki-app-container">
+      <AnkiHeader activeTab={activeTab} setActiveTab={setActiveTab} />
+      <main className="anki-main-content">
         {children}
       </main>
     </div>
