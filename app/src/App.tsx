@@ -7,6 +7,7 @@ import { GrammarPage } from './features/grammar/pages/GrammarPage';
 import { PracticePage } from './features/practice/pages/PracticePage';
 import { KaiwaPage } from './features/kaiwa/pages/KaiwaPage';
 import { ReviewPage } from './features/review/pages/ReviewPage';
+import { StatisticsPage } from './features/statistics/pages/StatisticsPage';
 import './styles/index.css';
 
 export function App() {
@@ -29,6 +30,8 @@ export function App() {
         return <PracticePage />;
       case 'kaiwa':
         return <KaiwaPage />;
+      case 'statistics':
+        return <StatisticsPage />;
       default:
         return <DecksPage onStudyDeck={() => setIsReviewing(true)} />;
     }
