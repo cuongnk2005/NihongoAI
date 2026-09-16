@@ -8,6 +8,7 @@ import { PracticePage } from './features/practice/pages/PracticePage';
 import { KaiwaPage } from './features/kaiwa/pages/KaiwaPage';
 import { ReviewPage } from './features/review/pages/ReviewPage';
 import { StatisticsPage } from './features/statistics/pages/StatisticsPage';
+import { SettingsPage } from './features/settings/pages/SettingsPage';
 import './styles/index.css';
 
 export function App() {
@@ -32,6 +33,8 @@ export function App() {
         return <KaiwaPage />;
       case 'statistics':
         return <StatisticsPage />;
+      case 'sync':
+        return <SettingsPage />;
       default:
         return <DecksPage onStudyDeck={() => setIsReviewing(true)} />;
     }
