@@ -1,4 +1,4 @@
-import { Vocabulary, Grammar } from '../types';
+import { Vocabulary, Grammar, PracticeQuestion, EvaluationResult } from '../types';
 
 const BASE_URL = 'http://localhost:8080/api';
 
@@ -68,5 +68,47 @@ export const api = {
     } catch {
       console.log('Deleted offline grammar', id);
     }
+  },
+
+  // Practice APIs
+  generatePractice: async (level: string = 'N4'): Promise<PracticeQuestion> => {
+    try {
+      const res = await fetch(`${BASE_URL}/practice/generate?level=${level}`, { method: 'POST' });
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback structured question
+    }
+    return {
+      sentenceVi: 'Tôi đã từng xem bộ phim này với bạn bè.',
+      exampleAnswerJa: '友達とこの映画を見たことがあります。',
+      targetVocabulary: ['映画', '見る', '友達'],
+      targetGrammar: ['～たことがある'],
+      difficulty: level
+    };
+  },
+
+  evaluatePractice: async (userAnswer: string, question: PracticeQuestion): Promise<EvaluationResult> => {
+    try {
+      const res = await fetch(`${BASE_URL}/practice/evaluate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userAnswer, question })
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback structured evaluation
+    }
+    const isGood = userAnswer.includes('映画') || userAnswer.includes('たことがある');
+    return {
+      correct: isGood,
+      score: isGood ? 90 : 60,
+      meaningScore: isGood ? 95 : 65,
+      grammarScore: isGood ? 90 : 55,
+      naturalnessScore: isGood ? 85 : 60,
+      suggestedAnswer: question.exampleAnswerJa,
+      explanationVi: isGood
+        ? 'Câu của bạn chính xác! Bạn đã sử dụng đúng mẫu ngữ pháp ～たことがある và các từ vựng mục tiêu (映画, 見る, 友達).'
+        : 'Câu của bạn cần điều chỉnh. Lưu ý cấu trúc quá khứ kinh nghiệm: V-た + ことがある.'
+    };
   }
 };

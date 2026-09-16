@@ -25,3 +25,21 @@ export interface Deck {
   newCount: number;
   dueCount: number;
 }
+
+export interface PracticeQuestion {
+  sentenceVi: string;
+  exampleAnswerJa: string;
+  targetVocabulary: string[];
+  targetGrammar: string[];
+  difficulty: string;
+}
+
+export interface EvaluationResult {
+  correct: boolean;
+  score: number;
+  meaningScore: number;
+  grammarScore: number;
+  naturalnessScore: number;
+  suggestedAnswer: string;
+  explanationVi: string;
+}

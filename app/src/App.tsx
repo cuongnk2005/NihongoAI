@@ -4,6 +4,7 @@ import { TabType } from './layouts/AnkiHeader';
 import { DecksPage } from './features/decks/pages/DecksPage';
 import { VocabularyPage } from './features/vocabulary/pages/VocabularyPage';
 import { GrammarPage } from './features/grammar/pages/GrammarPage';
+import { PracticePage } from './features/practice/pages/PracticePage';
 import './styles/index.css';
 
 export function App() {
@@ -17,6 +18,8 @@ export function App() {
         return <VocabularyPage />;
       case 'browse':
         return <GrammarPage />;
+      case 'practice':
+        return <PracticePage />;
       default:
         return <DecksPage />;
     }
