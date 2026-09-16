@@ -12,7 +12,11 @@ interface DeckNode {
   children?: DeckNode[];
 }
 
-export const DecksPage: React.FC = () => {
+interface DecksPageProps {
+  onStudyDeck?: () => void;
+}
+
+export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
   const [selectedDeckId, setSelectedDeckId] = useState<string>('1-30');
 
   // Initial nested decks hierarchy matching the user's screenshot
@@ -266,6 +270,15 @@ export const DecksPage: React.FC = () => {
 
       {/* Bottom Action Buttons */}
       <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
+        {onStudyDeck && (
+          <button
+            onClick={onStudyDeck}
+            className="anki-btn"
+            style={{ background: '#0099ff', color: '#ffffff', border: 'none', fontWeight: '700', padding: '6px 20px' }}
+          >
+            Học Thẻ Ngay
+          </button>
+        )}
         <button className="anki-btn">Lấy Bộ thẻ Chia sẻ</button>
         <button className="anki-btn">Tạo Bộ thẻ</button>
         <button className="anki-btn">Nhập Tập tin</button>

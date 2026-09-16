@@ -6,15 +6,21 @@ import { VocabularyPage } from './features/vocabulary/pages/VocabularyPage';
 import { GrammarPage } from './features/grammar/pages/GrammarPage';
 import { PracticePage } from './features/practice/pages/PracticePage';
 import { KaiwaPage } from './features/kaiwa/pages/KaiwaPage';
+import { ReviewPage } from './features/review/pages/ReviewPage';
 import './styles/index.css';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<TabType>('decks');
+  const [isReviewing, setIsReviewing] = useState<boolean>(false);
 
   const renderContent = () => {
+    if (isReviewing) {
+      return <ReviewPage />;
+    }
+
     switch (activeTab) {
       case 'decks':
-        return <DecksPage />;
+        return <DecksPage onStudyDeck={() => setIsReviewing(true)} />;
       case 'add':
         return <VocabularyPage />;
       case 'browse':
@@ -24,12 +30,17 @@ export function App() {
       case 'kaiwa':
         return <KaiwaPage />;
       default:
-        return <DecksPage />;
+        return <DecksPage onStudyDeck={() => setIsReviewing(true)} />;
     }
   };
 
+  const handleTabChange = (tab: TabType) => {
+    setIsReviewing(false);
+    setActiveTab(tab);
+  };
+
   return (
-    <MainLayout activeTab={activeTab} setActiveTab={setActiveTab}>
+    <MainLayout activeTab={activeTab} setActiveTab={handleTabChange}>
       {renderContent()}
     </MainLayout>
   );
