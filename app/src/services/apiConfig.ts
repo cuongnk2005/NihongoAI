@@ -110,5 +110,23 @@ export const api = {
         ? 'Câu của bạn chính xác! Bạn đã sử dụng đúng mẫu ngữ pháp ～たことがある và các từ vựng mục tiêu (映画, 見る, 友達).'
         : 'Câu của bạn cần điều chỉnh. Lưu ý cấu trúc quá khứ kinh nghiệm: V-た + ことがある.'
     };
+  },
+
+  // Kaiwa APIs
+  sendKaiwaMessage: async (userMessage: string, level: string = 'N4'): Promise<{ aiReply: string; correctionVi?: string }> => {
+    try {
+      const res = await fetch(`${BASE_URL}/kaiwa/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage, level })
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Fallback response
+    }
+    return {
+      aiReply: '京都へ行ったことがありますか。とてもきれいな街ですよ。',
+      correctionVi: 'Câu của bạn khá tốt! AI gợi ý tự nhiên hơn: 「～へ行ったことがありますか」 sử dụng từ vựng đã học 京都.'
+    };
   }
 };

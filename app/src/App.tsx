@@ -5,6 +5,7 @@ import { DecksPage } from './features/decks/pages/DecksPage';
 import { VocabularyPage } from './features/vocabulary/pages/VocabularyPage';
 import { GrammarPage } from './features/grammar/pages/GrammarPage';
 import { PracticePage } from './features/practice/pages/PracticePage';
+import { KaiwaPage } from './features/kaiwa/pages/KaiwaPage';
 import './styles/index.css';
 
 export function App() {
@@ -20,6 +21,8 @@ export function App() {
         return <GrammarPage />;
       case 'practice':
         return <PracticePage />;
+      case 'kaiwa':
+        return <KaiwaPage />;
       default:
         return <DecksPage />;
     }
