@@ -45,5 +45,28 @@ export const api = {
         { id: 2, pattern: '～つもりです', meaningVi: 'Dự định làm gì', structure: 'V-plain + つもりです', jlptLevel: 'N4' }
       ];
     }
+  },
+
+  createGrammar: async (grammar: Partial<Grammar>): Promise<Grammar> => {
+    try {
+      const res = await fetch(`${BASE_URL}/grammars`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(grammar)
+      });
+      return await res.json();
+    } catch {
+      return { id: Date.now(), pattern: grammar.pattern || '', meaningVi: grammar.meaningVi || '', structure: grammar.structure || '', jlptLevel: grammar.jlptLevel || 'N4' };
+    }
+  },
+
+  deleteGrammar: async (id: number): Promise<void> => {
+    try {
+      await fetch(`${BASE_URL}/grammars/${id}`, {
+        method: 'DELETE'
+      });
+    } catch {
+      console.log('Deleted offline grammar', id);
+    }
   }
 };
