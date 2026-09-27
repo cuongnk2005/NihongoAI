@@ -121,5 +121,62 @@ Hệ thống cung cấp cái nhìn tổng quan về tiến độ.
   - (STT/TTS): Người dùng bấm nút phát âm trên thẻ từ vựng, hệ thống phát ra âm thanh tiếng Nhật tương ứng. Mở mic nói tiếng Nhật, hệ thống chuyển thành văn bản trong khung nhập liệu.
   - (APKG): Người dùng tải lên file `deck.apkg`, hệ thống bung nén và nhập thành công các Note/Card, lập tức hiển thị bộ thẻ mới trên giao diện cùng với hình ảnh/âm thanh đính kèm hoạt động bình thường.
 
+### FR-09: Cấu hình Hệ thống & Quản lý AI Provider (System Settings & AI Configuration)
+Cung cấp khu vực quản trị thiết lập ứng dụng và tích hợp AI cho người dùng.
+- **Quản lý AI Provider:** Cho phép chọn giữa các nhà cung cấp AI (Google Gemini, OpenAI, DeepSeek) và lựa chọn mô hình tương ứng (ví dụ: Gemini 1.5 Flash/Pro, GPT-4o/mini, DeepSeek Chat V3).
+- **Bảo mật API Key:** Nhập và lưu trữ an toàn API Key cục bộ tại SQLite/Backend. Có nút ẩn/hiện API Key để kiểm tra khi nhập. Không bao giờ gửi lộ API Key ra giao diện client.
+- **Trình độ JLPT mặc định:** Thiết lập cấp độ JLPT mặc định (N5, N4...) cho các tính năng sinh bài tập và Kaiwa.
+- **Tùy chỉnh thuật toán FSRS:** Cho phép người dùng nâng cao điều chỉnh tỷ lệ duy trì mong muốn (Target Retention, mặc định 90%) và khoảng cách ôn tập tối đa (Maximum Interval).
+- **Sao lưu dữ liệu cục bộ (Backup & Restore):** Hỗ trợ xuất/sao lưu CSDL SQLite ra file dự phòng để bảo vệ dữ liệu học tập cá nhân.
+- **Acceptance Signals:** 
+  - Người dùng nhập API Key, chọn Gemini 1.5 Flash và bấm "Lưu Cấu Hình", hệ thống lưu thành công và hiển thị thông báo phản hồi.
+  - Khi ngắt mạng hoặc nhập sai Key, bấm nút "Kiểm tra kết nối" (Test Connection) sẽ trả về thông báo lỗi thân thiện thay vì làm treo ứng dụng.
+
+---
+
+## 5. Yêu cầu Phi Chức năng (Non-Functional Requirements - NFR)
+
+### NFR-01: Hiệu năng & Tốc độ phản hồi (Performance & Responsiveness)
+- **Tốc độ lật thẻ và chuyển thẻ:** Trong quá trình ôn tập Flashcard (FR-03), thời gian chuyển tiếp giữa câu hỏi, lật mặt sau và chuyển sang thẻ tiếp theo sau khi đánh giá phải đạt dưới 100ms để đảm bảo trải nghiệm ôn tập tốc độ cao.
+- **Thời gian khởi động ứng dụng:** Ứng dụng Desktop (Tauri Shell + Local Spring Boot + SQLite) sẵn sàng tương tác trong vòng dưới 3 giây trên cấu hình máy tính tiêu chuẩn.
+- **Xử lý tập dữ liệu lớn:** Danh sách từ vựng và ngữ pháp hỗ trợ nạp dữ liệu mượt mà, áp dụng phân trang (Pagination) hoặc cuộn ảo (Virtual Scrolling) khi số lượng mục vượt quá 10,000 bản ghi.
+
+### NFR-02: Bảo mật & Quyền riêng tư cục bộ (Security & Privacy)
+- **Bảo vệ Secrets & API Keys:** Tuyệt đối không hardcode API Key trong mã nguồn. API Key được lưu an toàn trong SQLite cục bộ thông qua backend Spring Boot. Giao diện React không bao giờ lưu trữ hoặc để lộ API Key trực tiếp.
+- **Giới hạn kết nối mạng cục bộ:** Backend Spring Boot chỉ lắng nghe trên giao diện mạng cục bộ (`127.0.0.1` / Loopback), không mở cổng ra ngoài mạng LAN/Internet.
+- **Quyền riêng tư dữ liệu học tập (AI Privacy):** Khi gửi yêu cầu tới các nhà cung cấp AI, hệ thống chỉ gửi dữ liệu tối thiểu cần thiết phục vụ bài tập (từ vựng/ngữ pháp mục tiêu, trình độ JLPT, ngữ cảnh câu). Tuyệt đối không gửi toàn bộ cơ sở dữ liệu học tập của người dùng lên dịch vụ AI bên ngoài.
+
+### NFR-03: Tính sẵn sàng & Toàn vẹn dữ liệu (Reliability & Data Integrity)
+- **Tính khả dụng Offline (Local-First):** 100% các tính năng quản lý Deck, Note, Card, Từ vựng, Ngữ pháp, Ôn tập FSRS, Lịch sử và Thống kê phải hoạt động bình thường khi hoàn toàn không có kết nối Internet.
+- **Giao dịch an toàn (ACID Transactions):** 
+  - Quá trình đánh giá thẻ (cập nhật `ReviewState` và ghi `ReviewLog`) phải được thực thi trong một Transaction duy nhất để không bao giờ xảy ra tình trạng trạng thái FSRS thay đổi nhưng mất vết lịch sử.
+  - Lịch sử ôn tập không bao giờ bị ghi đè khi cập nhật lịch ôn tiếp theo.
+  - Quá trình Import CSV/TSV/APKG phải hỗ trợ cơ chế Rollback an toàn nếu xảy ra lỗi nghiêm trọng giữa chừng.
+- **Phục hồi sự cố AI (Graceful Degradation):** Khi dịch vụ AI gặp lỗi (Timeout, Rate Limit, Mất mạng), hệ thống phải giữ nguyên nội dung bài làm của người dùng, không làm hỏng dữ liệu và cung cấp tùy chọn thử lại (Retry).
+
+### NFR-04: Đa ngôn ngữ, Kiểu chữ & Mã hóa (Typography & Encoding)
+- **Hỗ trợ Unicode toàn diện:** Hỗ trợ chuẩn xác UTF-8 (bao gồm UTF-8 with BOM và UTF-8 without BOM) cho Kanji, Hiragana, Katakana và tiếng Việt có dấu, không để xảy ra hiện tượng vỡ font (Mojibake).
+- **Hiển thị chữ tiếng Nhật rõ nét:** Cỡ chữ tiếng Nhật trên các giao diện thẻ học và bài tập phải đảm bảo độ nét và kích thước tối thiểu thoải mái cho mắt người học (tối thiểu 24px - 36px cho từ vựng lớn trên Flashcard).
+- **Hỗ trợ Furigana linh hoạt:** Furigana chỉ hiển thị khi người học chủ động yêu cầu hoặc tại các chế độ học có cấu hình bật, tránh làm rối mắt người học ở trình độ trung - cao cấp.
+
+### NFR-05: Trải nghiệm người dùng Desktop (Desktop Usability & Accessibility)
+- **Điều khiển phím tắt tiện lợi:** Toàn bộ quy trình ôn tập Flashcard phải có thể thực hiện 100% bằng bàn phím (Phím `Space`/`Enter` để lật thẻ, phím `1`, `2`, `3`, `4` tương ứng với Again, Hard, Good, Easy; phím `Z` để Hoàn tác/Undo).
+- **Thiết kế Desktop-First:** Giao diện tối ưu cho kích thước màn hình máy tính, hỗ trợ điều chỉnh kích thước cửa sổ (Resizable Window), bố cục thanh điều hướng rõ ràng, hỗ trợ trạng thái trống (Empty State) và hiệu ứng tải (Skeleton Loading) đẹp mắt.
+
+---
+
+## 6. Lộ trình Triển khai Phân kỳ (Phase Implementation Roadmap)
+
+| Giai đoạn (Phase) | Trọng tâm Triển khai | Yêu cầu Chức năng (FR) liên quan |
+| :--- | :--- | :--- |
+| **Phase 1** | Nền tảng hạ tầng: Tauri 2, React TypeScript, Spring Boot, SQLite, Flyway, Local IPC/REST. | Hạ tầng chung, NFR-01, NFR-02 |
+| **Phase 2** | Quản lý Dữ liệu tri thức & Học liệu: Vocabulary, Grammar, Decks, Notes, Cards. | FR-01, FR-02 |
+| **Phase 3** | Hệ thống Ôn tập FSRS, Hàng đợi học tập hàng ngày, Lịch sử ôn tập, Thống kê cơ bản. | FR-03, FR-07 |
+| **Phase 4** | Nhập/Xuất dữ liệu: CSV/TSV Import/Export kèm Field Mapping, Quản lý Nhãn (Tags). | FR-04 |
+| **Phase 5** | Luyện dịch câu Việt -> Nhật: Bài tập theo luật (Rule-based), Lịch sử luyện tập (PracticeHistory). | FR-05 (Offline Rule-based) |
+| **Phase 6** | Tích hợp AI: Lớp trừu tượng AI Provider, Sinh đề dịch câu, Chấm điểm đa chiều, Giải thích lỗi tiếng Việt, Cấu hình Settings. | FR-05 (AI-powered), FR-09 |
+| **Phase 7** | Hội thoại Kaiwa: Text-based Kaiwa có kiểm soát độ khó JLPT, phân tích ngữ pháp theo yêu cầu. | FR-06 |
+| **Phase 8** | Nâng cao & Hoàn thiện: Text-to-Speech (TTS), Speech-to-Text (STT), Import/Export file `.apkg` của Anki gốc. | FR-08 |
+
 ---
 *(Bản PRD này đóng vai trò là "Kinh thánh" cho dự án, giới hạn chặt chẽ phạm vi kỹ thuật và chức năng để team phát triển tuân thủ đúng định hướng cốt lõi được giao).*
