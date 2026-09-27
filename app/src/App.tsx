@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MainLayout } from './layouts/MainLayout';
 import { TabType } from './layouts/AnkiHeader';
 import { DecksPage } from './features/decks/pages/DecksPage';
@@ -14,6 +14,18 @@ import './styles/index.css';
 export function App() {
   const [activeTab, setActiveTab] = useState<TabType>('decks');
   const [isReviewing, setIsReviewing] = useState<boolean>(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    return (localStorage.getItem('nihongoai-theme') as 'light' | 'dark') || 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('nihongoai-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
 
   const renderContent = () => {
     if (isReviewing) {
@@ -46,10 +58,11 @@ export function App() {
   };
 
   return (
-    <MainLayout activeTab={activeTab} setActiveTab={handleTabChange}>
+    <MainLayout activeTab={activeTab} setActiveTab={handleTabChange} theme={theme} toggleTheme={toggleTheme}>
       {renderContent()}
     </MainLayout>
   );
 }
 
 export default App;
+

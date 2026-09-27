@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings } from 'lucide-react';
+import { Settings, Trash2, Edit3, Plus, AlertTriangle, X } from 'lucide-react';
 
 interface DeckNode {
   id: string;
@@ -18,6 +18,12 @@ interface DecksPageProps {
 
 export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
   const [selectedDeckId, setSelectedDeckId] = useState<string>('1-30');
+  const [menuDeck, setMenuDeck] = useState<DeckNode | null>(null);
+  const [deckToDelete, setDeckToDelete] = useState<DeckNode | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
+  const [newDeckName, setNewDeckName] = useState<string>('');
+  const [renameDeck, setRenameDeck] = useState<DeckNode | null>(null);
+  const [renameValue, setRenameValue] = useState<string>('');
 
   // Initial nested decks hierarchy matching the user's screenshot
   const initialDecks: DeckNode[] = [
@@ -139,6 +145,64 @@ export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
     setDecks(toggleExpand(id, decks));
   };
 
+  // Recursive deletion of a deck
+  const deleteDeckNode = (id: string, nodes: DeckNode[]): DeckNode[] => {
+    return nodes
+      .filter((node) => node.id !== id)
+      .map((node) => ({
+        ...node,
+        children: node.children ? deleteDeckNode(id, node.children) : undefined
+      }));
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deckToDelete) return;
+    setDecks((prev) => deleteDeckNode(deckToDelete.id, prev));
+    if (selectedDeckId === deckToDelete.id) {
+      setSelectedDeckId('');
+    }
+    setDeckToDelete(null);
+    setMenuDeck(null);
+  };
+
+  // Recursive renaming of a deck
+  const renameDeckNode = (id: string, newName: string, nodes: DeckNode[]): DeckNode[] => {
+    return nodes.map((node) => {
+      if (node.id === id) {
+        return { ...node, name: newName };
+      }
+      if (node.children) {
+        return { ...node, children: renameDeckNode(id, newName, node.children) };
+      }
+      return node;
+    });
+  };
+
+  const handleConfirmRename = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!renameDeck || !renameValue.trim()) return;
+    setDecks((prev) => renameDeckNode(renameDeck.id, renameValue.trim(), prev));
+    setRenameDeck(null);
+    setMenuDeck(null);
+  };
+
+  // Handle deck creation
+  const handleCreateDeck = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDeckName.trim()) return;
+    const newDeck: DeckNode = {
+      id: Date.now().toString(),
+      name: newDeckName.trim(),
+      newCount: 0,
+      learningCount: 0,
+      dueCount: 0,
+      level: 0
+    };
+    setDecks((prev) => [...prev, newDeck]);
+    setNewDeckName('');
+    setShowCreateModal(false);
+  };
+
   const renderDeckTree = (nodes: DeckNode[]) => {
     return nodes.map((node) => {
       const isSelected = selectedDeckId === node.id;
@@ -149,7 +213,7 @@ export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
           <tr
             onClick={() => setSelectedDeckId(node.id)}
             style={{
-              backgroundColor: isSelected ? '#34373d' : 'transparent',
+              backgroundColor: isSelected ? 'var(--anki-row-selected)' : 'transparent',
               cursor: 'pointer',
               userSelect: 'none',
               transition: 'background-color 0.1s ease'
@@ -160,7 +224,7 @@ export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
               padding: '8px 16px',
               paddingLeft: `${16 + node.level * 24}px`,
               fontSize: '14px',
-              color: '#ffffff',
+              color: 'var(--anki-text)',
               display: 'flex',
               alignItems: 'center',
               gap: '8px'
@@ -171,7 +235,7 @@ export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
                     e.stopPropagation();
                     handleToggle(node.id);
                   }}
-                  style={{ cursor: 'pointer', fontWeight: 'bold', width: '12px', color: '#aaaaaa' }}
+                  style={{ cursor: 'pointer', fontWeight: 'bold', width: '12px', color: 'var(--anki-text-muted)' }}
                 >
                   {node.expanded ? '-' : '+'}
                 </span>
@@ -187,7 +251,7 @@ export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
               textAlign: 'right',
               fontSize: '14px',
               fontWeight: '600',
-              color: node.newCount > 0 ? '#0099ff' : '#666666'
+              color: node.newCount > 0 ? 'var(--anki-blue)' : 'var(--anki-text-muted)'
             }}>
               {node.newCount}
             </td>
@@ -198,25 +262,42 @@ export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
               textAlign: 'right',
               fontSize: '14px',
               fontWeight: '600',
-              color: node.learningCount > 0 ? '#ff4d4d' : '#666666'
+              color: node.learningCount > 0 ? 'var(--anki-red)' : 'var(--anki-text-muted)'
             }}>
               {node.learningCount}
             </td>
 
-            {/* Due Count (Green) */}
+            {/* Due Count (Green) & Settings Icon */}
             <td style={{
               padding: '8px 16px',
               textAlign: 'right',
               fontSize: '14px',
               fontWeight: '600',
-              color: node.dueCount > 0 ? '#2ecc71' : '#666666'
+              color: node.dueCount > 0 ? 'var(--anki-green)' : 'var(--anki-text-muted)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px' }}>
                 <span>{node.dueCount}</span>
                 {isSelected ? (
-                  <Settings size={15} color="#aaaaaa" style={{ cursor: 'pointer' }} />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuDeck(node);
+                    }}
+                    title="Tùy chọn bộ thẻ"
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      padding: '2px 4px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Settings size={16} color="var(--anki-blue)" />
+                  </button>
                 ) : (
-                  <span style={{ width: '15px' }}></span>
+                  <span style={{ width: '16px' }}></span>
                 )}
               </div>
             </td>
@@ -236,25 +317,26 @@ export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
       alignItems: 'center',
       gap: '24px',
       width: '100%',
-      maxWidth: '620px'
+      maxWidth: '620px',
+      position: 'relative'
     }}>
       {/* Central Anki Panel */}
       <div style={{
-        background: '#1f1f1f',
+        background: 'var(--anki-panel-bg)',
         borderRadius: '12px',
-        border: '1px solid #333333',
+        border: '1px solid var(--anki-border)',
         width: '100%',
         overflow: 'hidden',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+        boxShadow: 'var(--anki-shadow)',
         padding: '16px 8px'
       }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid #333333', color: '#ffffff', fontSize: '14px', fontWeight: '700' }}>
+            <tr style={{ borderBottom: '1px solid var(--anki-border)', color: 'var(--anki-text)', fontSize: '14px', fontWeight: '700' }}>
               <th style={{ textAlign: 'left', padding: '12px 16px' }}>Bộ thẻ</th>
-              <th style={{ textAlign: 'right', padding: '12px 16px', color: '#0099ff' }}>Mới</th>
-              <th style={{ textAlign: 'right', padding: '12px 16px', color: '#ff4d4d' }}>Học</th>
-              <th style={{ textAlign: 'right', padding: '12px 16px', color: '#2ecc71' }}>Đến hạn</th>
+              <th style={{ textAlign: 'right', padding: '12px 16px', color: 'var(--anki-blue)' }}>Mới</th>
+              <th style={{ textAlign: 'right', padding: '12px 16px', color: 'var(--anki-red)' }}>Học</th>
+              <th style={{ textAlign: 'right', padding: '12px 16px', color: 'var(--anki-green)' }}>Đến hạn</th>
             </tr>
           </thead>
           <tbody>
@@ -264,7 +346,7 @@ export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
       </div>
 
       {/* Bottom Summary Text */}
-      <div style={{ fontSize: '13px', color: '#dddddd', textAlign: 'center' }}>
+      <div style={{ fontSize: '13px', color: 'var(--anki-text-muted)', textAlign: 'center' }}>
         Đã học 0 thẻ trong 0 giây hôm nay (0giây/thẻ)
       </div>
 
@@ -274,15 +356,255 @@ export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
           <button
             onClick={onStudyDeck}
             className="anki-btn"
-            style={{ background: '#0099ff', color: '#ffffff', border: 'none', fontWeight: '700', padding: '6px 20px' }}
+            style={{ background: 'var(--anki-blue)', color: '#ffffff', border: 'none', fontWeight: '700', padding: '6px 20px' }}
           >
             Học Thẻ Ngay
           </button>
         )}
         <button className="anki-btn">Lấy Bộ thẻ Chia sẻ</button>
-        <button className="anki-btn">Tạo Bộ thẻ</button>
+        <button className="anki-btn" onClick={() => setShowCreateModal(true)}>
+          <Plus size={14} /> Tạo Bộ thẻ
+        </button>
         <button className="anki-btn">Nhập Tập tin</button>
       </div>
+
+      {/* Deck Options Modal / Popover */}
+      {menuDeck && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 100
+        }} onClick={() => setMenuDeck(null)}>
+          <div style={{
+            background: 'var(--anki-panel-bg)',
+            border: '1px solid var(--anki-border)',
+            borderRadius: '12px',
+            padding: '20px',
+            width: '320px',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '14px'
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--anki-text)' }}>
+                Tùy chọn: {menuDeck.name}
+              </h3>
+              <button
+                onClick={() => setMenuDeck(null)}
+                style={{ background: 'transparent', border: 'none', color: 'var(--anki-text-muted)', cursor: 'pointer' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
+              <button
+                onClick={() => {
+                  setRenameDeck(menuDeck);
+                  setRenameValue(menuDeck.name);
+                }}
+                className="anki-btn"
+                style={{ width: '100%', justifyContent: 'flex-start', gap: '10px', padding: '10px 14px' }}
+              >
+                <Edit3 size={16} color="var(--anki-blue)" />
+                <span>Đổi tên bộ thẻ</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setDeckToDelete(menuDeck);
+                }}
+                className="anki-btn"
+                style={{ width: '100%', justifyContent: 'flex-start', gap: '10px', padding: '10px 14px', color: 'var(--anki-red)', borderColor: 'rgba(239, 68, 68, 0.3)' }}
+              >
+                <Trash2 size={16} color="var(--anki-red)" />
+                <span style={{ fontWeight: '600' }}>Xóa bộ thẻ này</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Deck Confirmation Modal */}
+      {deckToDelete && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 110
+        }} onClick={() => setDeckToDelete(null)}>
+          <div style={{
+            background: 'var(--anki-panel-bg)',
+            border: '1px solid var(--anki-border)',
+            borderRadius: '12px',
+            padding: '24px',
+            width: '380px',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--anki-red)' }}>
+              <AlertTriangle size={24} />
+              <h3 style={{ fontSize: '18px', fontWeight: '700' }}>Xác Nhận Xóa Bộ Thẻ</h3>
+            </div>
+
+            <p style={{ fontSize: '14px', color: 'var(--anki-text)', lineHeight: '1.5' }}>
+              Bạn có chắc chắn muốn xóa bộ thẻ <strong style={{ color: 'var(--anki-blue)' }}>"{deckToDelete.name}"</strong> và tất cả các bộ thẻ con thuộc về nó?
+            </p>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>
+              <button
+                onClick={() => setDeckToDelete(null)}
+                className="anki-btn"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="anki-btn"
+                style={{ background: 'var(--anki-red)', color: '#ffffff', border: 'none', fontWeight: '700' }}
+              >
+                Xóa Vĩnh Viễn
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rename Deck Modal */}
+      {renameDeck && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 110
+        }} onClick={() => setRenameDeck(null)}>
+          <form onSubmit={handleConfirmRename} style={{
+            background: 'var(--anki-panel-bg)',
+            border: '1px solid var(--anki-border)',
+            borderRadius: '12px',
+            padding: '24px',
+            width: '360px',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
+          }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--anki-text)' }}>Đổi Tên Bộ Thẻ</h3>
+
+            <div>
+              <label style={{ fontSize: '12px', color: 'var(--anki-text-muted)', display: 'block', marginBottom: '6px' }}>Tên bộ thẻ mới</label>
+              <input
+                type="text"
+                value={renameValue}
+                onChange={(e) => setRenameValue(e.target.value)}
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', fontSize: '14px' }}
+                autoFocus
+                required
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={() => setRenameDeck(null)}
+                className="anki-btn"
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                className="anki-btn"
+                style={{ background: 'var(--anki-blue)', color: '#ffffff', border: 'none', fontWeight: '700' }}
+              >
+                Lưu Thay Đổi
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Create New Deck Modal */}
+      {showCreateModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 110
+        }} onClick={() => setShowCreateModal(false)}>
+          <form onSubmit={handleCreateDeck} style={{
+            background: 'var(--anki-panel-bg)',
+            border: '1px solid var(--anki-border)',
+            borderRadius: '12px',
+            padding: '24px',
+            width: '360px',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
+          }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--anki-text)' }}>Tạo Bộ Thẻ Mới</h3>
+
+            <div>
+              <label style={{ fontSize: '12px', color: 'var(--anki-text-muted)', display: 'block', marginBottom: '6px' }}>Tên bộ thẻ</label>
+              <input
+                type="text"
+                value={newDeckName}
+                onChange={(e) => setNewDeckName(e.target.value)}
+                placeholder="Ví dụ: Từ vựng N4 Bài 1"
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', fontSize: '14px' }}
+                autoFocus
+                required
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(false)}
+                className="anki-btn"
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                className="anki-btn"
+                style={{ background: 'var(--anki-blue)', color: '#ffffff', border: 'none', fontWeight: '700' }}
+              >
+                Tạo Mới
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 };
+

@@ -27,19 +27,19 @@ export const SettingsPage: React.FC = () => {
       {/* Header */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Settings size={24} color="#0099ff" />
-          <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#ffffff' }}>Cấu Hình AI Provider & Hệ Thống</h2>
+          <Settings size={24} color="var(--anki-blue)" />
+          <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--anki-text)' }}>Cấu Hình AI Provider & Hệ Thống</h2>
         </div>
-        <p style={{ fontSize: '13px', color: '#999999', marginTop: '4px' }}>
+        <p style={{ fontSize: '13px', color: 'var(--anki-text-muted)', marginTop: '4px' }}>
           Cấu hình API Key cho các nhà cung cấp AI (Gemini, OpenAI, DeepSeek). Key được bảo mật tuyệt đối qua Spring Boot backend.
         </p>
       </div>
 
       {savedSuccess && (
         <div style={{
-          background: 'rgba(46, 204, 113, 0.15)',
-          border: '1px solid rgba(46, 204, 113, 0.4)',
-          color: '#2ecc71',
+          background: 'rgba(16, 185, 129, 0.15)',
+          border: '1px solid rgba(16, 185, 129, 0.4)',
+          color: 'var(--anki-green)',
           padding: '12px 16px',
           borderRadius: '8px',
           display: 'flex',
@@ -54,24 +54,24 @@ export const SettingsPage: React.FC = () => {
 
       {/* Main Settings Form Card */}
       <form onSubmit={handleSave} style={{
-        background: '#1f1f1f',
+        background: 'var(--anki-panel-bg)',
         borderRadius: '12px',
-        border: '1px solid #333333',
+        border: '1px solid var(--anki-border)',
         padding: '24px',
         display: 'flex',
         flexDirection: 'column',
         gap: '20px',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.4)'
+        boxShadow: 'var(--anki-shadow)'
       }}>
         {/* Provider Select */}
         <div>
-          <label style={{ fontSize: '13px', color: '#dddddd', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <Cpu size={16} color="#0099ff" /> Chọn AI Provider
+          <label style={{ fontSize: '13px', color: 'var(--anki-text)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <Cpu size={16} color="var(--anki-blue)" /> Chọn AI Provider
           </label>
           <select
             value={provider}
             onChange={(e) => setProvider(e.target.value)}
-            style={{ width: '100%', padding: '10px 14px', background: '#282828', border: '1px solid #3b3c40', borderRadius: '8px', color: '#fff', fontSize: '14px' }}
+            style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', fontSize: '14px' }}
           >
             <option value="gemini">Google Gemini AI (Khuyên dùng)</option>
             <option value="openai">OpenAI (GPT-4o / GPT-4o-mini)</option>
@@ -81,13 +81,13 @@ export const SettingsPage: React.FC = () => {
 
         {/* Model Select */}
         <div>
-          <label style={{ fontSize: '13px', color: '#dddddd', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+          <label style={{ fontSize: '13px', color: 'var(--anki-text)', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
             Mô Hình Model
           </label>
           <select
             value={model}
             onChange={(e) => setModel(e.target.value)}
-            style={{ width: '100%', padding: '10px 14px', background: '#282828', border: '1px solid #3b3c40', borderRadius: '8px', color: '#fff', fontSize: '14px' }}
+            style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', fontSize: '14px' }}
           >
             {provider === 'gemini' && (
               <>
@@ -111,8 +111,8 @@ export const SettingsPage: React.FC = () => {
 
         {/* API Key Input */}
         <div>
-          <label style={{ fontSize: '13px', color: '#dddddd', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <Key size={16} color="#f59e0b" /> API Key
+          <label style={{ fontSize: '13px', color: 'var(--anki-text)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <Key size={16} color="var(--anki-amber)" /> API Key
           </label>
           <div style={{ position: 'relative' }}>
             <input
@@ -120,13 +120,13 @@ export const SettingsPage: React.FC = () => {
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               placeholder="Nhập API Key của bạn..."
-              style={{ width: '100%', padding: '10px 40px 10px 14px', background: '#282828', border: '1px solid #3b3c40', borderRadius: '8px', color: '#fff', fontSize: '14px' }}
+              style={{ width: '100%', padding: '10px 40px 10px 14px', borderRadius: '8px', fontSize: '14px' }}
               required
             />
             <button
               type="button"
               onClick={() => setShowKey(!showKey)}
-              style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: '#aaaaaa', cursor: 'pointer' }}
+              style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: 'var(--anki-text-muted)', cursor: 'pointer' }}
             >
               {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
@@ -135,13 +135,13 @@ export const SettingsPage: React.FC = () => {
 
         {/* Default Learner Level */}
         <div>
-          <label style={{ fontSize: '13px', color: '#dddddd', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+          <label style={{ fontSize: '13px', color: 'var(--anki-text)', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
             Trình Độ JLPT Mặc Định Khi Tạo Đề
           </label>
           <select
             value={learnerLevel}
             onChange={(e) => setLearnerLevel(e.target.value)}
-            style={{ width: '100%', padding: '10px 14px', background: '#282828', border: '1px solid #3b3c40', borderRadius: '8px', color: '#fff', fontSize: '14px' }}
+            style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', fontSize: '14px' }}
           >
             <option value="N5">N5 (Cơ bản)</option>
             <option value="N4">N4 (Sơ cấp)</option>
@@ -149,8 +149,8 @@ export const SettingsPage: React.FC = () => {
         </div>
 
         {/* Security Notice */}
-        <div style={{ background: '#26272b', borderLeft: '3px solid #0099ff', padding: '12px 16px', borderRadius: '0 8px 8px 0', fontSize: '12px', color: '#aaaaaa', display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <ShieldCheck size={20} color="#0099ff" style={{ flexShrink: 0 }} />
+        <div style={{ background: 'var(--anki-card-sub)', borderLeft: '3px solid var(--anki-blue)', padding: '12px 16px', borderRadius: '0 8px 8px 0', fontSize: '12px', color: 'var(--anki-text-muted)', display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <ShieldCheck size={20} color="var(--anki-blue)" style={{ flexShrink: 0 }} />
           <span>API Key được lưu trữ cục bộ tại SQLite và xử lý thông qua backend Spring Boot. Không bao giờ lộ API Key ra giao diện React.</span>
         </div>
 
@@ -159,7 +159,7 @@ export const SettingsPage: React.FC = () => {
           <button
             type="submit"
             className="anki-btn"
-            style={{ background: '#0099ff', color: '#ffffff', border: 'none', padding: '10px 24px', fontSize: '14px', fontWeight: '600' }}
+            style={{ background: 'var(--anki-blue)', color: '#ffffff', border: 'none', padding: '10px 24px', fontSize: '14px', fontWeight: '600' }}
           >
             <Save size={16} />
             Lưu Cấu Hình
