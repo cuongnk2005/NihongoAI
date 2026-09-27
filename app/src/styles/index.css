@@ -1,20 +1,69 @@
 @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
 
-:root {
+:root, [data-theme='light'] {
+  --anki-bg: #f4f6f9;
+  --anki-header-bg: #ffffff;
+  --anki-header-border: #e2e8f0;
+  --anki-header-menu-bg: #f8fafc;
+  --anki-panel-bg: #ffffff;
+  --anki-panel-header: #f8fafc;
+  --anki-card-bg: #ffffff;
+  --anki-card-sub: #f1f5f9;
+  --anki-input-bg: #ffffff;
+  --anki-row-hover: #f1f5f9;
+  --anki-row-selected: #e2e8f0;
+  --anki-border: #e2e8f0;
+  --anki-border-sub: #cbd5e1;
+  --anki-text: #1e293b;
+  --anki-text-muted: #64748b;
+  --anki-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+
+  /* Buttons */
+  --anki-btn-bg: #f1f5f9;
+  --anki-btn-text: #334155;
+  --anki-btn-border: #cbd5e1;
+  --anki-btn-hover: #e2e8f0;
+
+  /* Anki Accent Colors */
+  --anki-blue: #0284c7;
+  --anki-red: #ef4444;
+  --anki-green: #10b981;
+  --anki-amber: #f59e0b;
+  --anki-indigo: #6366f1;
+  
+  --font-family: 'Segoe UI', 'Noto Sans JP', sans-serif;
+}
+
+[data-theme='dark'] {
   --anki-bg: #292a2d;
+  --anki-header-bg: #232323;
+  --anki-header-border: #333333;
+  --anki-header-menu-bg: #1a1a1a;
   --anki-panel-bg: #1f1f1f;
+  --anki-panel-header: #25262a;
+  --anki-card-bg: #1f1f1f;
+  --anki-card-sub: #282828;
+  --anki-input-bg: #282828;
   --anki-row-hover: #2d2f33;
   --anki-row-selected: #34373d;
   --anki-border: #3b3c40;
+  --anki-border-sub: #4a4d54;
   --anki-text: #e1e1e1;
-  --anki-muted: #999999;
-  
-  /* Anki Card Count Colors */
+  --anki-text-muted: #999999;
+  --anki-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+  /* Buttons */
+  --anki-btn-bg: #3b3d42;
+  --anki-btn-text: #e1e1e1;
+  --anki-btn-border: #4a4d54;
+  --anki-btn-hover: #484b52;
+
+  /* Anki Accent Colors */
   --anki-blue: #0099ff;
   --anki-red: #ff4d4d;
   --anki-green: #2ecc71;
-  
-  --font-family: 'Segoe UI', 'Noto Sans JP', sans-serif;
+  --anki-amber: #f59e0b;
+  --anki-indigo: #6366f1;
 }
 
 * {
@@ -30,6 +79,7 @@ body {
   min-height: 100vh;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .anki-app-container {
@@ -39,6 +89,7 @@ body {
   width: 100vw;
   overflow: hidden;
   background-color: var(--anki-bg);
+  transition: background-color 0.2s ease;
 }
 
 .anki-main-content {
@@ -51,36 +102,58 @@ body {
   overflow-y: auto;
 }
 
-/* Anki Dark Button Primitives */
+/* Anki Button Primitives */
 .anki-btn {
-  background-color: #3b3d42;
-  color: #e1e1e1;
-  border: 1px solid #4a4d54;
-  border-radius: 14px;
+  background-color: var(--anki-btn-bg);
+  color: var(--anki-btn-text);
+  border: 1px solid var(--anki-btn-border);
+  border-radius: 10px;
   padding: 6px 16px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .anki-btn:hover {
-  background-color: #484b52;
-  border-color: #5c6068;
+  background-color: var(--anki-btn-hover);
 }
 
-/* Custom Scrollbar for Anki Panel */
+/* Inputs & Selects */
+input[type="text"],
+input[type="password"],
+select,
+textarea {
+  background-color: var(--anki-input-bg) !important;
+  color: var(--anki-text) !important;
+  border: 1px solid var(--anki-border-sub) !important;
+  transition: border-color 0.15s ease, background-color 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--anki-blue) !important;
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #1f1f1f;
+  background: var(--anki-panel-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: #444444;
+  background: var(--anki-border-sub);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #666666;
+  background: var(--anki-text-muted);
 }
+

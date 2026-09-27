@@ -47,10 +47,10 @@ export const PracticePage: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Sparkles size={24} color="#6366f1" />
-            <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#ffffff' }}>Luyện Dịch Việt $\rightarrow$ Nhật AI</h2>
+            <Sparkles size={24} color="var(--anki-indigo)" />
+            <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--anki-text)' }}>Luyện Dịch Việt $\rightarrow$ Nhật AI</h2>
           </div>
-          <p style={{ fontSize: '13px', color: '#999999', marginTop: '4px' }}>
+          <p style={{ fontSize: '13px', color: 'var(--anki-text-muted)', marginTop: '4px' }}>
             AI tự động trích xuất từ vựng & ngữ pháp từ kho lưu trữ của bạn để tạo bài tập dịch tương thích level.
           </p>
         </div>
@@ -59,7 +59,7 @@ export const PracticePage: React.FC = () => {
           <select
             value={level}
             onChange={(e) => setLevel(e.target.value)}
-            style={{ padding: '8px 12px', background: '#1f1f1f', border: '1px solid #3b3c40', borderRadius: '8px', color: '#fff', fontSize: '13px' }}
+            style={{ padding: '8px 12px', borderRadius: '8px', fontSize: '13px' }}
           >
             <option value="N5">Cấp độ N5</option>
             <option value="N4">Cấp độ N4</option>
@@ -69,7 +69,7 @@ export const PracticePage: React.FC = () => {
             onClick={handleGenerate}
             disabled={isLoading}
             className="anki-btn"
-            style={{ background: '#6366f1', color: '#fff', border: 'none', gap: '6px' }}
+            style={{ background: 'var(--anki-indigo)', color: '#fff', border: 'none', gap: '6px' }}
           >
             <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
             {isLoading ? 'Đang tạo...' : 'Đề Bài Mới'}
@@ -80,25 +80,25 @@ export const PracticePage: React.FC = () => {
       {/* Main Practice Question Card */}
       {question && (
         <div style={{
-          background: '#1f1f1f',
+          background: 'var(--anki-panel-bg)',
           borderRadius: '12px',
-          border: '1px solid #333333',
+          border: '1px solid var(--anki-border)',
           padding: '24px',
           display: 'flex',
           flexDirection: 'column',
           gap: '20px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+          boxShadow: 'var(--anki-shadow)'
         }}>
           {/* Targets tags */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#888888', fontWeight: '600' }}>Từ vựng & Ngữ pháp mục tiêu:</span>
+            <span style={{ fontSize: '12px', color: 'var(--anki-text-muted)', fontWeight: '600' }}>Từ vựng & Ngữ pháp mục tiêu:</span>
             {question.targetVocabulary.map((v, i) => (
-              <span key={`v-${i}`} style={{ background: 'rgba(0, 153, 255, 0.15)', color: '#0099ff', border: '1px solid rgba(0, 153, 255, 0.3)', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: '600' }}>
+              <span key={`v-${i}`} style={{ background: 'rgba(2, 132, 199, 0.12)', color: 'var(--anki-blue)', border: '1px solid rgba(2, 132, 199, 0.25)', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: '600' }}>
                 {v}
               </span>
             ))}
             {question.targetGrammar.map((g, i) => (
-              <span key={`g-${i}`} style={{ background: 'rgba(46, 204, 113, 0.15)', color: '#2ecc71', border: '1px solid rgba(46, 204, 113, 0.3)', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: '600' }}>
+              <span key={`g-${i}`} style={{ background: 'rgba(16, 185, 129, 0.12)', color: 'var(--anki-green)', border: '1px solid rgba(16, 185, 129, 0.25)', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: '600' }}>
                 {g}
               </span>
             ))}
@@ -106,20 +106,20 @@ export const PracticePage: React.FC = () => {
 
           {/* Vietnamese Sentence Prompt */}
           <div style={{
-            background: '#26272b',
-            borderLeft: '4px solid #6366f1',
+            background: 'var(--anki-card-sub)',
+            borderLeft: '4px solid var(--anki-indigo)',
             borderRadius: '0 8px 8px 0',
             padding: '16px 20px'
           }}>
-            <div style={{ fontSize: '12px', color: '#aaaaaa', marginBottom: '4px' }}>Đề bài Tiếng Việt:</div>
-            <div style={{ fontSize: '18px', fontWeight: '700', color: '#ffffff' }}>
+            <div style={{ fontSize: '12px', color: 'var(--anki-text-muted)', marginBottom: '4px' }}>Đề bài Tiếng Việt:</div>
+            <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--anki-text)' }}>
               "{question.sentenceVi}"
             </div>
           </div>
 
           {/* Answer Form */}
           <form onSubmit={handleEvaluate} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <label style={{ fontSize: '13px', color: '#cccccc', fontWeight: '500' }}>
+            <label style={{ fontSize: '13px', color: 'var(--anki-text)', fontWeight: '500' }}>
               Nhập câu trả lời Tiếng Nhật của bạn:
             </label>
             <div style={{ display: 'flex', gap: '10px' }}>
@@ -131,10 +131,7 @@ export const PracticePage: React.FC = () => {
                 style={{
                   flex: 1,
                   padding: '12px 16px',
-                  background: '#282828',
-                  border: '1px solid #3b3c40',
                   borderRadius: '8px',
-                  color: '#ffffff',
                   fontSize: '16px',
                   fontFamily: "'Noto Sans JP', sans-serif"
                 }}
@@ -144,7 +141,7 @@ export const PracticePage: React.FC = () => {
                 type="submit"
                 disabled={isEvaluating || !userAnswer.trim()}
                 className="anki-btn"
-                style={{ background: '#6366f1', color: '#fff', border: 'none', padding: '0 20px' }}
+                style={{ background: 'var(--anki-indigo)', color: '#fff', border: 'none', padding: '0 20px' }}
               >
                 <Send size={16} />
                 {isEvaluating ? 'Đánh giá...' : 'Nộp Bài'}
@@ -157,9 +154,9 @@ export const PracticePage: React.FC = () => {
       {/* AI Evaluation Result Card */}
       {evaluation && (
         <div style={{
-          background: evaluation.correct ? 'rgba(46, 204, 113, 0.08)' : 'rgba(255, 77, 77, 0.08)',
+          background: evaluation.correct ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.08)',
           borderRadius: '12px',
-          border: evaluation.correct ? '1px solid rgba(46, 204, 113, 0.3)' : '1px solid rgba(255, 77, 77, 0.3)',
+          border: evaluation.correct ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
           padding: '24px',
           display: 'flex',
           flexDirection: 'column',
@@ -169,18 +166,18 @@ export const PracticePage: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               {evaluation.correct ? (
-                <CheckCircle2 size={24} color="#2ecc71" />
+                <CheckCircle2 size={24} color="var(--anki-green)" />
               ) : (
-                <AlertCircle size={24} color="#ff4d4d" />
+                <AlertCircle size={24} color="var(--anki-red)" />
               )}
-              <span style={{ fontSize: '18px', fontWeight: '700', color: evaluation.correct ? '#2ecc71' : '#ff4d4d' }}>
+              <span style={{ fontSize: '18px', fontWeight: '700', color: evaluation.correct ? 'var(--anki-green)' : 'var(--anki-red)' }}>
                 {evaluation.correct ? 'Chính Xác! (Đạt Yêu Cầu)' : 'Cần Cải Thiện'}
               </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#1f1f1f', padding: '6px 12px', borderRadius: '20px', border: '1px solid #333' }}>
-              <Award size={16} color="#f59e0b" />
-              <span style={{ fontSize: '14px', fontWeight: '700', color: '#ffffff' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--anki-panel-bg)', padding: '6px 12px', borderRadius: '20px', border: '1px solid var(--anki-border)' }}>
+              <Award size={16} color="var(--anki-amber)" />
+              <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--anki-text)' }}>
                 {evaluation.score} / 100 điểm
               </span>
             </div>
@@ -188,31 +185,31 @@ export const PracticePage: React.FC = () => {
 
           {/* Detailed Scores Breakdown */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-            <div style={{ background: '#1f1f1f', padding: '10px 14px', borderRadius: '8px', border: '1px solid #333' }}>
-              <div style={{ fontSize: '11px', color: '#888' }}>Ý nghĩa semantic</div>
-              <div style={{ fontSize: '15px', fontWeight: '700', color: '#0099ff' }}>{evaluation.meaningScore}%</div>
+            <div style={{ background: 'var(--anki-panel-bg)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--anki-border)' }}>
+              <div style={{ fontSize: '11px', color: 'var(--anki-text-muted)' }}>Ý nghĩa semantic</div>
+              <div style={{ fontSize: '15px', fontWeight: '700', color: 'var(--anki-blue)' }}>{evaluation.meaningScore}%</div>
             </div>
-            <div style={{ background: '#1f1f1f', padding: '10px 14px', borderRadius: '8px', border: '1px solid #333' }}>
-              <div style={{ fontSize: '11px', color: '#888' }}>Ngữ pháp</div>
-              <div style={{ fontSize: '15px', fontWeight: '700', color: '#2ecc71' }}>{evaluation.grammarScore}%</div>
+            <div style={{ background: 'var(--anki-panel-bg)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--anki-border)' }}>
+              <div style={{ fontSize: '11px', color: 'var(--anki-text-muted)' }}>Ngữ pháp</div>
+              <div style={{ fontSize: '15px', fontWeight: '700', color: 'var(--anki-green)' }}>{evaluation.grammarScore}%</div>
             </div>
-            <div style={{ background: '#1f1f1f', padding: '10px 14px', borderRadius: '8px', border: '1px solid #333' }}>
-              <div style={{ fontSize: '11px', color: '#888' }}>Độ tự nhiên</div>
+            <div style={{ background: 'var(--anki-panel-bg)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--anki-border)' }}>
+              <div style={{ fontSize: '11px', color: 'var(--anki-text-muted)' }}>Độ tự nhiên</div>
               <div style={{ fontSize: '15px', fontWeight: '700', color: '#a855f7' }}>{evaluation.naturalnessScore}%</div>
             </div>
           </div>
 
           {/* Suggested Answer */}
-          <div style={{ background: '#1f1f1f', padding: '14px 16px', borderRadius: '8px', border: '1px solid #333' }}>
-            <div style={{ fontSize: '12px', color: '#aaaaaa', marginBottom: '4px' }}>Đáp án gợi ý tự nhiên từ AI:</div>
-            <div style={{ fontSize: '16px', fontWeight: '700', color: '#2ecc71', fontFamily: "'Noto Sans JP', sans-serif" }}>
+          <div style={{ background: 'var(--anki-panel-bg)', padding: '14px 16px', borderRadius: '8px', border: '1px solid var(--anki-border)' }}>
+            <div style={{ fontSize: '12px', color: 'var(--anki-text-muted)', marginBottom: '4px' }}>Đáp án gợi ý tự nhiên từ AI:</div>
+            <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--anki-green)', fontFamily: "'Noto Sans JP', sans-serif" }}>
               {evaluation.suggestedAnswer}
             </div>
           </div>
 
           {/* Explanation in Vietnamese */}
-          <div style={{ fontSize: '14px', color: '#dddddd', lineHeight: '1.6' }}>
-            <span style={{ fontWeight: '700', color: '#ffffff' }}>Nhận xét chi tiết: </span>
+          <div style={{ fontSize: '14px', color: 'var(--anki-text)', lineHeight: '1.6' }}>
+            <span style={{ fontWeight: '700', color: 'var(--anki-text)' }}>Nhận xét chi tiết: </span>
             {evaluation.explanationVi}
           </div>
         </div>

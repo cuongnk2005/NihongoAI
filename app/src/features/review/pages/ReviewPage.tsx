@@ -92,17 +92,17 @@ export const ReviewPage: React.FC = () => {
         margin: '0 auto',
         textAlign: 'center'
       }}>
-        <div style={{ background: 'rgba(46, 204, 113, 0.15)', padding: '24px', borderRadius: '50%', border: '1px solid rgba(46, 204, 113, 0.3)' }}>
-          <CheckCircle size={56} color="#2ecc71" />
+        <div style={{ background: 'rgba(16, 185, 129, 0.15)', padding: '24px', borderRadius: '50%', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+          <CheckCircle size={56} color="var(--anki-green)" />
         </div>
-        <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#ffffff' }}>Chúc mừng! Bạn đã hoàn thành các thẻ hôm nay!</h2>
-        <p style={{ fontSize: '14px', color: '#aaaaaa' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--anki-text)' }}>Chúc mừng! Bạn đã hoàn thành các thẻ hôm nay!</h2>
+        <p style={{ fontSize: '14px', color: 'var(--anki-text-muted)' }}>
           Tất cả các thẻ trong bộ luyện tập này đã được ôn luyện theo thuật toán FSRS.
         </p>
         <button
           onClick={handleRestart}
           className="anki-btn"
-          style={{ background: '#0099ff', color: '#fff', border: 'none', padding: '10px 24px', fontSize: '15px' }}
+          style={{ background: 'var(--anki-blue)', color: '#fff', border: 'none', padding: '10px 24px', fontSize: '15px' }}
         >
           <RotateCcw size={16} />
           Ôn Luyện Lại
@@ -123,15 +123,15 @@ export const ReviewPage: React.FC = () => {
       {/* Top Review Header with Counts */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Layers size={22} color="#0099ff" />
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#ffffff' }}>Ôn Thẻ Flashcard FSRS</h2>
+          <Layers size={22} color="var(--anki-blue)" />
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--anki-text)' }}>Ôn Thẻ Flashcard FSRS</h2>
         </div>
 
         {/* Counter Badge */}
         <div style={{ display: 'flex', gap: '16px', fontSize: '14px', fontWeight: '700' }}>
-          <span style={{ color: '#0099ff' }}>New: {cards.length - currentIndex}</span>
-          <span style={{ color: '#ff4d4d' }}>Learn: 0</span>
-          <span style={{ color: '#2ecc71' }}>Due: {currentIndex}</span>
+          <span style={{ color: 'var(--anki-blue)' }}>New: {cards.length - currentIndex}</span>
+          <span style={{ color: 'var(--anki-red)' }}>Learn: 0</span>
+          <span style={{ color: 'var(--anki-green)' }}>Due: {currentIndex}</span>
         </div>
       </div>
 
@@ -140,9 +140,9 @@ export const ReviewPage: React.FC = () => {
         <div
           onClick={() => !showAnswer && setShowAnswer(true)}
           style={{
-            background: '#1f1f1f',
+            background: 'var(--anki-card-bg)',
             borderRadius: '16px',
-            border: '1px solid #333333',
+            border: '1px solid var(--anki-border)',
             minHeight: '320px',
             padding: '36px 28px',
             display: 'flex',
@@ -151,39 +151,39 @@ export const ReviewPage: React.FC = () => {
             alignItems: 'center',
             textAlign: 'center',
             cursor: showAnswer ? 'default' : 'pointer',
-            boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
+            boxShadow: 'var(--anki-shadow)',
             position: 'relative',
             userSelect: 'none'
           }}
         >
           {/* Front Side: Japanese Word */}
-          <div style={{ fontSize: '42px', fontWeight: '700', color: '#ffffff', fontFamily: "'Noto Sans JP', sans-serif" }}>
+          <div style={{ fontSize: '42px', fontWeight: '700', color: 'var(--anki-text)', fontFamily: "'Noto Sans JP', sans-serif" }}>
             {currentCard.word}
           </div>
 
           {!showAnswer ? (
-            <div style={{ marginTop: '40px', fontSize: '13px', color: '#888888', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ marginTop: '40px', fontSize: '13px', color: 'var(--anki-text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Eye size={16} /> Click hoặc nhấn [Phím Cách] để xem đáp án
             </div>
           ) : (
             <>
               {/* Divider */}
-              <div style={{ width: '80%', height: '1px', background: '#333333', margin: '24px 0' }} />
+              <div style={{ width: '80%', height: '1px', background: 'var(--anki-border)', margin: '24px 0' }} />
 
               {/* Back Side: Reading, Meaning & Example */}
-              <div style={{ fontSize: '22px', color: '#0099ff', fontWeight: '600', fontFamily: "'Noto Sans JP', sans-serif", marginBottom: '8px' }}>
+              <div style={{ fontSize: '22px', color: 'var(--anki-blue)', fontWeight: '600', fontFamily: "'Noto Sans JP', sans-serif", marginBottom: '8px' }}>
                 {currentCard.reading}
               </div>
-              <div style={{ fontSize: '20px', color: '#2ecc71', fontWeight: '600', marginBottom: '16px' }}>
+              <div style={{ fontSize: '20px', color: 'var(--anki-green)', fontWeight: '600', marginBottom: '16px' }}>
                 {currentCard.meaningVi}
               </div>
 
               {currentCard.exampleSentenceJa && (
-                <div style={{ background: '#26272b', padding: '12px 18px', borderRadius: '8px', width: '100%', maxWidth: '550px' }}>
-                  <div style={{ fontSize: '15px', color: '#ffffff', fontFamily: "'Noto Sans JP', sans-serif" }}>
+                <div style={{ background: 'var(--anki-card-sub)', padding: '12px 18px', borderRadius: '8px', width: '100%', maxWidth: '550px', border: '1px solid var(--anki-border)' }}>
+                  <div style={{ fontSize: '15px', color: 'var(--anki-text)', fontFamily: "'Noto Sans JP', sans-serif" }}>
                     {currentCard.exampleSentenceJa}
                   </div>
-                  <div style={{ fontSize: '13px', color: '#aaaaaa', marginTop: '4px' }}>
+                  <div style={{ fontSize: '13px', color: 'var(--anki-text-muted)', marginTop: '4px' }}>
                     {currentCard.exampleSentenceVi}
                   </div>
                 </div>
@@ -200,14 +200,14 @@ export const ReviewPage: React.FC = () => {
             onClick={() => setShowAnswer(true)}
             className="anki-btn"
             style={{
-              background: '#0099ff',
+              background: 'var(--anki-blue)',
               color: '#ffffff',
               border: 'none',
               padding: '12px 48px',
               fontSize: '15px',
               fontWeight: '600',
               borderRadius: '8px',
-              boxShadow: '0 4px 14px rgba(0,153,255,0.3)'
+              boxShadow: '0 4px 14px rgba(2,132,199,0.3)'
             }}
           >
             Hiển Thị Đáp Án (Space)
@@ -217,7 +217,7 @@ export const ReviewPage: React.FC = () => {
             <button
               onClick={() => handleRating('again')}
               className="anki-btn"
-              style={{ background: '#ff4d4d', color: '#fff', border: 'none', flexDirection: 'column', gap: '2px', padding: '10px 0' }}
+              style={{ background: 'var(--anki-red)', color: '#fff', border: 'none', flexDirection: 'column', gap: '2px', padding: '10px 0' }}
             >
               <span style={{ fontSize: '11px', opacity: 0.8 }}>&lt; 10 phút (1)</span>
               <span style={{ fontWeight: '700', fontSize: '14px' }}>Học Lại</span>
@@ -226,7 +226,7 @@ export const ReviewPage: React.FC = () => {
             <button
               onClick={() => handleRating('hard')}
               className="anki-btn"
-              style={{ background: '#f59e0b', color: '#fff', border: 'none', flexDirection: 'column', gap: '2px', padding: '10px 0' }}
+              style={{ background: 'var(--anki-amber)', color: '#fff', border: 'none', flexDirection: 'column', gap: '2px', padding: '10px 0' }}
             >
               <span style={{ fontSize: '11px', opacity: 0.8 }}>1 ngày (2)</span>
               <span style={{ fontWeight: '700', fontSize: '14px' }}>Khó</span>
@@ -235,7 +235,7 @@ export const ReviewPage: React.FC = () => {
             <button
               onClick={() => handleRating('good')}
               className="anki-btn"
-              style={{ background: '#2ecc71', color: '#fff', border: 'none', flexDirection: 'column', gap: '2px', padding: '10px 0' }}
+              style={{ background: 'var(--anki-green)', color: '#fff', border: 'none', flexDirection: 'column', gap: '2px', padding: '10px 0' }}
             >
               <span style={{ fontSize: '11px', opacity: 0.8 }}>3 ngày (3)</span>
               <span style={{ fontWeight: '700', fontSize: '14px' }}>Tốt</span>
@@ -244,7 +244,7 @@ export const ReviewPage: React.FC = () => {
             <button
               onClick={() => handleRating('easy')}
               className="anki-btn"
-              style={{ background: '#0099ff', color: '#fff', border: 'none', flexDirection: 'column', gap: '2px', padding: '10px 0' }}
+              style={{ background: 'var(--anki-blue)', color: '#fff', border: 'none', flexDirection: 'column', gap: '2px', padding: '10px 0' }}
             >
               <span style={{ fontSize: '11px', opacity: 0.8 }}>7 ngày (4)</span>
               <span style={{ fontWeight: '700', fontSize: '14px' }}>Dễ</span>
