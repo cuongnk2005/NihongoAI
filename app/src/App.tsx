@@ -1,66 +1,68 @@
-import { useState, useEffect } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import { useState, useEffect } from 'react';
+import { MainLayout } from './layouts/MainLayout';
+import { TabType } from './layouts/AnkiHeader';
+import { DecksPage } from './features/decks/pages/DecksPage';
+import { VocabularyPage } from './features/vocabulary/pages/VocabularyPage';
+import { GrammarPage } from './features/grammar/pages/GrammarPage';
+import { PracticePage } from './features/practice/pages/PracticePage';
+import { KaiwaPage } from './features/kaiwa/pages/KaiwaPage';
+import { ReviewPage } from './features/review/pages/ReviewPage';
+import { StatisticsPage } from './features/statistics/pages/StatisticsPage';
+import { SettingsPage } from './features/settings/pages/SettingsPage';
+import './styles/index.css';
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
-  const [backendPing, setBackendPing] = useState("");
-
-  async function greet() {
-    setGreetMsg(await invoke("greet", { name }));
-  }
-
-  async function pingBackend() {
-    try {
-      const res = await fetch("http://localhost:8080/api/ping");
-      if (!res.ok) throw new Error("Network response was not ok");
-      const data = await res.json();
-      setBackendPing(data.message + " (" + data.status + ")");
-    } catch (e: any) {
-      setBackendPing("Error: " + e.message);
-    }
-  }
+export function App() {
+  const [activeTab, setActiveTab] = useState<TabType>('decks');
+  const [isReviewing, setIsReviewing] = useState<boolean>(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    return (localStorage.getItem('nihongoai-theme') as 'light' | 'dark') || 'light';
+  });
 
   useEffect(() => {
-    pingBackend();
-  }, []);
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('nihongoai-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
+
+  const renderContent = () => {
+    if (isReviewing) {
+      return <ReviewPage />;
+    }
+
+    switch (activeTab) {
+      case 'decks':
+        return <DecksPage onStudyDeck={() => setIsReviewing(true)} />;
+      case 'add':
+        return <VocabularyPage />;
+      case 'browse':
+        return <GrammarPage />;
+      case 'practice':
+        return <PracticePage />;
+      case 'kaiwa':
+        return <KaiwaPage />;
+      case 'statistics':
+        return <StatisticsPage />;
+      case 'sync':
+        return <SettingsPage />;
+      default:
+        return <DecksPage onStudyDeck={() => setIsReviewing(true)} />;
+    }
+  };
+
+  const handleTabChange = (tab: TabType) => {
+    setIsReviewing(false);
+    setActiveTab(tab);
+  };
 
   return (
-    <main className="container">
-      <h1>NihongoAI - Phase 1</h1>
-
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Spring Boot Backend Ping: {backendPing}</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name for Tauri..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+    <MainLayout activeTab={activeTab} setActiveTab={handleTabChange} theme={theme} toggleTheme={toggleTheme}>
+      {renderContent()}
+    </MainLayout>
   );
 }
 
 export default App;
+

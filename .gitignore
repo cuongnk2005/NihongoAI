@@ -1,0 +1,17 @@
+# Backend build output & database
+backend/target/
+backend/nihongoai.db
+*.db
+
+# Node dependencies & dist
+app/node_modules/
+app/dist/
+
+# Tauri build outputs
+app/src-tauri/target/
+
+# System / IDE files
+.DS_Store
+.vscode/
+.idea/
+*.log
