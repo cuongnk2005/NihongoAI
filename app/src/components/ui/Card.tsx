@@ -5,13 +5,21 @@ interface CardProps {
   className?: string;
   hoverable?: boolean;
   style?: React.CSSProperties;
+  onClick?: () => void;
 }
 
-export const Card: React.FC<CardProps> = ({ children, className = '', hoverable = false, style }) => {
+export const Card: React.FC<CardProps> = ({ 
+  children, 
+  className = '', 
+  hoverable = false, 
+  style,
+  onClick
+}) => {
   return (
     <div
-      className={`glass-panel ${hoverable ? 'glass-panel-hover' : ''} ${className}`}
-      style={{ padding: '20px', ...style }}
+      className={`card-tactile ${hoverable ? 'hoverable' : ''} ${className}`}
+      style={style}
+      onClick={onClick}
     >
       {children}
     </div>

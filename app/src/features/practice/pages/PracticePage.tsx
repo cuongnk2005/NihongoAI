@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../../services/apiConfig';
 import { PracticeQuestion, EvaluationResult } from '../../../types';
-import { Sparkles, Send, RefreshCw, CheckCircle2, AlertCircle, Award } from 'lucide-react';
+import { Send, RefreshCw, CheckCircle2, AlertCircle, Volume2 } from 'lucide-react';
 
 export const PracticePage: React.FC = () => {
   const [level, setLevel] = useState<string>('N4');
@@ -10,6 +10,7 @@ export const PracticePage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isEvaluating, setIsEvaluating] = useState<boolean>(false);
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
+  const [isComposing, setIsComposing] = useState<boolean>(false);
 
   useEffect(() => {
     handleGenerate();
@@ -34,182 +35,238 @@ export const PracticePage: React.FC = () => {
     setIsEvaluating(false);
   };
 
+  const playSpeech = (text: string) => {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ja-JP';
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '20px',
-      width: '100%',
-      maxWidth: '850px',
-      margin: '0 auto'
-    }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
+      {/* Page Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Sparkles size={24} color="var(--anki-indigo)" />
-            <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--anki-text)' }}>Luyện Dịch Việt $\rightarrow$ Nhật AI</h2>
-          </div>
-          <p style={{ fontSize: '13px', color: 'var(--anki-text-muted)', marginTop: '4px' }}>
-            AI tự động trích xuất từ vựng & ngữ pháp từ kho lưu trữ của bạn để tạo bài tập dịch tương thích level.
+          <h2 style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.6rem', fontWeight: 700, marginBottom: '4px' }}>
+            ✍️ Luyện Dịch Câu (Active Production)
+          </h2>
+          <p style={{ color: 'var(--ink-secondary)', fontSize: '0.9rem' }}>
+            AI tạo đề bài tiếng Việt kích thích phản xạ sử dụng từ vựng & ngữ pháp mục tiêu, kiểm tra IME tiếng Nhật.
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <select
             value={level}
             onChange={(e) => setLevel(e.target.value)}
-            style={{ padding: '8px 12px', borderRadius: '8px', fontSize: '13px' }}
+            className="form-select"
+            style={{ width: '110px', padding: '8px 12px' }}
           >
-            <option value="N5">Cấp độ N5</option>
-            <option value="N4">Cấp độ N4</option>
+            <option value="N5">Cấp N5</option>
+            <option value="N4">Cấp N4</option>
+            <option value="N3">Cấp N3</option>
           </select>
 
           <button
             onClick={handleGenerate}
             disabled={isLoading}
-            className="anki-btn"
-            style={{ background: 'var(--anki-indigo)', color: '#fff', border: 'none', gap: '6px' }}
+            className="btn-tactile"
           >
-            <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
-            {isLoading ? 'Đang tạo...' : 'Đề Bài Mới'}
+            <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} />
+            <span>{isLoading ? 'Đang tạo...' : 'Đổi Đề Bài'}</span>
           </button>
         </div>
       </div>
 
-      {/* Main Practice Question Card */}
+      {/* Main Practice Container */}
       {question && (
-        <div style={{
-          background: 'var(--anki-panel-bg)',
-          borderRadius: '12px',
-          border: '1px solid var(--anki-border)',
-          padding: '24px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '20px',
-          boxShadow: 'var(--anki-shadow)'
-        }}>
-          {/* Targets tags */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: 'var(--anki-text-muted)', fontWeight: '600' }}>Từ vựng & Ngữ pháp mục tiêu:</span>
-            {question.targetVocabulary.map((v, i) => (
-              <span key={`v-${i}`} style={{ background: 'rgba(2, 132, 199, 0.12)', color: 'var(--anki-blue)', border: '1px solid rgba(2, 132, 199, 0.25)', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: '600' }}>
-                {v}
-              </span>
-            ))}
-            {question.targetGrammar.map((g, i) => (
-              <span key={`g-${i}`} style={{ background: 'rgba(16, 185, 129, 0.12)', color: 'var(--anki-green)', border: '1px solid rgba(16, 185, 129, 0.25)', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: '600' }}>
-                {g}
-              </span>
-            ))}
-          </div>
-
-          {/* Vietnamese Sentence Prompt */}
-          <div style={{
-            background: 'var(--anki-card-sub)',
-            borderLeft: '4px solid var(--anki-indigo)',
-            borderRadius: '0 8px 8px 0',
-            padding: '16px 20px'
-          }}>
-            <div style={{ fontSize: '12px', color: 'var(--anki-text-muted)', marginBottom: '4px' }}>Đề bài Tiếng Việt:</div>
-            <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--anki-text)' }}>
+        <div className="card-tactile" style={{ padding: '36px', marginBottom: '24px' }}>
+          {/* Vietnamese Sentence Prompt Card */}
+          <div 
+            style={{
+              background: '#FFE8D6',
+              border: 'var(--border-dark)',
+              borderRadius: 'var(--radius-btn)',
+              boxShadow: 'var(--shadow-sm)',
+              padding: '24px',
+              marginBottom: '24px'
+            }}
+          >
+            <div style={{ fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--ink-secondary)', marginBottom: '6px' }}>
+              Đề bài Tiếng Việt:
+            </div>
+            <div style={{ fontSize: '1.45rem', fontWeight: 700, color: '#0F172A', marginBottom: '14px' }}>
               "{question.sentenceVi}"
+            </div>
+
+            {/* Target Knowledge Tags */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--ink-secondary)' }}>
+                Kiến thức mục tiêu:
+              </span>
+              {question.targetVocabulary.map((v, i) => (
+                <span 
+                  key={`v-${i}`}
+                  className="meta-pill"
+                  style={{ background: '#FFFFFF', color: '#0F172A', fontSize: '0.78rem' }}
+                >
+                  Từ vựng: {v}
+                </span>
+              ))}
+              {question.targetGrammar.map((g, i) => (
+                <span 
+                  key={`g-${i}`}
+                  className="meta-pill"
+                  style={{ background: '#D8F3DC', color: '#133E2B', fontSize: '0.78rem' }}
+                >
+                  Ngữ pháp: {g}
+                </span>
+              ))}
             </div>
           </div>
 
-          {/* Answer Form */}
-          <form onSubmit={handleEvaluate} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <label style={{ fontSize: '13px', color: 'var(--anki-text)', fontWeight: '500' }}>
-              Nhập câu trả lời Tiếng Nhật của bạn:
-            </label>
-            <div style={{ display: 'flex', gap: '10px' }}>
+          {/* Answer Input Section */}
+          <form onSubmit={handleEvaluate}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <label style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--ink-primary)' }}>
+                Nhập câu trả lời bằng Tiếng Nhật của bạn:
+              </label>
+              <div 
+                style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  padding: '3px 8px',
+                  border: 'var(--border-dark)',
+                  borderRadius: '4px',
+                  background: isComposing ? '#FEF08A' : '#E2E8F0',
+                  color: isComposing ? '#713F12' : '#0F172A'
+                }}
+              >
+                {isComposing ? '⌨️ Đang gõ IME...' : '✓ IME Sẵn sàng'}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '18px' }}>
               <input
                 type="text"
+                className="japanese-answer-input"
+                placeholder="Ví dụ: 友達とこの映画を見たことがあります。"
                 value={userAnswer}
                 onChange={(e) => setUserAnswer(e.target.value)}
-                placeholder="Ví dụ: 友達とこの映画を見たことがあります。"
-                style={{
-                  flex: 1,
-                  padding: '12px 16px',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontFamily: "'Noto Sans JP', sans-serif"
-                }}
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={() => setIsComposing(false)}
                 disabled={isEvaluating}
+                autoFocus
               />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
               <button
                 type="submit"
                 disabled={isEvaluating || !userAnswer.trim()}
-                className="anki-btn"
-                style={{ background: 'var(--anki-indigo)', color: '#fff', border: 'none', padding: '0 20px' }}
+                className="btn-tactile primary lg"
+                style={{ opacity: (!userAnswer.trim() || isEvaluating) ? 0.6 : 1 }}
               >
-                <Send size={16} />
-                {isEvaluating ? 'Đánh giá...' : 'Nộp Bài'}
+                <Send size={18} />
+                <span>{isEvaluating ? 'AI Đang Chấm Điểm...' : 'Nộp Bài & Chấm Điểm AI'}</span>
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* AI Evaluation Result Card */}
+      {/* AI Evaluation Feedback Card */}
       {evaluation && (
-        <div style={{
-          background: evaluation.correct ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.08)',
-          borderRadius: '12px',
-          border: evaluation.correct ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
-          padding: '24px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px'
-        }}>
-          {/* Result Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div 
+          className="card-tactile"
+          style={{
+            borderColor: evaluation.correct ? 'var(--accent-pine)' : 'var(--accent-vermilion)',
+            boxShadow: 'var(--shadow-lg)',
+            padding: '28px'
+          }}
+        >
+          {/* Score Banner */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               {evaluation.correct ? (
-                <CheckCircle2 size={24} color="var(--anki-green)" />
+                <CheckCircle2 size={32} color="var(--accent-pine)" />
               ) : (
-                <AlertCircle size={24} color="var(--anki-red)" />
+                <AlertCircle size={32} color="var(--accent-vermilion)" />
               )}
-              <span style={{ fontSize: '18px', fontWeight: '700', color: evaluation.correct ? 'var(--anki-green)' : 'var(--anki-red)' }}>
-                {evaluation.correct ? 'Chính Xác! (Đạt Yêu Cầu)' : 'Cần Cải Thiện'}
-              </span>
+              <div>
+                <h3 style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.4rem', fontWeight: 700 }}>
+                  {evaluation.correct ? 'Đạt Yêu Cầu Xuất Sắc!' : 'Cần Chỉnh Sửa Cho Đúng Cấu Trúc'}
+                </h3>
+                <span style={{ fontSize: '0.85rem', color: 'var(--ink-secondary)' }}>
+                  Đánh giá chi tiết bởi trợ lý AI NihongoAI
+                </span>
+              </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--anki-panel-bg)', padding: '6px 12px', borderRadius: '20px', border: '1px solid var(--anki-border)' }}>
-              <Award size={16} color="var(--anki-amber)" />
-              <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--anki-text)' }}>
-                {evaluation.score} / 100 điểm
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+              <span style={{ fontFamily: 'var(--font-grotesk)', fontSize: '2.4rem', fontWeight: 900, color: evaluation.correct ? 'var(--accent-pine)' : 'var(--accent-vermilion)' }}>
+                {evaluation.score}
               </span>
+              <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--ink-secondary)' }}>/ 100</span>
             </div>
           </div>
 
-          {/* Detailed Scores Breakdown */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-            <div style={{ background: 'var(--anki-panel-bg)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--anki-border)' }}>
-              <div style={{ fontSize: '11px', color: 'var(--anki-text-muted)' }}>Ý nghĩa semantic</div>
-              <div style={{ fontSize: '15px', fontWeight: '700', color: 'var(--anki-blue)' }}>{evaluation.meaningScore}%</div>
+          {/* Sub-Scores Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ background: 'var(--bg-subtle)', border: 'var(--border-dark)', borderRadius: 'var(--radius-btn)', padding: '12px', textAlign: 'center' }}>
+              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--ink-secondary)' }}>Ý NGHĨA SEMANTIC</div>
+              <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.25rem', fontWeight: 700, color: 'var(--accent-cobalt)' }}>
+                {evaluation.meaningScore}%
+              </div>
             </div>
-            <div style={{ background: 'var(--anki-panel-bg)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--anki-border)' }}>
-              <div style={{ fontSize: '11px', color: 'var(--anki-text-muted)' }}>Ngữ pháp</div>
-              <div style={{ fontSize: '15px', fontWeight: '700', color: 'var(--anki-green)' }}>{evaluation.grammarScore}%</div>
+            <div style={{ background: 'var(--bg-subtle)', border: 'var(--border-dark)', borderRadius: 'var(--radius-btn)', padding: '12px', textAlign: 'center' }}>
+              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--ink-secondary)' }}>NGỮ PHÁP BIẾN ĐỔI</div>
+              <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.25rem', fontWeight: 700, color: 'var(--accent-pine)' }}>
+                {evaluation.grammarScore}%
+              </div>
             </div>
-            <div style={{ background: 'var(--anki-panel-bg)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--anki-border)' }}>
-              <div style={{ fontSize: '11px', color: 'var(--anki-text-muted)' }}>Độ tự nhiên</div>
-              <div style={{ fontSize: '15px', fontWeight: '700', color: '#a855f7' }}>{evaluation.naturalnessScore}%</div>
+            <div style={{ background: 'var(--bg-subtle)', border: 'var(--border-dark)', borderRadius: 'var(--radius-btn)', padding: '12px', textAlign: 'center' }}>
+              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--ink-secondary)' }}>ĐỘ TỰ NHIÊN BẢN XỨ</div>
+              <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.25rem', fontWeight: 700, color: 'var(--accent-amber)' }}>
+                {evaluation.naturalnessScore}%
+              </div>
             </div>
           </div>
 
           {/* Suggested Answer */}
-          <div style={{ background: 'var(--anki-panel-bg)', padding: '14px 16px', borderRadius: '8px', border: '1px solid var(--anki-border)' }}>
-            <div style={{ fontSize: '12px', color: 'var(--anki-text-muted)', marginBottom: '4px' }}>Đáp án gợi ý tự nhiên từ AI:</div>
-            <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--anki-green)', fontFamily: "'Noto Sans JP', sans-serif" }}>
-              {evaluation.suggestedAnswer}
+          <div 
+            style={{ 
+              background: 'var(--bg-subtle)', 
+              border: 'var(--border-dark)', 
+              borderRadius: 'var(--radius-btn)', 
+              padding: '16px 20px',
+              marginBottom: '16px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <div>
+              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--ink-secondary)', marginBottom: '4px' }}>
+                ĐÁP ÁN GỢI Ý CHUẨN TỪ AI:
+              </div>
+              <div style={{ fontFamily: 'var(--font-kanji)', fontSize: '1.25rem', fontWeight: 700, color: 'var(--accent-pine)' }}>
+                {evaluation.suggestedAnswer}
+              </div>
             </div>
+            <button 
+              className="btn-tactile sm"
+              onClick={() => playSpeech(evaluation.suggestedAnswer)}
+              title="Phát âm đáp án gợi ý"
+            >
+              <Volume2 size={16} />
+            </button>
           </div>
 
-          {/* Explanation in Vietnamese */}
-          <div style={{ fontSize: '14px', color: 'var(--anki-text)', lineHeight: '1.6' }}>
-            <span style={{ fontWeight: '700', color: 'var(--anki-text)' }}>Nhận xét chi tiết: </span>
+          {/* Vietnamese Explanation */}
+          <div style={{ fontSize: '0.95rem', color: 'var(--ink-primary)', lineHeight: '1.6', background: '#F8FAFC', border: 'var(--border-subtle)', padding: '14px 18px', borderRadius: 'var(--radius-btn)' }}>
+            <strong style={{ color: 'var(--accent-cobalt)' }}>Giải thích chi tiết: </strong>
             {evaluation.explanationVi}
           </div>
         </div>

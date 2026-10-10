@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../../services/apiConfig';
 import { Grammar } from '../../../types';
-import { FileText, Plus, Trash2, Search, Filter } from 'lucide-react';
+import { Plus, Trash2, Search, X } from 'lucide-react';
 
 export const GrammarPage: React.FC = () => {
   const [grammarList, setGrammarList] = useState<Grammar[]>([]);
@@ -62,187 +62,197 @@ export const GrammarPage: React.FC = () => {
   });
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '20px',
-      width: '100%',
-      maxWidth: '900px',
-      margin: '0 auto'
-    }}>
+    <div style={{ width: '100%', maxWidth: '960px', margin: '0 auto' }}>
       {/* Page Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <FileText size={24} color="var(--anki-green)" />
-            <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--anki-text)' }}>Quản Lý Kho Ngữ Pháp</h2>
-          </div>
-          <p style={{ fontSize: '13px', color: 'var(--anki-text-muted)', marginTop: '4px' }}>
-            Các mẫu ngữ pháp lưu trữ tại đây sẽ được AI sử dụng để tự động sinh đề bài luyện dịch câu Việt $\rightarrow$ Nhật.
+          <h2 style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.6rem', fontWeight: 700, marginBottom: '4px' }}>
+            📜 Quản lý Kho Ngữ pháp
+          </h2>
+          <p style={{ color: 'var(--ink-secondary)', fontSize: '0.9rem' }}>
+            Mẫu câu và cấu trúc ngữ pháp có cấu trúc làm điều kiện sinh bài tập dịch câu Việt $\rightarrow$ Nhật.
           </p>
         </div>
 
-        <button className="anki-btn" style={{ background: 'var(--anki-green)', color: '#fff', border: 'none' }} onClick={() => setShowAddForm(!showAddForm)}>
-          <Plus size={16} />
-          {showAddForm ? 'Đóng Form' : 'Thêm Ngữ Pháp Mới'}
+        <button className="btn-tactile primary" onClick={() => setShowAddForm(true)}>
+          <Plus size={16} /> Thêm Ngữ pháp
         </button>
       </div>
 
-      {/* Add Grammar Modal Panel */}
-      {showAddForm && (
-        <div style={{
-          background: 'var(--anki-panel-bg)',
-          borderRadius: '12px',
-          border: '1px solid var(--anki-border)',
-          padding: '20px',
-          boxShadow: 'var(--anki-shadow)'
-        }}>
-          <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--anki-green)', marginBottom: '16px' }}>Thêm Mẫu Ngữ Pháp Mới Vào Kho AI</h3>
-          <form onSubmit={handleCreate} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-            <div>
-              <label style={{ fontSize: '12px', color: 'var(--anki-text-muted)', display: 'block', marginBottom: '4px' }}>Mẫu Ngữ Pháp (Pattern)</label>
-              <input
-                type="text"
-                value={newPattern}
-                onChange={(e) => setNewPattern(e.target.value)}
-                placeholder="Ví dụ: ～たことがある"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', fontSize: '14px' }}
-                required
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: '12px', color: 'var(--anki-text-muted)', display: 'block', marginBottom: '4px' }}>Nghĩa Tiếng Việt</label>
-              <input
-                type="text"
-                value={newMeaning}
-                onChange={(e) => setNewMeaning(e.target.value)}
-                placeholder="Ví dụ: Đã từng làm gì"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', fontSize: '14px' }}
-                required
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: '12px', color: 'var(--anki-text-muted)', display: 'block', marginBottom: '4px' }}>Cấu Trúc (Structure)</label>
-              <input
-                type="text"
-                value={newStructure}
-                onChange={(e) => setNewStructure(e.target.value)}
-                placeholder="Ví dụ: V-た + ことがある"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', fontSize: '14px' }}
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: '12px', color: 'var(--anki-text-muted)', display: 'block', marginBottom: '4px' }}>Cấp độ JLPT</label>
-              <select
-                value={newLevel}
-                onChange={(e) => setNewLevel(e.target.value)}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', fontSize: '14px' }}
-              >
-                <option value="N5">N5 (Cơ bản)</option>
-                <option value="N4">N4 (Sơ cấp)</option>
-              </select>
-            </div>
-            <div style={{ gridColumn: 'span 2' }}>
-              <label style={{ fontSize: '12px', color: 'var(--anki-text-muted)', display: 'block', marginBottom: '4px' }}>Giải thích chi tiết (tùy chọn)</label>
-              <textarea
-                value={newExplanation}
-                onChange={(e) => setNewExplanation(e.target.value)}
-                placeholder="Dùng để nói về trải nghiệm hoặc kinh nghiệm trong quá khứ..."
-                rows={2}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', fontSize: '14px', resize: 'vertical' }}
-              />
-            </div>
-            <div style={{ gridColumn: 'span 2', marginTop: '4px' }}>
-              <button type="submit" className="anki-btn" style={{ background: 'var(--anki-green)', color: '#fff', border: 'none', padding: '8px 20px' }}>
-                Lưu Mẫu Ngữ Pháp
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
       {/* Filter and Search Bar */}
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-        <div style={{ flex: 1, position: 'relative' }}>
-          <Search size={16} color="var(--anki-text-muted)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+      <div 
+        style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          gap: '12px', 
+          marginBottom: '18px',
+          flexWrap: 'wrap'
+        }}
+      >
+        {/* Search input */}
+        <div style={{ position: 'relative', flex: 1, minWidth: '240px' }}>
+          <Search size={16} style={{ position: 'absolute', left: '12px', top: '12px', color: 'var(--ink-muted)' }} />
           <input
             type="text"
+            className="form-input-text"
+            style={{ paddingLeft: '38px' }}
+            placeholder="Tìm theo mẫu câu, cấu trúc hoặc ý nghĩa..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm kiếm mẫu ngữ pháp, cấu trúc hoặc nghĩa..."
-            style={{ width: '100%', padding: '9px 12px 9px 36px', borderRadius: '8px', fontSize: '13px' }}
           />
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Filter size={16} color="var(--anki-text-muted)" />
-          <select
-            value={filterLevel}
-            onChange={(e) => setFilterLevel(e.target.value)}
-            style={{ padding: '9px 12px', borderRadius: '8px', fontSize: '13px' }}
-          >
-            <option value="ALL">Tất cả cấp độ</option>
-            <option value="N5">N5</option>
-            <option value="N4">N4</option>
-          </select>
+
+        {/* JLPT Level Chips */}
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {['ALL', 'N5', 'N4', 'N3'].map((lvl) => (
+            <button
+              key={lvl}
+              onClick={() => setFilterLevel(lvl)}
+              className={`btn-tactile sm ${filterLevel === lvl ? 'primary' : ''}`}
+            >
+              {lvl === 'ALL' ? 'Tất cả' : lvl}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Grammar Table */}
-      <div style={{
-        background: 'var(--anki-panel-bg)',
-        borderRadius: '10px',
-        border: '1px solid var(--anki-border)',
-        overflow: 'hidden',
-        boxShadow: 'var(--anki-shadow)'
-      }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+      <div className="table-container" style={{ marginBottom: '24px' }}>
+        <table className="tactile-table">
           <thead>
-            <tr style={{ background: 'var(--anki-panel-header)', borderBottom: '1px solid var(--anki-border)', color: 'var(--anki-text-muted)' }}>
-              <th style={{ padding: '12px 16px' }}>Mẫu Ngữ Pháp</th>
-              <th style={{ padding: '12px 16px' }}>Nghĩa Tiếng Việt</th>
-              <th style={{ padding: '12px 16px' }}>Cấu Trúc</th>
-              <th style={{ padding: '12px 16px' }}>Cấp Độ</th>
-              <th style={{ padding: '12px 16px', textAlign: 'right' }}>Thao Tác</th>
+            <tr>
+              <th style={{ width: '22%' }}>Mẫu câu</th>
+              <th style={{ width: '26%' }}>Ý nghĩa Tiếng Việt</th>
+              <th style={{ width: '32%' }}>Cấu trúc biến đổi</th>
+              <th style={{ width: '10%' }}>JLPT</th>
+              <th style={{ textAlign: 'center', width: '10%' }}>Thao tác</th>
             </tr>
           </thead>
           <tbody>
-            {filteredGrammars.map((item) => (
-              <tr key={item.id} style={{ borderBottom: '1px solid var(--anki-border)' }}>
-                <td style={{ padding: '12px 16px', fontWeight: '700', fontSize: '16px', fontFamily: "'Noto Sans JP', sans-serif", color: 'var(--anki-green)' }}>
-                  {item.pattern}
-                </td>
-                <td style={{ padding: '12px 16px', color: 'var(--anki-text)', fontWeight: '500' }}>
-                  {item.meaningVi}
-                </td>
-                <td style={{ padding: '12px 16px', color: 'var(--anki-text-muted)', fontFamily: 'monospace' }}>
-                  {item.structure}
-                </td>
-                <td style={{ padding: '12px 16px' }}>
-                  <span style={{
-                    padding: '3px 8px',
-                    borderRadius: '12px',
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    background: item.jlptLevel === 'N5' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(2, 132, 199, 0.15)',
-                    color: item.jlptLevel === 'N5' ? 'var(--anki-green)' : 'var(--anki-blue)',
-                    border: item.jlptLevel === 'N5' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(2, 132, 199, 0.3)'
-                  }}>
-                    {item.jlptLevel}
-                  </span>
-                </td>
-                <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    style={{ background: 'transparent', border: 'none', color: 'var(--anki-red)', cursor: 'pointer', padding: '4px' }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+            {filteredGrammars.length === 0 ? (
+              <tr>
+                <td colSpan={5} style={{ textAlign: 'center', padding: '36px', color: 'var(--ink-muted)' }}>
+                  Không tìm thấy mẫu ngữ pháp nào phù hợp.
                 </td>
               </tr>
-            ))}
+            ) : (
+              filteredGrammars.map((g) => (
+                <tr key={g.id}>
+                  <td>
+                    <span className="japanese-kanji" style={{ fontSize: '1.15rem', color: 'var(--accent-pine)' }}>
+                      {g.pattern}
+                    </span>
+                  </td>
+                  <td style={{ fontWeight: 600 }}>{g.meaningVi}</td>
+                  <td>
+                    <code style={{ background: '#FFE8D6', color: '#0F172A', padding: '2px 8px', borderRadius: '4px', border: '1px solid #0F172A', fontSize: '0.82rem', fontWeight: 700 }}>
+                      {g.structure || 'V-plain'}
+                    </code>
+                  </td>
+                  <td>
+                    <span className="meta-pill" style={{ fontSize: '0.75rem' }}>
+                      {g.jlptLevel || 'N4'}
+                    </span>
+                  </td>
+                  <td style={{ textAlign: 'center' }}>
+                    <button
+                      className="btn-tactile sm vermilion"
+                      style={{ padding: '4px 8px' }}
+                      onClick={() => handleDelete(g.id)}
+                      title="Xóa mẫu ngữ pháp"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
+
+      {/* Add Modal */}
+      {showAddForm && (
+        <div className="modal-backdrop" onClick={() => setShowAddForm(false)}>
+          <div className="modal-box" style={{ maxWidth: '540px' }} onClick={(e) => e.stopPropagation()}>
+            <form onSubmit={handleCreate}>
+              <div className="modal-head">
+                <h3 className="modal-heading">Thêm Mẫu Ngữ Pháp Mới</h3>
+                <button type="button" className="btn-tactile sm" onClick={() => setShowAddForm(false)}>
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+                <div>
+                  <label className="form-label">Mẫu ngữ pháp (Pattern):</label>
+                  <input
+                    type="text"
+                    className="form-input-text"
+                    placeholder="Ví dụ: ～たことがある"
+                    value={newPattern}
+                    onChange={(e) => setNewPattern(e.target.value)}
+                    required
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="form-label">Cấp độ JLPT:</label>
+                  <select
+                    className="form-select"
+                    value={newLevel}
+                    onChange={(e) => setNewLevel(e.target.value)}
+                  >
+                    <option value="N5">N5</option>
+                    <option value="N4">N4</option>
+                    <option value="N3">N3</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '14px' }}>
+                <label className="form-label">Ý nghĩa Tiếng Việt:</label>
+                <input
+                  type="text"
+                  className="form-input-text"
+                  placeholder="Ví dụ: Đã từng làm gì đó (kinh nghiệm)"
+                  value={newMeaning}
+                  onChange={(e) => setNewMeaning(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div style={{ marginBottom: '14px' }}>
+                <label className="form-label">Cấu trúc công thức biến đổi (Structure):</label>
+                <input
+                  type="text"
+                  className="form-input-text"
+                  placeholder="Ví dụ: V-た + ことがある"
+                  value={newStructure}
+                  onChange={(e) => setNewStructure(e.target.value)}
+                />
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label className="form-label">Giải thích chi tiết (tùy chọn):</label>
+                <textarea
+                  className="form-textarea"
+                  rows={3}
+                  placeholder="Dùng để diễn tả trải nghiệm trong quá khứ..."
+                  value={newExplanation}
+                  onChange={(e) => setNewExplanation(e.target.value)}
+                />
+              </div>
+
+              <div className="modal-foot">
+                <button type="button" className="btn-tactile" onClick={() => setShowAddForm(false)}>Hủy</button>
+                <button type="submit" className="btn-tactile primary">Lưu Ngữ Pháp</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

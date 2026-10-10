@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { api } from '../../../services/apiConfig';
-import { MessageSquare, Send, Bot, User, Sparkles } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Volume2 } from 'lucide-react';
 
 interface KaiwaMessage {
   id: string;
@@ -53,53 +53,62 @@ export const KaiwaPage: React.FC = () => {
     setIsLoading(false);
   };
 
+  const playSpeech = (text: string) => {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ja-JP';
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   return (
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      height: 'calc(100vh - 120px)',
-      maxWidth: '850px',
+      height: 'calc(100vh - 140px)',
+      maxWidth: '880px',
       margin: '0 auto',
       width: '100%'
     }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <MessageSquare size={24} color="var(--anki-green)" />
-            <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--anki-text)' }}>Luyện Hội Thoại AI Kaiwa</h2>
-          </div>
-          <p style={{ fontSize: '13px', color: 'var(--anki-text-muted)', marginTop: '4px' }}>
-            Hội thoại tương tác trực tiếp với AI trợ lý tiếng Nhật. AI sẽ tự động điều chỉnh ngữ pháp & giải thích Tiếng Việt.
+          <h2 style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.6rem', fontWeight: 700, marginBottom: '4px' }}>
+            💬 Hội Thoại Tình Huống (AI Kaiwa)
+          </h2>
+          <p style={{ color: 'var(--ink-secondary)', fontSize: '0.9rem' }}>
+            Luyện tập giao tiếp tiếng Nhật tương tác hai chiều, AI tự động gợi ý diễn đạt tự nhiên hơn.
           </p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '12px', color: 'var(--anki-text-muted)' }}>Cấp độ Kaiwa:</span>
+          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--ink-secondary)' }}>Trình độ:</span>
           <select
             value={level}
             onChange={(e) => setLevel(e.target.value)}
-            style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '13px' }}
+            className="form-select"
+            style={{ width: '110px', padding: '6px 12px' }}
           >
             <option value="N5">N5 (Cơ bản)</option>
             <option value="N4">N4 (Sơ cấp)</option>
+            <option value="N3">N3 (Trung cấp)</option>
           </select>
         </div>
       </div>
 
       {/* Chat Messages Container */}
-      <div style={{
-        flex: 1,
-        background: 'var(--anki-panel-bg)',
-        borderRadius: '12px',
-        border: '1px solid var(--anki-border)',
-        padding: '20px',
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-        boxShadow: 'var(--anki-shadow)'
-      }}>
+      <div 
+        className="card-tactile"
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          padding: '24px',
+          boxShadow: 'var(--shadow-md)'
+        }}
+      >
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -112,53 +121,72 @@ export const KaiwaPage: React.FC = () => {
             }}
           >
             {/* Sender Badge */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', fontSize: '11px', color: 'var(--anki-text-muted)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--ink-secondary)' }}>
               {msg.sender === 'ai' ? (
                 <>
-                  <Bot size={14} color="var(--anki-green)" />
-                  <span style={{ color: 'var(--anki-green)', fontWeight: '600' }}>AI Sensei</span>
+                  <Bot size={14} color="var(--accent-pine)" />
+                  <span style={{ color: 'var(--accent-pine)' }}>AI Sensei</span>
                 </>
               ) : (
                 <>
-                  <User size={14} color="var(--anki-blue)" />
-                  <span style={{ color: 'var(--anki-blue)', fontWeight: '600' }}>Bạn</span>
+                  <User size={14} color="var(--accent-cobalt)" />
+                  <span style={{ color: 'var(--accent-cobalt)' }}>Bạn</span>
                 </>
               )}
               <span>• {msg.timestamp}</span>
             </div>
 
             {/* Message Bubble */}
-            <div style={{
-              background: msg.sender === 'user' ? 'var(--anki-blue)' : 'var(--anki-card-sub)',
-              color: msg.sender === 'user' ? '#ffffff' : 'var(--anki-text)',
-              padding: '12px 16px',
-              borderRadius: msg.sender === 'user' ? '16px 16px 2px 16px' : '16px 16px 16px 2px',
-              fontSize: '15px',
-              lineHeight: '1.5',
-              fontFamily: "'Noto Sans JP', sans-serif",
-              border: msg.sender === 'ai' ? '1px solid var(--anki-border)' : 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-            }}>
-              {msg.text}
+            <div 
+              style={{
+                background: msg.sender === 'user' ? 'var(--accent-cobalt)' : 'var(--bg-surface)',
+                color: msg.sender === 'user' ? '#FFFFFF' : 'var(--ink-primary)',
+                padding: '12px 18px',
+                borderRadius: 'var(--radius-btn)',
+                fontSize: '1.15rem',
+                lineHeight: '1.5',
+                fontFamily: 'var(--font-kanji)',
+                fontWeight: 600,
+                border: 'var(--border-dark)',
+                boxShadow: 'var(--shadow-sm)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+              }}
+            >
+              <span>{msg.text}</span>
+              {msg.sender === 'ai' && (
+                <button
+                  className="btn-tactile sm"
+                  style={{ border: 'none', background: 'transparent', boxShadow: 'none', padding: '2px 4px' }}
+                  onClick={() => playSpeech(msg.text)}
+                  title="Nghe phát âm"
+                >
+                  <Volume2 size={16} color="var(--accent-pine)" />
+                </button>
+              )}
             </div>
 
-            {/* AI Correction Note (If applicable) */}
+            {/* AI Correction Note */}
             {msg.correctionVi && (
-              <div style={{
-                marginTop: '6px',
-                background: 'rgba(16, 185, 129, 0.1)',
-                borderLeft: '3px solid var(--anki-green)',
-                padding: '8px 12px',
-                borderRadius: '0 8px 8px 0',
-                fontSize: '12px',
-                color: 'var(--anki-text)',
-                display: 'flex',
-                gap: '8px',
-                alignItems: 'flex-start'
-              }}>
-                <Sparkles size={14} color="var(--anki-green)" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div 
+                style={{
+                  marginTop: '8px',
+                  background: '#FFE8D6',
+                  border: 'var(--border-dark)',
+                  boxShadow: '1px 1px 0px var(--border-color)',
+                  padding: '10px 14px',
+                  borderRadius: 'var(--radius-btn)',
+                  fontSize: '0.85rem',
+                  color: '#0F172A',
+                  display: 'flex',
+                  gap: '8px',
+                  alignItems: 'flex-start'
+                }}
+              >
+                <Sparkles size={16} color="var(--accent-vermilion)" style={{ flexShrink: 0, marginTop: '2px' }} />
                 <div>
-                  <span style={{ color: 'var(--anki-green)', fontWeight: '600' }}>Góp ý từ AI: </span>
+                  <strong style={{ color: 'var(--accent-vermilion)' }}>Gợi ý diễn đạt tự nhiên: </strong>
                   {msg.correctionVi}
                 </div>
               </div>
@@ -167,37 +195,33 @@ export const KaiwaPage: React.FC = () => {
         ))}
 
         {isLoading && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--anki-green)', fontSize: '13px' }}>
-            <Bot size={16} className="animate-spin" />
-            <span>AI đang suy nghĩ phản hồi...</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-pine)', fontSize: '0.9rem', fontWeight: 700 }}>
+            <Bot size={18} className="animate-spin" />
+            <span>AI Sensei đang soạn câu trả lời...</span>
           </div>
         )}
       </div>
 
       {/* Input Form */}
-      <form onSubmit={handleSend} style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>
+      <form onSubmit={handleSend} style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
         <input
           type="text"
+          className="japanese-answer-input"
+          style={{ padding: '12px 16px', fontSize: '1.15rem' }}
+          placeholder="Nhập câu tiếng Nhật để trò chuyện (Ví dụ: 今日は天気がいいですね)..."
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
-          placeholder="Nhập câu trả lời bằng tiếng Nhật (Ví dụ: 今日は映画を見に行きました)..."
-          style={{
-            flex: 1,
-            padding: '12px 16px',
-            borderRadius: '10px',
-            fontSize: '15px',
-            fontFamily: "'Noto Sans JP', sans-serif"
-          }}
           disabled={isLoading}
+          autoFocus
         />
         <button
           type="submit"
           disabled={isLoading || !inputMessage.trim()}
-          className="anki-btn"
-          style={{ background: 'var(--anki-green)', color: '#fff', border: 'none', padding: '0 22px' }}
+          className="btn-tactile primary lg"
+          style={{ padding: '0 24px' }}
         >
-          <Send size={16} />
-          Gửi
+          <Send size={18} />
+          <span>Gửi</span>
         </button>
       </form>
     </div>
