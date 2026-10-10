@@ -51,17 +51,19 @@ Dự án tuân thủ nghiêm ngặt nguyên tắc **Local-first**, đảm bảo 
 
 ## 6. Trạng thái Dự án (Project Status)
 - [x] Định nghĩa mục tiêu dự án (Project Brief & Context).
-- [x] Phân tích Yêu cầu Sản phẩm (PRD).
+- [x] Phân tích Yêu cầu Sản phẩm (PRD - Chương 3).
 - [x] Đặc tả Hành vi Chức năng (Feature Specification).
-- [ ] Thiết kế Cơ sở Dữ liệu và Kiến trúc Backend.
-- [ ] Xây dựng Frontend UI/UX.
-- [ ] Triển khai các luồng tính năng.
+- [x] Thiết kế Sản phẩm, UI Concepts & Interactive Prototype (Chương 4).
+- [x] Thiết kế Kiến trúc Phần mềm & CSDL (Chương 5).
+- [ ] Triển khai các luồng tính năng Backend & Tích hợp AI.
 
 ## 7. Tài liệu Kỹ thuật (Documentation)
 Các tài liệu phân tích và thiết kế chi tiết:
 - [Product Requirements Document (PRD)](docs/prd/product-requirements.md): Yêu cầu sản phẩm, phạm vi, ràng buộc.
 - [Feature Specification](docs/prd/feature-specification.md): Đặc tả chi tiết hành vi (Success, Failure, Recovery, Persistence) cho từng tính năng.
-- [Project Guide](.agents/project-guide.md): Quy tắc làm việc cốt lõi của dự án dành cho quá trình phát triển.
+- [Product Design Brief (P4.1)](docs/product-design-brief.md): Bản tóm tắt thiết kế sản phẩm, ergonomics và hợp đồng tương tác FSRS.
+- [Product Design Specification (P4.3)](docs/product-design.md): Đặc tả thiết kế chính thức Kyoto Tactile Studio.
+- [Software Architecture Specification (Chương 5)](docs/software-architecture.md): Đặc tả thiết kế kiến trúc phần mềm, mô hình hóa UML, thiết kế CSDL SQLite & API RESTful.
 
 ## 8. Hướng dẫn Khởi động (Getting Started)
 
