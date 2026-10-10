@@ -1,111 +1,107 @@
 import React from 'react';
-import { BarChart3, TrendingUp, Calendar, Award, CheckCircle2, Clock } from 'lucide-react';
+import { TrendingUp, Calendar, Award, CheckCircle2, Clock } from 'lucide-react';
 
 export const StatisticsPage: React.FC = () => {
-  // Generate dummy 30-day heatmap grid data
   const heatmapDays = Array.from({ length: 28 }, (_, i) => {
     const count = Math.floor(Math.random() * 45);
     return { day: i + 1, count };
   });
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '24px',
-      width: '100%',
-      maxWidth: '850px',
-      margin: '0 auto'
-    }}>
+    <div style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
       {/* Header */}
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <BarChart3 size={24} color="var(--anki-blue)" />
-          <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--anki-text)' }}>Thống Kê Tiến Độ Học Tập</h2>
-        </div>
-        <p style={{ fontSize: '13px', color: 'var(--anki-text-muted)', marginTop: '4px' }}>
-          Tổng hợp thông số ôn luyện FSRS, tỉ lệ ghi nhớ từ vựng và chuỗi ngày học tập (Streak).
+      <div style={{ marginBottom: '20px' }}>
+        <h2 style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.6rem', fontWeight: 700, marginBottom: '4px' }}>
+          📊 Thống Kê & Phân Tích Tiến Độ Học Tập
+        </h2>
+        <p style={{ color: 'var(--ink-secondary)', fontSize: '0.9rem' }}>
+          Đo lường hiệu quả thuật toán FSRS, tỷ lệ duy trì trí nhớ và tần suất ôn luyện hàng ngày.
         </p>
       </div>
 
       {/* Top 4 Metric Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px' }}>
-        <div style={{ background: 'var(--anki-panel-bg)', padding: '16px', borderRadius: '10px', border: '1px solid var(--anki-border)', boxShadow: 'var(--anki-shadow)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '24px' }}>
+        <div className="card-tactile" style={{ padding: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--anki-text-muted)' }}>Thẻ Ôn Hôm Nay</span>
-            <CheckCircle2 size={16} color="var(--anki-green)" />
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--ink-secondary)' }}>HÔM NAY</span>
+            <CheckCircle2 size={16} color="var(--accent-pine)" />
           </div>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--anki-text)' }}>42 <span style={{ fontSize: '13px', color: 'var(--anki-text-muted)', fontWeight: 'normal' }}>thẻ</span></div>
+          <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.8rem', fontWeight: 900 }}>
+            42 <span style={{ fontSize: '0.9rem', color: 'var(--ink-secondary)', fontWeight: 600 }}>thẻ</span>
+          </div>
         </div>
 
-        <div style={{ background: 'var(--anki-panel-bg)', padding: '16px', borderRadius: '10px', border: '1px solid var(--anki-border)', boxShadow: 'var(--anki-shadow)' }}>
+        <div className="card-tactile" style={{ padding: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--anki-text-muted)' }}>Tỉ Lệ Ghi Nhớ</span>
-            <TrendingUp size={16} color="var(--anki-blue)" />
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--ink-secondary)' }}>TỶ LỆ NHỚ</span>
+            <TrendingUp size={16} color="var(--accent-cobalt)" />
           </div>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--anki-blue)' }}>92.4%</div>
+          <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.8rem', fontWeight: 900, color: 'var(--accent-cobalt)' }}>
+            92.4%
+          </div>
         </div>
 
-        <div style={{ background: 'var(--anki-panel-bg)', padding: '16px', borderRadius: '10px', border: '1px solid var(--anki-border)', boxShadow: 'var(--anki-shadow)' }}>
+        <div className="card-tactile" style={{ padding: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--anki-text-muted)' }}>Chuỗi Học (Streak)</span>
-            <Award size={16} color="var(--anki-amber)" />
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--ink-secondary)' }}>STREAK</span>
+            <Award size={16} color="var(--accent-amber)" />
           </div>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--anki-amber)' }}>14 <span style={{ fontSize: '13px', color: 'var(--anki-text-muted)', fontWeight: 'normal' }}>ngày</span></div>
+          <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.8rem', fontWeight: 900, color: 'var(--accent-amber)' }}>
+            14 <span style={{ fontSize: '0.9rem', color: 'var(--ink-secondary)', fontWeight: 600 }}>ngày</span>
+          </div>
         </div>
 
-        <div style={{ background: 'var(--anki-panel-bg)', padding: '16px', borderRadius: '10px', border: '1px solid var(--anki-border)', boxShadow: 'var(--anki-shadow)' }}>
+        <div className="card-tactile" style={{ padding: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--anki-text-muted)' }}>Thời Gian Ôn Trung Bình</span>
-            <Clock size={16} color="#a855f7" />
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--ink-secondary)' }}>TỐC ĐỘ</span>
+            <Clock size={16} color="var(--accent-vermilion)" />
           </div>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--anki-text)' }}>6.8s <span style={{ fontSize: '13px', color: 'var(--anki-text-muted)', fontWeight: 'normal' }}>/thẻ</span></div>
+          <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.8rem', fontWeight: 900 }}>
+            6.8s <span style={{ fontSize: '0.9rem', color: 'var(--ink-secondary)', fontWeight: 600 }}>/thẻ</span>
+          </div>
         </div>
       </div>
 
       {/* Study Activity Heatmap */}
-      <div style={{
-        background: 'var(--anki-panel-bg)',
-        borderRadius: '12px',
-        border: '1px solid var(--anki-border)',
-        padding: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '14px',
-        boxShadow: 'var(--anki-shadow)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Calendar size={18} color="var(--anki-blue)" />
-          <h3 style={{ fontSize: '15px', fontWeight: '600', color: 'var(--anki-text)' }}>Biểu Đồ Tần Suất Ôn Luyện (4 Tuần Gần Nhất)</h3>
+      <div className="card-tactile" style={{ marginBottom: '24px', padding: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+          <Calendar size={18} color="var(--accent-pine)" />
+          <h3 style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.1rem', fontWeight: 700 }}>
+            Biểu Đồ Tần Suất Ôn Luyện (4 Tuần Gần Nhất)
+          </h3>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '10px' }}>
           {heatmapDays.map((item) => {
-            let bg = 'var(--anki-card-sub)';
-            let textColor = 'var(--anki-text)';
-            if (item.count > 30) { bg = 'var(--anki-blue)'; textColor = '#ffffff'; }
-            else if (item.count > 15) { bg = 'rgba(2, 132, 199, 0.6)'; textColor = '#ffffff'; }
-            else if (item.count > 0) { bg = 'rgba(2, 132, 199, 0.2)'; textColor = 'var(--anki-text)'; }
+            let bg = 'var(--bg-stone)';
+            let textColor = 'var(--ink-primary)';
+            if (item.count > 30) { bg = 'var(--accent-pine)'; textColor = '#FFFFFF'; }
+            else if (item.count > 15) { bg = '#BBF7D0'; textColor = '#0F172A'; }
+            else if (item.count > 0) { bg = '#E2E8F0'; textColor = '#0F172A'; }
 
             return (
               <div
                 key={item.day}
-                title={`Ngày ${item.day}: ${item.count} lượt ôn`}
+                title={`Ngày ${item.day}: ${item.count} thẻ ôn tập`}
                 style={{
                   background: bg,
-                  borderRadius: '6px',
-                  height: '42px',
+                  border: 'var(--border-dark)',
+                  boxShadow: 'var(--shadow-sm)',
+                  borderRadius: 'var(--radius-btn)',
+                  height: '46px',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: textColor,
-                  fontSize: '11px',
-                  border: '1px solid var(--anki-border)'
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  transition: 'transform 0.1s ease',
+                  cursor: 'pointer'
                 }}
               >
-                <span style={{ opacity: 0.7 }}>{item.day}</span>
-                <span style={{ fontWeight: '700' }}>{item.count}</span>
+                <span style={{ opacity: 0.65, fontSize: '0.68rem' }}>N.{item.day}</span>
+                <span>{item.count}</span>
               </div>
             );
           })}
@@ -113,55 +109,48 @@ export const StatisticsPage: React.FC = () => {
       </div>
 
       {/* FSRS Retention Distribution */}
-      <div style={{
-        background: 'var(--anki-panel-bg)',
-        borderRadius: '12px',
-        border: '1px solid var(--anki-border)',
-        padding: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '14px',
-        boxShadow: 'var(--anki-shadow)'
-      }}>
-        <h3 style={{ fontSize: '15px', fontWeight: '600', color: 'var(--anki-text)' }}>Phân Nhóm Đánh Giá FSRS</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div className="card-tactile" style={{ padding: '24px' }}>
+        <h3 style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.1rem', fontWeight: 700, marginBottom: '16px' }}>
+          Phân Nhóm Đánh Giá Theo Chu Kỳ FSRS
+        </h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--anki-text-muted)', marginBottom: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 700, marginBottom: '6px' }}>
               <span>Easy (Dễ)</span>
-              <span style={{ color: 'var(--anki-blue)', fontWeight: '700' }}>58%</span>
+              <span style={{ color: 'var(--accent-cobalt)' }}>58%</span>
             </div>
-            <div style={{ background: 'var(--anki-card-sub)', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{ width: '58%', background: 'var(--anki-blue)', height: '100%' }} />
+            <div style={{ background: 'var(--bg-stone)', border: 'var(--border-dark)', height: '12px', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}>
+              <div style={{ width: '58%', background: 'var(--accent-cobalt)', height: '100%' }} />
             </div>
           </div>
 
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--anki-text-muted)', marginBottom: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 700, marginBottom: '6px' }}>
               <span>Good (Tốt)</span>
-              <span style={{ color: 'var(--anki-green)', fontWeight: '700' }}>28%</span>
+              <span style={{ color: 'var(--accent-pine)' }}>28%</span>
             </div>
-            <div style={{ background: 'var(--anki-card-sub)', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{ width: '28%', background: 'var(--anki-green)', height: '100%' }} />
+            <div style={{ background: 'var(--bg-stone)', border: 'var(--border-dark)', height: '12px', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}>
+              <div style={{ width: '28%', background: 'var(--accent-pine)', height: '100%' }} />
             </div>
           </div>
 
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--anki-text-muted)', marginBottom: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 700, marginBottom: '6px' }}>
               <span>Hard (Khó)</span>
-              <span style={{ color: 'var(--anki-amber)', fontWeight: '700' }}>10%</span>
+              <span style={{ color: 'var(--accent-amber)' }}>10%</span>
             </div>
-            <div style={{ background: 'var(--anki-card-sub)', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{ width: '10%', background: 'var(--anki-amber)', height: '100%' }} />
+            <div style={{ background: 'var(--bg-stone)', border: 'var(--border-dark)', height: '12px', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}>
+              <div style={{ width: '10%', background: 'var(--accent-amber)', height: '100%' }} />
             </div>
           </div>
 
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--anki-text-muted)', marginBottom: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 700, marginBottom: '6px' }}>
               <span>Again (Học Lại)</span>
-              <span style={{ color: 'var(--anki-red)', fontWeight: '700' }}>4%</span>
+              <span style={{ color: 'var(--accent-vermilion)' }}>4%</span>
             </div>
-            <div style={{ background: 'var(--anki-card-sub)', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{ width: '4%', background: 'var(--anki-red)', height: '100%' }} />
+            <div style={{ background: 'var(--bg-stone)', border: 'var(--border-dark)', height: '12px', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}>
+              <div style={{ width: '4%', background: 'var(--accent-vermilion)', height: '100%' }} />
             </div>
           </div>
         </div>
