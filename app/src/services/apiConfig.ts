@@ -1,6 +1,6 @@
 import { Vocabulary, Grammar, PracticeQuestion, EvaluationResult } from '../types';
 
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = 'http://localhost:8088/api';
 
 export const api = {
   // Vocabulary APIs
