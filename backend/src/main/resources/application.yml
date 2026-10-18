@@ -1,16 +1,23 @@
 spring:
   datasource:
-    url: jdbc:sqlite:nihongoai.db
+    url: jdbc:sqlite:nihongoai.db?foreign_keys=on
     driver-class-name: org.sqlite.JDBC
   jpa:
     database-platform: org.hibernate.community.dialect.SQLiteDialect
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: none
+    show-sql: false
   flyway:
     enabled: true
-    url: jdbc:sqlite:nihongoai.db
+    url: jdbc:sqlite:nihongoai.db?foreign_keys=on
     locations: classpath:db/migration
+    baseline-on-migrate: true
 
 server:
-  port: 8080
+  port: 8088
+
+ai:
+  provider: ${AI_PROVIDER:mock}
+  gemini:
+    api-key: ${GEMINI_API_KEY:}
+    model: ${GEMINI_MODEL:gemini-1.5-flash}
