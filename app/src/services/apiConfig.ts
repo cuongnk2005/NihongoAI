@@ -92,7 +92,14 @@ export const api = {
       const res = await fetch(`${BASE_URL}/practice/evaluate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userAnswer, question })
+        body: JSON.stringify({
+          sentenceVi: question.sentenceVi,
+          exampleAnswerJa: question.exampleAnswerJa,
+          userAnswer,
+          targetVocabulary: question.targetVocabulary,
+          targetGrammar: question.targetGrammar,
+          difficulty: question.difficulty
+        })
       });
       if (res.ok) return await res.json();
     } catch {
@@ -118,7 +125,7 @@ export const api = {
       const res = await fetch(`${BASE_URL}/kaiwa/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage, level })
+        body: JSON.stringify({ userMessage, level })
       });
       if (res.ok) return await res.json();
     } catch {

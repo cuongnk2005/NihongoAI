@@ -1,64 +1,22 @@
-import React, { useState } from 'react';
-import { api } from '../../../services/apiConfig';
+import React from 'react';
+import { useKaiwaChat } from '../hooks/useKaiwaChat';
 import { Send, Bot, User, Sparkles, Volume2 } from 'lucide-react';
 
-interface KaiwaMessage {
-  id: string;
-  sender: 'ai' | 'user';
-  text: string;
-  correctionVi?: string;
-  timestamp: string;
-}
-
 export const KaiwaPage: React.FC = () => {
-  const [level, setLevel] = useState<string>('N4');
-  const [messages, setMessages] = useState<KaiwaMessage[]>([
-    {
-      id: '1',
-      sender: 'ai',
-      text: 'こんにちは！今日はどんな一日でしたか。',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }
-  ]);
-  const [inputMessage, setInputMessage] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const {
+    level,
+    setLevel,
+    messages,
+    inputMessage,
+    setInputMessage,
+    isLoading,
+    sendMessage,
+    playSpeech,
+  } = useKaiwaChat('N4');
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputMessage.trim() || isLoading) return;
-
-    const userMsgText = inputMessage;
-    const userMsg: KaiwaMessage = {
-      id: Date.now().toString(),
-      sender: 'user',
-      text: userMsgText,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-    setInputMessage('');
-    setIsLoading(true);
-
-    const res = await api.sendKaiwaMessage(userMsgText, level);
-
-    const aiMsg: KaiwaMessage = {
-      id: (Date.now() + 1).toString(),
-      sender: 'ai',
-      text: res.aiReply,
-      correctionVi: res.correctionVi,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-
-    setMessages((prev) => [...prev, aiMsg]);
-    setIsLoading(false);
-  };
-
-  const playSpeech = (text: string) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ja-JP';
-      window.speechSynthesis.speak(utterance);
-    }
+    await sendMessage(e);
   };
 
   return (
