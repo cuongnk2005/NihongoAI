@@ -1,46 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { api } from '../../../services/apiConfig';
-import { PracticeQuestion, EvaluationResult } from '../../../types';
+import React, { useState } from 'react';
+import { usePractice } from '../hooks/usePractice';
 import { Send, RefreshCw, CheckCircle2, AlertCircle, Volume2 } from 'lucide-react';
 
 export const PracticePage: React.FC = () => {
-  const [level, setLevel] = useState<string>('N4');
-  const [question, setQuestion] = useState<PracticeQuestion | null>(null);
-  const [userAnswer, setUserAnswer] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isEvaluating, setIsEvaluating] = useState<boolean>(false);
-  const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
+  const {
+    level,
+    setLevel,
+    question,
+    userAnswer,
+    setUserAnswer,
+    isLoading,
+    isEvaluating,
+    evaluation,
+    generateNewQuestion,
+    submitEvaluation,
+    playSpeech,
+  } = usePractice('N4');
+
   const [isComposing, setIsComposing] = useState<boolean>(false);
-
-  useEffect(() => {
-    handleGenerate();
-  }, [level]);
-
-  const handleGenerate = async () => {
-    setIsLoading(true);
-    setEvaluation(null);
-    setUserAnswer('');
-    const q = await api.generatePractice(level);
-    setQuestion(q);
-    setIsLoading(false);
-  };
 
   const handleEvaluate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userAnswer.trim() || !question || isEvaluating) return;
-
-    setIsEvaluating(true);
-    const res = await api.evaluatePractice(userAnswer, question);
-    setEvaluation(res);
-    setIsEvaluating(false);
+    await submitEvaluation();
   };
 
-  const playSpeech = (text: string) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ja-JP';
-      window.speechSynthesis.speak(utterance);
-    }
+  const handleGenerate = async () => {
+    await generateNewQuestion();
   };
 
   return (
