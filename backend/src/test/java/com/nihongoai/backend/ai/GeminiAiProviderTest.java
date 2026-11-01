@@ -8,7 +8,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +19,7 @@ class GeminiAiProviderTest {
     private SystemSettingRepository settingRepository;
     private LocalMockAiProvider mockProvider;
     private GeminiAiProvider geminiProvider;
+    private OpenAiCompatibleAiProvider openAiProvider;
     private AiProviderFactory factory;
 
     @BeforeEach
@@ -27,7 +27,8 @@ class GeminiAiProviderTest {
         settingRepository = Mockito.mock(SystemSettingRepository.class);
         mockProvider = new LocalMockAiProvider();
         geminiProvider = new GeminiAiProvider(new ObjectMapper(), mockProvider, settingRepository);
-        factory = new AiProviderFactory(mockProvider, geminiProvider, settingRepository);
+        openAiProvider = new OpenAiCompatibleAiProvider(new ObjectMapper(), mockProvider, settingRepository);
+        factory = new AiProviderFactory(mockProvider, geminiProvider, openAiProvider, settingRepository);
     }
 
     @Test
@@ -64,12 +65,17 @@ class GeminiAiProviderTest {
     }
 
     @Test
-    @DisplayName("AiProviderFactory dynamically routes between Gemini and Mock based on system setting")
+    @DisplayName("AiProviderFactory dynamically routes between Gemini, FreeLLMAPI, and Mock based on system setting")
     void testFactoryRouting() {
         when(settingRepository.findById("ai.provider")).thenReturn(Optional.of(
                 new SystemSettingEntity("ai.provider", "gemini")
         ));
         assertEquals("gemini", factory.getProvider().getProviderName());
+
+        when(settingRepository.findById("ai.provider")).thenReturn(Optional.of(
+                new SystemSettingEntity("ai.provider", "freellmapi")
+        ));
+        assertEquals("freellmapi", factory.getProvider().getProviderName());
 
         when(settingRepository.findById("ai.provider")).thenReturn(Optional.of(
                 new SystemSettingEntity("ai.provider", "mock")

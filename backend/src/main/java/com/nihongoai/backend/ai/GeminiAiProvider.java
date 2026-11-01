@@ -64,6 +64,7 @@ public class GeminiAiProvider implements AiProvider {
             String sentenceVi = root.path("sentenceVi").asText("Tôi đã từng xem bộ phim này cùng với bạn bè.");
             String exampleAnswerJa = root.path("exampleAnswerJa").asText("友達とこの映画を見たことがあります。");
             String difficulty = root.path("difficulty").asText(level != null ? level : "N4");
+            String hintVi = root.path("hintVi").asText(null);
 
             List<String> vocabs = new ArrayList<>();
             if (root.has("targetVocabulary") && root.get("targetVocabulary").isArray()) {
@@ -79,7 +80,7 @@ public class GeminiAiProvider implements AiProvider {
                 grammars.addAll(targetGrammar);
             }
 
-            return new PracticeQuestionDto(sentenceVi, exampleAnswerJa, vocabs, grammars, difficulty);
+            return new PracticeQuestionDto(sentenceVi, exampleAnswerJa, vocabs, grammars, difficulty, hintVi);
         } catch (Exception e) {
             log.warn("Gemini generateExercise failed ({}: {}). Gracefully falling back to LocalMockAiProvider.",
                     e.getClass().getSimpleName(), e.getMessage());
@@ -108,12 +109,24 @@ public class GeminiAiProvider implements AiProvider {
             String suggestedAnswer = root.path("suggestedAnswer").asText(exampleJa != null ? exampleJa : "");
             String explanationVi = root.path("explanationVi").asText("Câu trả lời của bạn tốt.");
 
+            List<String> grammarErrors = new ArrayList<>();
+            if (root.has("grammarErrors") && root.get("grammarErrors").isArray()) {
+                root.get("grammarErrors").forEach(node -> grammarErrors.add(node.asText()));
+            }
+
+            List<String> vocabularyErrors = new ArrayList<>();
+            if (root.has("vocabularyErrors") && root.get("vocabularyErrors").isArray()) {
+                root.get("vocabularyErrors").forEach(node -> vocabularyErrors.add(node.asText()));
+            }
+
             return new EvaluationResultDto(
                     correct,
                     score,
                     meaningScore,
                     grammarScore,
                     naturalnessScore,
+                    grammarErrors,
+                    vocabularyErrors,
                     suggestedAnswer,
                     explanationVi
             );
@@ -183,15 +196,17 @@ public class GeminiAiProvider implements AiProvider {
         return """
                 You are a professional Japanese language learning assistant.
                 Task: Generate a Vietnamese sentence for Japanese translation practice at JLPT %s level.
-                Target Vocabulary: %s
-                Target Grammar: %s
+                Ensure that the targetVocabulary and targetGrammar you return actually match the Vietnamese sentence and Japanese example answer.
+                Preferred Vocabulary pool: %s
+                Preferred Grammar pool: %s
                 Output MUST be strict JSON with this exact schema:
                 {
                   "sentenceVi": "Vietnamese prompt sentence",
                   "exampleAnswerJa": "Expected natural Japanese translation",
-                  "targetVocabulary": ["vocabulary1", "vocabulary2"],
+                  "targetVocabulary": ["vocabulary1 (reading)", "vocabulary2 (reading)"],
                   "targetGrammar": ["grammarPattern"],
-                  "difficulty": "%s"
+                  "difficulty": "%s",
+                  "hintVi": "Short grammar/structure hint in Vietnamese"
                 }
                 """.formatted(level, String.join(", ", targetVocab), String.join(", ", targetGrammar), level);
     }
@@ -215,6 +230,8 @@ public class GeminiAiProvider implements AiProvider {
                   "meaningScore": number between 0 and 100,
                   "grammarScore": number between 0 and 100,
                   "naturalnessScore": number between 0 and 100,
+                  "grammarErrors": ["specific grammar issue in Vietnamese if any"],
+                  "vocabularyErrors": ["specific vocabulary issue in Vietnamese if any"],
                   "suggestedAnswer": "Most natural Japanese sentence",
                   "explanationVi": "Clear explanation in Vietnamese analyzing grammar and points of improvement"
                 }

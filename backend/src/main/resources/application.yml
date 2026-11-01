@@ -21,3 +21,7 @@ ai:
   gemini:
     api-key: ${GEMINI_API_KEY:}
     model: ${GEMINI_MODEL:gemini-1.5-flash}
+  freellmapi:
+    base-url: ${FREELLMAPI_BASE_URL:http://localhost:3001/v1}
+    api-key: ${FREELLMAPI_API_KEY:}
+    model: ${FREELLMAPI_MODEL:gemini-2.0-flash}

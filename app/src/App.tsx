@@ -10,6 +10,7 @@ import { ReviewPage } from './features/review/pages/ReviewPage';
 import { StatisticsPage } from './features/statistics/pages/StatisticsPage';
 import { SettingsPage } from './features/settings/pages/SettingsPage';
 import { api } from './services/apiConfig';
+import { Flashcard } from './types';
 import { X } from 'lucide-react';
 import './styles/index.css';
 
@@ -20,6 +21,13 @@ export function App() {
   const [quickReading, setQuickReading] = useState<string>('');
   const [quickMeaning, setQuickMeaning] = useState<string>('');
   const [quickLevel, setQuickLevel] = useState<string>('N4');
+
+  const [studyingDeck, setStudyingDeck] = useState<{ id: string; name: string; cards: Flashcard[] } | null>(null);
+
+  const handleStudyDeck = (deck: { id: string; name: string; cards: Flashcard[] }) => {
+    setStudyingDeck(deck);
+    setActiveTab('review');
+  };
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('nihongoai-theme') as 'light' | 'dark') || 'light';
@@ -55,9 +63,15 @@ export function App() {
   const renderContent = () => {
     switch (activeTab) {
       case 'review':
-        return <ReviewPage onBackToDecks={() => setActiveTab('decks')} />;
+        return (
+          <ReviewPage 
+            deckTitle={studyingDeck?.name}
+            customCards={studyingDeck?.cards}
+            onBackToDecks={() => setActiveTab('decks')} 
+          />
+        );
       case 'decks':
-        return <DecksPage onStudyDeck={() => setActiveTab('review')} />;
+        return <DecksPage onStudyDeck={handleStudyDeck} />;
       case 'add':
         return <VocabularyPage />;
       case 'browse':
