@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { usePractice } from '../hooks/usePractice';
+import { useTextLookup } from '../../../hooks/useTextLookup';
+import { KanjiLookupPopover } from '../../../components/KanjiLookupPopover';
 import {
   Send,
   RefreshCw,
@@ -11,7 +13,8 @@ import {
   EyeOff,
   ArrowRight,
   RotateCcw,
-  Sparkles
+  Sparkles,
+  Search
 } from 'lucide-react';
 
 export const PracticePage: React.FC = () => {
@@ -31,6 +34,8 @@ export const PracticePage: React.FC = () => {
     insertToken,
     playSpeech
   } = usePractice('N4');
+
+  const { lookupResult, position, closeLookup, handleMouseUp, handleInputSelect } = useTextLookup();
 
   const [isComposing, setIsComposing] = useState<boolean>(false);
   const [showHint, setShowHint] = useState<boolean>(false);
@@ -66,7 +71,19 @@ export const PracticePage: React.FC = () => {
       : null;
 
   return (
-    <div style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
+    <div
+      onMouseUp={handleMouseUp}
+      style={{ width: '100%', maxWidth: '880px', margin: '0 auto', position: 'relative' }}
+    >
+      {/* Popover Tra Từ Nhanh Khi Bôi Đen */}
+      {lookupResult && (
+        <KanjiLookupPopover
+          result={lookupResult}
+          position={position}
+          onClose={closeLookup}
+        />
+      )}
+
       {/* Page Header */}
       <div
         style={{
@@ -82,8 +99,12 @@ export const PracticePage: React.FC = () => {
           <h2 style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.6rem', fontWeight: 700, marginBottom: '4px' }}>
             ✍️ Luyện Dịch Câu (Active Production)
           </h2>
-          <p style={{ color: 'var(--ink-secondary)', fontSize: '0.9rem' }}>
+          <p style={{ color: 'var(--ink-secondary)', fontSize: '0.9rem', marginBottom: '2px' }}>
             AI tạo đề bài tiếng Việt kích thích phản xạ sử dụng từ vựng & ngữ pháp mục tiêu, kiểm tra IME tiếng Nhật.
+          </p>
+          <p style={{ fontSize: '0.8rem', color: '#B45309', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Search size={13} />
+            <span>Mẹo: Bạn có thể <strong>bôi đen bất kỳ chữ Kanji / từ tiếng Nhật</strong> trên màn hình để tra cứu nghĩa Hán Việt tức thì!</span>
           </p>
         </div>
 
@@ -358,6 +379,7 @@ export const PracticePage: React.FC = () => {
                 placeholder="Gõ câu dịch tiếng Nhật của bạn vào đây (Nhấn Enter để nộp bài)..."
                 value={userAnswer}
                 onChange={(e) => setUserAnswer(e.target.value)}
+                onSelect={handleInputSelect}
                 onCompositionStart={() => setIsComposing(true)}
                 onCompositionEnd={() => setIsComposing(false)}
                 disabled={isEvaluating}

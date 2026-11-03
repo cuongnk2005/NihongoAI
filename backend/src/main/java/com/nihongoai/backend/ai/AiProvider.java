@@ -11,4 +11,6 @@ public interface AiProvider {
     EvaluationResultDto evaluateAnswer(String sentenceVi, String exampleJa, String userAnswer, String level);
 
     KaiwaResponseDto chatKaiwa(String userMessage, String level);
+
+    KanjiLookupDto lookupKanji(String word);
 }

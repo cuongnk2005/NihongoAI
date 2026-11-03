@@ -460,5 +460,25 @@ export const api = {
     } catch (e) {
       console.warn('Failed to save setting to backend:', e);
     }
+  },
+
+  // AI Kanji & Word Lookup
+  lookupKanjiAi: async (word: string): Promise<{
+    word: string;
+    reading: string;
+    sinoVietnamese: string;
+    meaningVi: string;
+    jlptLevel?: string;
+    kanjiList?: Array<{ charStr?: string; char?: string; sino: string; meaning: string }>;
+  } | null> => {
+    try {
+      const res = await fetch(`${BASE_URL}/practice/lookup-kanji?word=${encodeURIComponent(word)}`);
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn('AI Kanji lookup failed:', e);
+    }
+    return null;
   }
 };

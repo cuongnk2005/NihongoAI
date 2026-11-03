@@ -58,4 +58,49 @@ public class PracticeService {
         AiProvider provider = aiProviderFactory.getProvider();
         return provider.evaluateAnswer(sentenceVi, exampleJa, userAnswer, level);
     }
+
+    public com.nihongoai.backend.ai.KanjiLookupDto lookupKanji(String word) {
+        if (word == null || word.isBlank()) {
+            return new com.nihongoai.backend.ai.KanjiLookupDto("", "", "---", "", "N4", List.of());
+        }
+        String cleanWord = word.trim();
+
+        // 1. Check local SQLite vocabulary repository first
+        List<VocabularyEntity> existing = vocabularyRepository.searchVocabularies(cleanWord);
+        for (VocabularyEntity v : existing) {
+            if (v.getWord() != null && v.getWord().equalsIgnoreCase(cleanWord)) {
+                String sino = (v.getPartOfSpeech() != null && v.getPartOfSpeech().startsWith("Hán Việt:"))
+                        ? v.getPartOfSpeech().replace("Hán Việt:", "").trim()
+                        : "---";
+                return new com.nihongoai.backend.ai.KanjiLookupDto(
+                        v.getWord(),
+                        v.getReading(),
+                        sino,
+                        v.getMeaningVi(),
+                        v.getJlptLevel(),
+                        List.of()
+                );
+            }
+        }
+
+        // 2. Query AI provider (Gemini or FreeLLMAPI)
+        AiProvider provider = aiProviderFactory.getProvider();
+        com.nihongoai.backend.ai.KanjiLookupDto result = provider.lookupKanji(cleanWord);
+
+        // 3. Auto-cache into local SQLite database for future instant lookup
+        if (result != null && result.word() != null && !result.word().isBlank() && !"---".equals(result.sinoVietnamese())) {
+            try {
+                VocabularyEntity entity = new VocabularyEntity();
+                entity.setWord(result.word());
+                entity.setReading(result.reading() != null && !result.reading().isBlank() ? result.reading() : result.word());
+                entity.setMeaningVi(result.meaningVi());
+                entity.setJlptLevel(result.jlptLevel() != null ? result.jlptLevel() : "N4");
+                entity.setPartOfSpeech(result.sinoVietnamese() != null ? "Hán Việt: " + result.sinoVietnamese() : "Từ vựng");
+                vocabularyRepository.save(entity);
+            } catch (Exception ignored) {
+            }
+        }
+
+        return result;
+    }
 }
