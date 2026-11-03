@@ -34,6 +34,16 @@ export const useKaiwaChat = (initialLevel: string = 'N4'): UseKaiwaChatReturn =>
   const [inputMessage, setInputMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const playSpeech = useCallback((text: string) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ja-JP';
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
+  }, []);
+
   const sendMessage = useCallback(async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!inputMessage.trim() || isLoading) return;
@@ -60,10 +70,11 @@ export const useKaiwaChat = (initialLevel: string = 'N4'): UseKaiwaChatReturn =>
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages((prev) => [...prev, aiMsg]);
+      playSpeech(res.aiReply);
     } finally {
       setIsLoading(false);
     }
-  }, [inputMessage, isLoading, level]);
+  }, [inputMessage, isLoading, level, playSpeech]);
 
   const resetConversation = useCallback(() => {
     setMessages([
@@ -74,14 +85,6 @@ export const useKaiwaChat = (initialLevel: string = 'N4'): UseKaiwaChatReturn =>
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ]);
-  }, []);
-
-  const playSpeech = useCallback((text: string) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ja-JP';
-      window.speechSynthesis.speak(utterance);
-    }
   }, []);
 
   return {
