@@ -161,6 +161,74 @@ public class GeminiAiProvider implements AiProvider {
         }
     }
 
+    @Override
+    public KanjiLookupDto lookupKanji(String word) {
+        String apiKey = resolveApiKey();
+        if (apiKey == null || apiKey.isBlank()) {
+            log.info("Gemini API key is not configured. Falling back to LocalMockAiProvider for Kanji lookup.");
+            return fallbackMockProvider.lookupKanji(word);
+        }
+
+        String prompt = buildKanjiLookupPrompt(word);
+        try {
+            String jsonText = callGemini(prompt, apiKey, 0.2);
+            JsonNode root = objectMapper.readTree(cleanJson(jsonText));
+
+            String resWord = root.path("word").asText(word);
+            String reading = root.path("reading").asText(word);
+            String sinoVietnamese = root.path("sinoVietnamese").asText("---");
+            String meaningVi = root.path("meaningVi").asText("Từ vựng tiếng Nhật: " + word);
+            String jlptLevel = root.path("jlptLevel").asText("N4");
+
+            List<KanjiLookupDto.KanjiDetailDto> kanjiList = new ArrayList<>();
+            if (root.has("kanjiList") && root.get("kanjiList").isArray()) {
+                for (JsonNode kNode : root.get("kanjiList")) {
+                    kanjiList.add(new KanjiLookupDto.KanjiDetailDto(
+                            kNode.path("char").asText(""),
+                            kNode.path("sino").asText("---"),
+                            kNode.path("meaning").asText("")
+                    ));
+                }
+            }
+
+            return new KanjiLookupDto(resWord, reading, sinoVietnamese, meaningVi, jlptLevel, kanjiList);
+        } catch (Exception e) {
+            log.warn("Gemini lookupKanji failed ({}: {}). Falling back to LocalMockAiProvider.",
+                    e.getClass().getSimpleName(), e.getMessage());
+            return fallbackMockProvider.lookupKanji(word);
+        }
+    }
+
+    private String buildKanjiLookupPrompt(String word) {
+        return """
+                You are a professional Japanese linguist and Sino-Vietnamese (Hán Việt) lexicographer.
+                Task: Analyze the Japanese word or Kanji: "%s"
+
+                Provide:
+                1. word: exact Japanese word or Kanji (e.g. 掃除)
+                2. reading: Hiragana reading (e.g. そうじ)
+                3. sinoVietnamese: Sino-Vietnamese reading in UPPERCASE (e.g. TẢO TRỪ)
+                4. meaningVi: Concise, natural Vietnamese meaning
+                5. jlptLevel: JLPT level (N5, N4, N3, N2, or N1)
+                6. kanjiList: breakdown of each Kanji character with:
+                   - char: single Kanji (e.g. 掃)
+                   - sino: Sino-Vietnamese reading in UPPERCASE (e.g. TẢO)
+                   - meaning: concise meaning in Vietnamese
+
+                Output MUST be strict JSON with this exact schema:
+                {
+                  "word": "...",
+                  "reading": "...",
+                  "sinoVietnamese": "...",
+                  "meaningVi": "...",
+                  "jlptLevel": "...",
+                  "kanjiList": [
+                    { "char": "...", "sino": "...", "meaning": "..." }
+                  ]
+                }
+                """.formatted(word);
+    }
+
     private String callGemini(String prompt, String apiKey, double temperature) throws JsonProcessingException {
         String model = resolveModel();
         String url = GEMINI_API_BASE + model + ":generateContent?key=" + apiKey;

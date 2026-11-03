@@ -316,6 +316,31 @@ public class LocalMockAiProvider implements AiProvider {
         );
     }
 
+    @Override
+    public KanjiLookupDto lookupKanji(String word) {
+        if ("掃除".equals(word)) {
+            return new KanjiLookupDto(
+                    "掃除",
+                    "そうじ",
+                    "TẢO TRỪ",
+                    "dọn dẹp, quét dọn vệ sinh",
+                    "N4",
+                    List.of(
+                            new KanjiLookupDto.KanjiDetailDto("掃", "TẢO", "quét, quét dọn"),
+                            new KanjiLookupDto.KanjiDetailDto("除", "TRỪ", "trừ khử, loại bỏ")
+                    )
+            );
+        }
+        return new KanjiLookupDto(
+                word,
+                word,
+                "---",
+                "Từ vựng tiếng Nhật: " + word,
+                "N4",
+                List.of()
+        );
+    }
+
     private PracticeQuestionDto findMatchingQuestion(String sentenceVi, String exampleJa) {
         for (List<PracticeQuestionDto> list : EXERCISE_BANK.values()) {
             for (PracticeQuestionDto q : list) {

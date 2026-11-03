@@ -1,6 +1,7 @@
 package com.nihongoai.backend.controller;
 
 import com.nihongoai.backend.ai.EvaluationResultDto;
+import com.nihongoai.backend.ai.KanjiLookupDto;
 import com.nihongoai.backend.ai.PracticeQuestionDto;
 import com.nihongoai.backend.dto.PracticeEvaluateRequestDto;
 import com.nihongoai.backend.practice.PracticeService;
@@ -32,5 +33,10 @@ public class PracticeController {
                 request.getEffectiveDifficulty()
         );
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/lookup-kanji")
+    public ResponseEntity<KanjiLookupDto> lookupKanji(@RequestParam String word) {
+        return ResponseEntity.ok(practiceService.lookupKanji(word));
     }
 }

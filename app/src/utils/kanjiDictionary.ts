@@ -41,6 +41,10 @@ export const KANJI_SINO_MAP: Record<string, { sino: string; meaning: string }> =
   '心': { sino: 'TÂM', meaning: 'tim, tấm lòng' },
   '私': { sino: 'TƯ', meaning: 'tôi, cá nhân, riêng tư' },
   '彼': { sino: 'BỈ', meaning: 'anh ấy, người kia' },
+  '掃': { sino: 'TẢO', meaning: 'quét, dọn quét, quét dọn' },
+  '除': { sino: 'TRỪ', meaning: 'trừ khử, loại bỏ, chia' },
+  '洗': { sino: 'TẨY', meaning: 'rửa, giặt' },
+  '濯': { sino: 'TRẠC', meaning: 'giặt giũ, rửa sạch' },
 
   // Time & Days
   '来': { sino: 'LAI', meaning: 'đến, tới, tương lai' },
@@ -223,6 +227,8 @@ export const COMMON_COMPOUNDS: Record<string, { reading: string; sino: string; m
   '旅行': { reading: 'りょこう', sino: 'LỮ HÀNH', meaning: 'Chuyến du lịch' },
   '野菜': { reading: 'やさい', sino: 'DÃ THÁI', meaning: 'Rau củ' },
   '運動': { reading: 'うんどう', sino: 'VẬN ĐỘNG', meaning: 'Tập thể dục, vận động' },
+  '掃除': { reading: 'そうじ', sino: 'TẢO TRỪ', meaning: 'Dọn dẹp, quét dọn vệ sinh' },
+  '洗濯': { reading: 'せんたく', sino: 'TẨY TRẠC', meaning: 'Giặt giũ quần áo' },
   '試験': { reading: 'しけん', sino: 'THÍ NGHIỆM', meaning: 'Kỳ thi, bài kiểm tra' },
   '合格': { reading: 'ごうかく', sino: 'HỢP CÁCH', meaning: 'Thi đỗ, trúng tuyển' },
   '電車': { reading: 'でんしゃ', sino: 'ĐIỆN XA', meaning: 'Tàu điện' },
@@ -270,6 +276,26 @@ const DECONJUGATION_RULES: DeconjugationRule[] = [
   { suffix: 'た', replacement: 'る', note: 'Thể quá khứ ngắn (V-た)' }
 ];
 
+const CACHE_PREFIX = 'nihongo_kanji_cache_';
+
+export function getCachedKanji(word: string): LookupResult | null {
+  try {
+    const raw = localStorage.getItem(CACHE_PREFIX + word);
+    if (raw) return JSON.parse(raw);
+  } catch {
+    // Ignore storage errors
+  }
+  return null;
+}
+
+export function setCachedKanji(word: string, result: LookupResult): void {
+  try {
+    localStorage.setItem(CACHE_PREFIX + word, JSON.stringify(result));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 /**
  * Normalizes and removes punctuation from Japanese text selection
  */
@@ -284,6 +310,12 @@ function cleanSelection(text: string): string {
 export function lookupJapaneseWord(rawText: string): LookupResult | null {
   const query = cleanSelection(rawText);
   if (!query) return null;
+
+  // 1. Check local browser cache first
+  const cached = getCachedKanji(query);
+  if (cached) {
+    return cached;
+  }
 
   // Extract all Kanji characters in the selection
   const kanjiChars = query.match(/[\u4e00-\u9faf]/g) || [];

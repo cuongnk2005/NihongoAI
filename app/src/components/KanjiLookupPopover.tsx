@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { LookupResult } from '../utils/kanjiDictionary';
-import { Volume2, Plus, Check, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { LookupResult, setCachedKanji } from '../utils/kanjiDictionary';
+import { Volume2, Plus, Check, X, Sparkles, Loader2 } from 'lucide-react';
 import { api } from '../services/apiConfig';
 
 export interface KanjiLookupPopoverProps {
@@ -16,14 +16,65 @@ export const KanjiLookupPopover: React.FC<KanjiLookupPopoverProps> = ({
   onClose,
   onSavedToDeck
 }) => {
+  const [currentResult, setCurrentResult] = useState<LookupResult>(result);
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
+  const [isAiSourced, setIsAiSourced] = useState<boolean>(false);
+
+  // Trigger AI lookup function
+  const triggerAiLookup = async (lookupWord: string) => {
+    setIsAiLoading(true);
+    try {
+      const aiData = await api.lookupKanjiAi(lookupWord);
+      if (aiData && aiData.sinoVietnamese && aiData.sinoVietnamese !== '---') {
+        const newResult: LookupResult = {
+          query: lookupWord,
+          word: aiData.word || lookupWord,
+          reading: aiData.reading || lookupWord,
+          sinoVietnamese: aiData.sinoVietnamese,
+          meaningVi: aiData.meaningVi || 'Từ vựng tiếng Nhật',
+          kanjiList: (aiData.kanjiList || []).map((k) => ({
+            char: k.charStr || k.char || '',
+            sino: k.sino || '---',
+            meaning: k.meaning || ''
+          })),
+          rootForm: currentResult.rootForm,
+          conjugationNote: currentResult.conjugationNote
+        };
+        setCurrentResult(newResult);
+        setIsAiSourced(true);
+        // Persist to local browser storage for 0ms lookup next time
+        setCachedKanji(lookupWord, newResult);
+      }
+    } catch (err) {
+      console.warn('AI lookup error:', err);
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
+  // Check if offline dictionary lacks info, then auto-query Gemini AI
+  useEffect(() => {
+    setCurrentResult(result);
+    setIsAiSourced(false);
+
+    const hasMissingSino =
+      !result.sinoVietnamese ||
+      result.sinoVietnamese === '---' ||
+      result.kanjiList.some((k) => k.sino === '---');
+
+    const targetWord = result.rootForm || result.word || result.query;
+    if (hasMissingSino && targetWord) {
+      triggerAiLookup(targetWord);
+    }
+  }, [result]);
 
   const handlePlaySpeech = (e: React.MouseEvent) => {
     e.stopPropagation();
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(result.rootForm || result.word || result.query);
+      const utterance = new SpeechSynthesisUtterance(currentResult.rootForm || currentResult.word || currentResult.query);
       utterance.lang = 'ja-JP';
       utterance.rate = 0.9;
       window.speechSynthesis.speak(utterance);
@@ -36,14 +87,16 @@ export const KanjiLookupPopover: React.FC<KanjiLookupPopoverProps> = ({
     setIsSaving(true);
     try {
       await api.createVocabulary({
-        word: result.rootForm || result.word,
-        reading: result.reading && result.reading !== '---' ? result.reading : (result.rootForm || result.word),
-        meaningVi: result.meaningVi,
+        word: currentResult.rootForm || currentResult.word,
+        reading: currentResult.reading && currentResult.reading !== '---'
+          ? currentResult.reading
+          : (currentResult.rootForm || currentResult.word),
+        meaningVi: currentResult.meaningVi,
         jlptLevel: 'N4',
-        partOfSpeech: result.sinoVietnamese ? `Hán Việt: ${result.sinoVietnamese}` : 'Từ vựng'
+        partOfSpeech: currentResult.sinoVietnamese ? `Hán Việt: ${currentResult.sinoVietnamese}` : 'Từ vựng'
       });
       setIsSaved(true);
-      if (onSavedToDeck) onSavedToDeck(result.rootForm || result.word);
+      if (onSavedToDeck) onSavedToDeck(currentResult.rootForm || currentResult.word);
     } catch (err) {
       console.warn('Could not save vocabulary:', err);
     } finally {
@@ -52,7 +105,7 @@ export const KanjiLookupPopover: React.FC<KanjiLookupPopoverProps> = ({
   };
 
   // Ensure the popover doesn't overflow viewport width (max 340px)
-  const popoverWidth = 320;
+  const popoverWidth = 330;
   const leftPosition = Math.max(16, Math.min(window.innerWidth - popoverWidth - 20, position.left - popoverWidth / 2));
 
   return (
@@ -86,18 +139,18 @@ export const KanjiLookupPopover: React.FC<KanjiLookupPopoverProps> = ({
                 letterSpacing: '0.02em'
               }}
             >
-              {result.rootForm || result.word}
+              {currentResult.rootForm || currentResult.word}
             </span>
-            {result.reading && result.reading !== '---' && (
+            {currentResult.reading && currentResult.reading !== '---' && (
               <span style={{ fontSize: '0.92rem', fontWeight: 600, color: 'var(--accent-pine)', fontFamily: 'var(--font-kanji)' }}>
-                【{result.reading}】
+                【{currentResult.reading}】
               </span>
             )}
           </div>
 
-          {result.conjugationNote && (
+          {currentResult.conjugationNote && (
             <div style={{ fontSize: '0.74rem', color: '#D97706', fontWeight: 700, marginTop: '2px' }}>
-              💡 Gốc từ: <strong>{result.rootForm}</strong> ({result.conjugationNote})
+              💡 Gốc từ: <strong>{currentResult.rootForm}</strong> ({currentResult.conjugationNote})
             </div>
           )}
         </div>
@@ -136,7 +189,48 @@ export const KanjiLookupPopover: React.FC<KanjiLookupPopoverProps> = ({
         </div>
       </div>
 
-      <div style={{ height: '1.5px', background: '#E2E8F0', marginBottom: '12px' }} />
+      <div style={{ height: '1.5px', background: '#E2E8F0', marginBottom: '10px' }} />
+
+      {/* AI Lookup Banner / Status */}
+      {isAiLoading ? (
+        <div
+          style={{
+            background: '#F0F9FF',
+            border: '1.5px solid #0284C7',
+            borderRadius: '6px',
+            padding: '6px 10px',
+            marginBottom: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '0.76rem',
+            color: '#0369A1',
+            fontWeight: 700
+          }}
+        >
+          <Loader2 size={14} className="animate-spin" />
+          <span>Gemini AI đang phân tích Hán Việt & nghĩa...</span>
+        </div>
+      ) : isAiSourced ? (
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px',
+            background: '#ECFDF5',
+            border: '1px solid #A7F3D0',
+            borderRadius: '4px',
+            padding: '2px 6px',
+            fontSize: '0.7rem',
+            color: '#065F46',
+            fontWeight: 700,
+            marginBottom: '8px'
+          }}
+        >
+          <Sparkles size={11} color="#059669" />
+          <span>Phân tích bởi Gemini AI & Đã lưu bộ nhớ</span>
+        </div>
+      ) : null}
 
       {/* Sino-Vietnamese (Hán Việt) Badge */}
       <div style={{ marginBottom: '10px' }}>
@@ -156,14 +250,14 @@ export const KanjiLookupPopover: React.FC<KanjiLookupPopoverProps> = ({
               letterSpacing: '0.04em'
             }}
           >
-            {result.sinoVietnamese}
+            {currentResult.sinoVietnamese}
           </span>
         </div>
 
-        {/* Kanji breakdown if multiple kanji */}
-        {result.kanjiList.length > 0 && (
+        {/* Kanji breakdown */}
+        {currentResult.kanjiList.length > 0 && (
           <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '6px', padding: '6px 10px', marginTop: '6px' }}>
-            {result.kanjiList.map((k, idx) => (
+            {currentResult.kanjiList.map((k, idx) => (
               <div key={idx} style={{ fontSize: '0.78rem', color: '#334155', lineHeight: 1.5 }}>
                 • <strong style={{ color: '#0F172A', fontFamily: 'var(--font-kanji)' }}>{k.char}</strong>{' '}
                 <span style={{ fontWeight: 700, color: '#B45309' }}>[{k.sino}]</span>: {k.meaning}
@@ -179,18 +273,18 @@ export const KanjiLookupPopover: React.FC<KanjiLookupPopoverProps> = ({
           Ý nghĩa Tiếng Việt:
         </div>
         <div style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--accent-pine)', lineHeight: 1.4 }}>
-          {result.meaningVi}
+          {currentResult.meaningVi}
         </div>
       </div>
 
       {/* Footer Action: Quick Add to Deck */}
-      <div>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         <button
           type="button"
           onClick={handleSaveToDeck}
           disabled={isSaved || isSaving}
           style={{
-            width: '100%',
+            flex: 1,
             padding: '7px 12px',
             borderRadius: '6px',
             border: '1.5px solid #0F172A',
@@ -218,6 +312,27 @@ export const KanjiLookupPopover: React.FC<KanjiLookupPopoverProps> = ({
             </>
           )}
         </button>
+
+        {!isAiSourced && !isAiLoading && (
+          <button
+            type="button"
+            onClick={() => triggerAiLookup(currentResult.rootForm || currentResult.word || currentResult.query)}
+            title="Nhờ Gemini AI phân tích lại chi tiết"
+            style={{
+              padding: '7px 10px',
+              borderRadius: '6px',
+              border: '1.5px solid #0F172A',
+              background: '#F1F5F9',
+              color: '#0F172A',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <Sparkles size={14} color="#D97706" />
+          </button>
+        )}
       </div>
     </div>
   );
