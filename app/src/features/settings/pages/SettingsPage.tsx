@@ -1,168 +1,270 @@
-import React, { useState } from 'react';
-import { Settings, Key, Cpu, ShieldCheck, Save, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { api } from '../../../services/apiConfig';
+import {
+  Save,
+  CheckCircle2,
+  Volume2,
+  BookOpen,
+  Calendar,
+  Layers,
+  ShieldCheck,
+  Languages
+} from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
-  const [provider, setProvider] = useState<string>('gemini');
-  const [apiKey, setApiKey] = useState<string>('AIzaSyD-MOCK_KEY_EXAMPLE');
-  const [showKey, setShowKey] = useState<boolean>(false);
-  const [model, setModel] = useState<string>('gemini-1.5-flash');
+  // Learner study preferences
   const [learnerLevel, setLearnerLevel] = useState<string>('N4');
-  const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
+  const [newCardsPerDay, setNewCardsPerDay] = useState<string>('20');
+  const [maxReviewsPerDay, setMaxReviewsPerDay] = useState<string>('100');
+  const [autoPlayAudio, setAutoPlayAudio] = useState<boolean>(true);
+  const [showFurigana, setShowFurigana] = useState<boolean>(true);
 
-  const handleSave = (e: React.FormEvent) => {
+  // Status & feedback
+  const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const settings = await api.getSettings();
+        if (settings['learner.level']) setLearnerLevel(settings['learner.level']);
+        if (settings['learner.newCardsPerDay']) setNewCardsPerDay(settings['learner.newCardsPerDay']);
+        if (settings['learner.maxReviewsPerDay']) setMaxReviewsPerDay(settings['learner.maxReviewsPerDay']);
+        if (settings['learner.autoPlayAudio']) setAutoPlayAudio(settings['learner.autoPlayAudio'] === 'true');
+        if (settings['learner.showFurigana']) setShowFurigana(settings['learner.showFurigana'] === 'true');
+      } catch (err) {
+        console.warn('Could not load study settings:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadSettings();
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+    try {
+      await api.saveSetting('learner.level', learnerLevel);
+      await api.saveSetting('learner.newCardsPerDay', newCardsPerDay);
+      await api.saveSetting('learner.maxReviewsPerDay', maxReviewsPerDay);
+      await api.saveSetting('learner.autoPlayAudio', autoPlayAudio ? 'true' : 'false');
+      await api.saveSetting('learner.showFurigana', showFurigana ? 'true' : 'false');
+
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3000);
+    } catch (err) {
+      console.error('Failed to save study settings:', err);
+    }
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '24px',
-      width: '100%',
-      maxWidth: '750px',
-      margin: '0 auto'
-    }}>
+    <div style={{ width: '100%', maxWidth: '780px', margin: '0 auto' }}>
       {/* Header */}
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Settings size={24} color="var(--anki-blue)" />
-          <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--anki-text)' }}>Cấu Hình AI Provider & Hệ Thống</h2>
-        </div>
-        <p style={{ fontSize: '13px', color: 'var(--anki-text-muted)', marginTop: '4px' }}>
-          Cấu hình API Key cho các nhà cung cấp AI (Gemini, OpenAI, DeepSeek). Key được bảo mật tuyệt đối qua Spring Boot backend.
+      <div style={{ marginBottom: '22px' }}>
+        <h2 style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.6rem', fontWeight: 700, marginBottom: '4px' }}>
+          ⚙️ Cài Đặt Học Tập (Study Preferences)
+        </h2>
+        <p style={{ color: 'var(--ink-secondary)', fontSize: '0.9rem' }}>
+          Tùy chỉnh mục tiêu JLPT cá nhân, hạn mức số thẻ ôn tập hàng ngày và trải nghiệm luyện thi của bạn.
         </p>
       </div>
 
       {savedSuccess && (
-        <div style={{
-          background: 'rgba(16, 185, 129, 0.15)',
-          border: '1px solid rgba(16, 185, 129, 0.4)',
-          color: 'var(--anki-green)',
-          padding: '12px 16px',
-          borderRadius: '8px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          fontSize: '14px'
-        }}>
-          <CheckCircle2 size={18} />
-          Đã lưu cấu hình AI thành công!
+        <div
+          style={{
+            background: '#D8F3DC',
+            border: 'var(--border-dark)',
+            boxShadow: 'var(--shadow-sm)',
+            color: '#133E2B',
+            padding: '12px 18px',
+            borderRadius: 'var(--radius-btn)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontSize: '0.92rem',
+            fontWeight: 700,
+            marginBottom: '20px'
+          }}
+        >
+          <CheckCircle2 size={18} color="var(--accent-pine)" />
+          Đã lưu thiết lập học tập thành công!
         </div>
       )}
 
       {/* Main Settings Form Card */}
-      <form onSubmit={handleSave} style={{
-        background: 'var(--anki-panel-bg)',
-        borderRadius: '12px',
-        border: '1px solid var(--anki-border)',
-        padding: '24px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '20px',
-        boxShadow: 'var(--anki-shadow)'
-      }}>
-        {/* Provider Select */}
-        <div>
-          <label style={{ fontSize: '13px', color: 'var(--anki-text)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <Cpu size={16} color="var(--anki-blue)" /> Chọn AI Provider
-          </label>
-          <select
-            value={provider}
-            onChange={(e) => setProvider(e.target.value)}
-            style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', fontSize: '14px' }}
+      <form onSubmit={handleSave} className="card-tactile" style={{ padding: '32px' }}>
+        {/* Section 1: JLPT Target Level */}
+        <div style={{ marginBottom: '26px' }}>
+          <label
+            style={{
+              fontSize: '0.92rem',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '8px',
+              color: 'var(--ink-primary)'
+            }}
           >
-            <option value="gemini">Google Gemini AI (Khuyên dùng)</option>
-            <option value="openai">OpenAI (GPT-4o / GPT-4o-mini)</option>
-            <option value="deepseek">DeepSeek AI</option>
-          </select>
-        </div>
-
-        {/* Model Select */}
-        <div>
-          <label style={{ fontSize: '13px', color: 'var(--anki-text)', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-            Mô Hình Model
+            <BookOpen size={17} color="var(--accent-pine)" />
+            Mục Tiêu Trình Độ JLPT Của Bạn
           </label>
-          <select
-            value={model}
-            onChange={(e) => setModel(e.target.value)}
-            style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', fontSize: '14px' }}
-          >
-            {provider === 'gemini' && (
-              <>
-                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Tốc độ cực nhanh)</option>
-                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Chính xác cao)</option>
-              </>
-            )}
-            {provider === 'openai' && (
-              <>
-                <option value="gpt-4o-mini">GPT-4o mini</option>
-                <option value="gpt-4o">GPT-4o Full</option>
-              </>
-            )}
-            {provider === 'deepseek' && (
-              <>
-                <option value="deepseek-chat">DeepSeek Chat V3</option>
-              </>
-            )}
-          </select>
-        </div>
-
-        {/* API Key Input */}
-        <div>
-          <label style={{ fontSize: '13px', color: 'var(--anki-text)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <Key size={16} color="var(--anki-amber)" /> API Key
-          </label>
-          <div style={{ position: 'relative' }}>
-            <input
-              type={showKey ? 'text' : 'password'}
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder="Nhập API Key của bạn..."
-              style={{ width: '100%', padding: '10px 40px 10px 14px', borderRadius: '8px', fontSize: '14px' }}
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowKey(!showKey)}
-              style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: 'var(--anki-text-muted)', cursor: 'pointer' }}
-            >
-              {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </div>
-        </div>
-
-        {/* Default Learner Level */}
-        <div>
-          <label style={{ fontSize: '13px', color: 'var(--anki-text)', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-            Trình Độ JLPT Mặc Định Khi Tạo Đề
-          </label>
+          <p style={{ fontSize: '0.82rem', color: 'var(--ink-secondary)', marginBottom: '10px' }}>
+            Hệ thống AI sẽ ưu tiên gợi ý các cấu trúc ngữ pháp và từ vựng thích ứng theo cấp độ này.
+          </p>
           <select
             value={learnerLevel}
             onChange={(e) => setLearnerLevel(e.target.value)}
-            style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', fontSize: '14px' }}
+            className="form-select"
+            style={{ fontWeight: 600, fontSize: '0.92rem' }}
           >
-            <option value="N5">N5 (Cơ bản)</option>
-            <option value="N4">N4 (Sơ cấp)</option>
+            <option value="N5">JLPT N5 (Sơ cấp cơ bản - Hiragana, Katakana, chào hỏi)</option>
+            <option value="N4">JLPT N4 (Sơ cấp hoàn chỉnh - Giao tiếp hàng ngày, ngữ pháp cơ bản)</option>
+            <option value="N3">JLPT N3 (Trung cấp - Giao tiếp tự nhiên, đọc hiểu tổng hợp)</option>
+            <option value="N2">JLPT N2 (Trung thượng cấp - Đọc báo chí, làm việc công sở)</option>
+            <option value="N1">JLPT N1 (Cao cấp - Thành thạo như người bản xứ)</option>
           </select>
         </div>
 
-        {/* Security Notice */}
-        <div style={{ background: 'var(--anki-card-sub)', borderLeft: '3px solid var(--anki-blue)', padding: '12px 16px', borderRadius: '0 8px 8px 0', fontSize: '12px', color: 'var(--anki-text-muted)', display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <ShieldCheck size={20} color="var(--anki-blue)" style={{ flexShrink: 0 }} />
-          <span>API Key được lưu trữ cục bộ tại SQLite và xử lý thông qua backend Spring Boot. Không bao giờ lộ API Key ra giao diện React.</span>
+        {/* Section 2: Daily Learning Limits */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '20px',
+            marginBottom: '26px'
+          }}
+        >
+          <div>
+            <label
+              style={{
+                fontSize: '0.9rem',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '8px',
+                color: 'var(--ink-primary)'
+              }}
+            >
+              <Calendar size={16} color="var(--accent-amber)" />
+              Thẻ Mới Mỗi Ngày (New Cards / Day)
+            </label>
+            <select
+              value={newCardsPerDay}
+              onChange={(e) => setNewCardsPerDay(e.target.value)}
+              className="form-select"
+              style={{ fontWeight: 600 }}
+            >
+              <option value="10">10 thẻ mới / ngày (Nhẹ nhàng)</option>
+              <option value="20">20 thẻ mới / ngày (Khuyên dùng)</option>
+              <option value="30">30 thẻ mới / ngày (Tăng tốc)</option>
+              <option value="50">50 thẻ mới / ngày (Cường độ cao)</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              style={{
+                fontSize: '0.9rem',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '8px',
+                color: 'var(--ink-primary)'
+              }}
+            >
+              <Layers size={16} color="var(--accent-cobalt)" />
+              Số Thẻ Ôn Tập Tối Đa (Max Reviews / Day)
+            </label>
+            <select
+              value={maxReviewsPerDay}
+              onChange={(e) => setMaxReviewsPerDay(e.target.value)}
+              className="form-select"
+              style={{ fontWeight: 600 }}
+            >
+              <option value="50">Tối đa 50 thẻ / ngày</option>
+              <option value="100">Tối đa 100 thẻ / ngày (Khuyên dùng)</option>
+              <option value="200">Tối đa 200 thẻ / ngày</option>
+              <option value="9999">Không giới hạn (Ôn tập hết thẻ đến hạn)</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Section 3: Learning Experience & Audio */}
+        <div
+          style={{
+            background: 'var(--bg-subtle)',
+            border: 'var(--border-dark)',
+            borderRadius: 'var(--radius-btn)',
+            padding: '20px',
+            marginBottom: '26px'
+          }}
+        >
+          <div style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--ink-primary)', marginBottom: '14px', textTransform: 'uppercase' }}>
+            Trải Nghiệm & Tương Tác Thẻ Học
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={autoPlayAudio}
+                onChange={(e) => setAutoPlayAudio(e.target.checked)}
+                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--accent-pine)' }}
+              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Volume2 size={16} color="var(--accent-pine)" />
+                <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--ink-primary)' }}>
+                  Tự động phát âm thanh tiếng Nhật khi lật xem đáp án
+                </span>
+              </div>
+            </label>
+
+            <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={showFurigana}
+                onChange={(e) => setShowFurigana(e.target.checked)}
+                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--accent-pine)' }}
+              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Languages size={16} color="var(--accent-cobalt)" />
+                <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--ink-primary)' }}>
+                  Hiển thị cách đọc Hiragana / Furigana hỗ trợ khi học thẻ Kanji
+                </span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {/* Section 4: Security & Backend Architecture Note */}
+        <div
+          style={{
+            background: '#F8FAFC',
+            border: '1.5px solid #CBD5E1',
+            padding: '14px 18px',
+            borderRadius: 'var(--radius-btn)',
+            fontSize: '0.84rem',
+            color: 'var(--ink-secondary)',
+            display: 'flex',
+            gap: '12px',
+            alignItems: 'center',
+            marginBottom: '26px'
+          }}
+        >
+          <ShieldCheck size={26} color="var(--accent-pine)" style={{ flexShrink: 0 }} />
+          <span>
+            <strong>Bảo mật chuẩn hệ thống:</strong> Toàn bộ API Key và mô hình AI được quản lý độc lập tại file cấu hình bảo mật <code>.env</code> ở Backend. Không lưu trữ hay để lộ thông tin nhạy cảm trên giao diện web.
+          </span>
         </div>
 
         {/* Submit button */}
-        <div style={{ marginTop: '8px' }}>
-          <button
-            type="submit"
-            className="anki-btn"
-            style={{ background: 'var(--anki-blue)', color: '#ffffff', border: 'none', padding: '10px 24px', fontSize: '14px', fontWeight: '600' }}
-          >
-            <Save size={16} />
-            Lưu Cấu Hình
+        <div>
+          <button type="submit" disabled={isLoading} className="btn-tactile primary lg">
+            <Save size={18} />
+            <span>Lưu Thiết Lập Học Tập</span>
           </button>
         </div>
       </form>

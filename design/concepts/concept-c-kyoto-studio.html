@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direction C: Kyoto Tactile Studio — NihongoAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-stone: #EFECE6;
+      --bg-white: #FFFFFF;
+      --ink-black: #0F172A;
+      --ink-muted: #475569;
+      --border-dark: #0F172A;
+      
+      --accent-vermilion: #E63946;
+      --accent-amber: #F4A261;
+      --accent-cobalt: #1D3557;
+      --accent-pine: #2A9D8F;
+      
+      --font-grotesk: 'Space Grotesk', -apple-system, sans-serif;
+      --font-kanji: 'Noto Sans JP', sans-serif;
+      
+      --border-width: 2px;
+      --radius-box: 10px;
+      --hard-shadow: 4px 4px 0px var(--border-dark);
+      --hard-shadow-active: 1px 1px 0px var(--border-dark);
+      --transition-fast: all 0.12s ease;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-stone);
+      color: var(--ink-black);
+      font-family: var(--font-grotesk);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* Meta Banner */
+    .concept-banner {
+      background: var(--bg-white);
+      border-bottom: var(--border-width) solid var(--border-dark);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .concept-tag {
+      background: #FFE8D6;
+      color: var(--ink-black);
+      border: var(--border-width) solid var(--border-dark);
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    /* App Header */
+    .app-header {
+      padding: 16px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-white);
+      border-bottom: var(--border-width) solid var(--border-dark);
+    }
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-stamp {
+      background: var(--accent-vermilion);
+      color: var(--bg-white);
+      font-weight: 900;
+      font-size: 1.1rem;
+      padding: 4px 10px;
+      border: var(--border-width) solid var(--border-dark);
+      box-shadow: 2px 2px 0px var(--border-dark);
+      border-radius: 4px;
+    }
+    .brand-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .app-nav {
+      display: flex;
+      gap: 16px;
+    }
+    .nav-item {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+    .nav-item.active {
+      color: var(--ink-black);
+      background: #FFE8D6;
+      border: var(--border-width) solid var(--border-dark);
+      box-shadow: 2px 2px 0px var(--border-dark);
+    }
+    .btn-create-modal {
+      background: var(--bg-white);
+      color: var(--ink-black);
+      border: var(--border-width) solid var(--border-dark);
+      box-shadow: var(--hard-shadow);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: var(--font-grotesk);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+    .btn-create-modal:hover {
+      background: #FFD166;
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px var(--border-dark);
+    }
+    .btn-create-modal:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--hard-shadow-active);
+    }
+
+    /* Workspace */
+    .main-workspace {
+      max-width: 900px;
+      margin: 36px auto;
+      padding: 0 24px;
+      flex: 1;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Queue Status */
+    .queue-status-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 12px 20px;
+      background: var(--bg-white);
+      border: var(--border-width) solid var(--border-dark);
+      border-radius: var(--radius-box);
+      box-shadow: var(--hard-shadow);
+    }
+    .queue-counters {
+      display: flex;
+      gap: 12px;
+    }
+    .queue-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border: var(--border-width) solid var(--border-dark);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .queue-badge.new { background: #E2E8F0; }
+    .queue-badge.learning { background: #FEF08A; }
+    .queue-badge.review { background: #BBF7D0; }
+
+    /* Flashcard */
+    .card-stage {
+      width: 100%;
+      margin-bottom: 24px;
+    }
+    .flashcard {
+      background: var(--bg-white);
+      border: var(--border-width) solid var(--border-dark);
+      border-radius: var(--radius-box);
+      box-shadow: 8px 8px 0px var(--border-dark);
+      padding: 56px 48px;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      position: relative;
+    }
+    .flashcard:hover {
+      box-shadow: 10px 10px 0px var(--border-dark);
+      transform: translate(-1px, -1px);
+    }
+    .card-pill-tag {
+      background: #F1F5F9;
+      border: var(--border-width) solid var(--border-dark);
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 3px 12px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .card-kanji-target {
+      font-family: var(--font-kanji);
+      font-size: 4.8rem;
+      font-weight: 900;
+      color: var(--ink-black);
+      line-height: 1.1;
+      margin: 12px 0;
+    }
+    .card-reading-ruby {
+      font-family: var(--font-kanji);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent-vermilion);
+      opacity: 0;
+      transition: var(--transition-fast);
+    }
+    .card-reading-ruby.revealed { opacity: 1; }
+    .card-meaning-vi {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--ink-black);
+      margin-top: 8px;
+      opacity: 0;
+      transition: var(--transition-fast);
+    }
+    .card-meaning-vi.revealed { opacity: 1; }
+
+    .card-example-box {
+      margin: 24px auto 0 auto;
+      padding: 16px 24px;
+      background: #F8FAFC;
+      border: var(--border-width) solid var(--border-dark);
+      border-radius: 6px;
+      text-align: center;
+      width: 100%;
+      max-width: 680px;
+      opacity: 0;
+      transition: var(--transition-fast);
+    }
+    .card-example-box.revealed { opacity: 1; }
+    .card-example-ja {
+      font-family: var(--font-kanji);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--ink-black);
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .card-example-vi {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--ink-muted);
+      text-align: center;
+    }
+
+    .flip-prompt {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .kbd-shortcut {
+      background: #FFE8D6;
+      border: var(--border-width) solid var(--border-dark);
+      color: var(--ink-black);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-family: monospace;
+      font-weight: 700;
+      box-shadow: 1px 1px 0px var(--border-dark);
+    }
+
+    /* Rating Deck */
+    .rating-control-deck {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition-fast);
+    }
+    .rating-control-deck.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .rating-btn {
+      background: var(--bg-white);
+      border: var(--border-width) solid var(--border-dark);
+      border-radius: var(--radius-box);
+      box-shadow: var(--hard-shadow);
+      padding: 14px 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: var(--transition-fast);
+      position: relative;
+    }
+    .rating-btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--border-dark);
+    }
+    .rating-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--hard-shadow-active);
+    }
+    .rating-btn.again:hover { background: #FFD2D2; }
+    .rating-btn.hard:hover { background: #FFE8D6; }
+    .rating-btn.good:hover { background: #D8F3DC; }
+    .rating-btn.easy:hover { background: #CAF0F8; }
+
+    .rating-keycap {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--ink-muted);
+    }
+    .rating-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--ink-black);
+    }
+    .rating-interval-badge {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 100;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .modal-card {
+      background: var(--bg-white);
+      border: var(--border-width) solid var(--border-dark);
+      border-radius: var(--radius-box);
+      box-shadow: 12px 12px 0px var(--border-dark);
+      padding: 36px 40px;
+      width: 100%;
+      max-width: 580px;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      border-bottom: var(--border-width) solid var(--border-dark);
+      padding-bottom: 14px;
+    }
+    .modal-title { font-size: 1.35rem; font-weight: 700; }
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--bg-stone);
+      border: var(--border-width) solid var(--border-dark);
+      border-radius: 6px;
+      font-family: var(--font-grotesk);
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--ink-black);
+    }
+    .form-input:focus {
+      outline: none;
+      background: var(--bg-white);
+      box-shadow: 3px 3px 0px var(--border-dark);
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .btn-secondary {
+      background: transparent;
+      border: var(--border-width) solid var(--border-dark);
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--accent-vermilion);
+      color: var(--bg-white);
+      border: var(--border-width) solid var(--border-dark);
+      box-shadow: 3px 3px 0px var(--border-dark);
+      font-weight: 700;
+      padding: 8px 22px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Meta Header -->
+  <div class="concept-banner">
+    <div><strong>Direction C:</strong> Kyoto Tactile Studio (Bauhaus Craft, Solid Drop Shadows & AAA Contrast)</div>
+    <div class="concept-tag">Aesthetic: Bold, Physical, High Readability</div>
+  </div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand-mark">
+      <div class="brand-stamp">日</div>
+      <span class="brand-title">NihongoAI</span>
+    </div>
+    <nav class="app-nav">
+      <span class="nav-item active">Ôn tập (Review)</span>
+      <span class="nav-item">Bộ thẻ (Decks)</span>
+      <span class="nav-item">Luyện câu (Practice)</span>
+      <span class="nav-item">Hội thoại (Kaiwa)</span>
+      <span class="nav-item">Thống kê (Stats)</span>
+    </nav>
+    <button class="btn-create-modal" onclick="openModal()">+ Thêm từ mới</button>
+  </header>
+
+  <!-- Workspace -->
+  <main class="main-workspace">
+
+    <!-- Queue Status -->
+    <div class="queue-status-bar">
+      <div style="font-size: 0.95rem; font-weight: 700;">Bộ thẻ: Minna no Nihongo (Bài 1-25)</div>
+      <div class="queue-counters">
+        <div class="queue-badge new">Mới: 12</div>
+        <div class="queue-badge learning">Đang học: 8</div>
+        <div class="queue-badge review">Cần ôn: 24</div>
+      </div>
+    </div>
+
+    <!-- Review Flashcard -->
+    <div class="card-stage">
+      <div class="flashcard" id="studyCard" onclick="toggleAnswer()">
+        <span class="card-pill-tag">JLPT N4 • Động từ</span>
+        
+        <div>
+          <div class="card-kanji-target" id="kanjiText">食べる</div>
+          <div class="card-reading-ruby" id="rubyText">たべる • taberu</div>
+          <div class="card-meaning-vi" id="meaningText">ăn (dùng bữa, ăn cơm)</div>
+          
+          <div class="card-example-box" id="exampleBox">
+            <div class="card-example-ja">毎朝、パンと卵を食べます。</div>
+            <div class="card-example-vi">Mỗi sáng tôi đều ăn bánh mì và trứng.</div>
+          </div>
+        </div>
+
+        <div class="flip-prompt" id="flipPrompt">
+          <span>Nhấn chuột hoặc phím</span>
+          <span class="kbd-shortcut">Space</span>
+          <span>để xem đáp án</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rating Controls -->
+    <div class="rating-control-deck" id="ratingDeck">
+      <button class="rating-btn again" onclick="submitReview(1)">
+        <span class="rating-keycap">1</span>
+        <span class="rating-title" style="color: var(--accent-vermilion);">Again</span>
+        <span class="rating-interval-badge">&lt; 10m</span>
+      </button>
+      <button class="rating-btn hard" onclick="submitReview(2)">
+        <span class="rating-keycap">2</span>
+        <span class="rating-title" style="color: var(--accent-amber);">Hard</span>
+        <span class="rating-interval-badge">2 ngày</span>
+      </button>
+      <button class="rating-btn good" onclick="submitReview(3)">
+        <span class="rating-keycap">3</span>
+        <span class="rating-title" style="color: var(--accent-pine);">Good</span>
+        <span class="rating-interval-badge">4 ngày</span>
+      </button>
+      <button class="rating-btn easy" onclick="submitReview(4)">
+        <span class="rating-keycap">4</span>
+        <span class="rating-title" style="color: var(--accent-cobalt);">Easy</span>
+        <span class="rating-interval-badge">7 ngày</span>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Thêm mục tri thức mới</h3>
+        <span style="font-size: 0.85rem; font-weight: 700; color: var(--ink-muted);">Esc để đóng</span>
+      </div>
+      <form onsubmit="event.preventDefault(); saveEntry();">
+        <div class="form-group">
+          <label class="form-label">Từ gốc / Kanji (Bắt buộc)</label>
+          <input type="text" class="form-input" id="wordInput" placeholder="Ví dụ: 映画" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cách đọc (Hiragana)</label>
+          <input type="text" class="form-input" id="readingInput" placeholder="Ví dụ: えいが">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nghĩa tiếng Việt (Bắt buộc)</label>
+          <input type="text" class="form-input" id="meaningInput" placeholder="Ví dụ: bộ phim, điện ảnh" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cấp độ JLPT</label>
+          <select class="form-input" id="levelInput">
+            <option value="N5">JLPT N5</option>
+            <option value="N4" selected>JLPT N4</option>
+            <option value="N3">JLPT N3</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal()">Hủy bỏ</button>
+          <button type="submit" class="btn-primary">Lưu tri thức</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let isFlipped = false;
+
+    function toggleAnswer() {
+      isFlipped = !isFlipped;
+      document.getElementById('rubyText').classList.toggle('revealed', isFlipped);
+      document.getElementById('meaningText').classList.toggle('revealed', isFlipped);
+      document.getElementById('exampleBox').classList.toggle('revealed', isFlipped);
+      document.getElementById('ratingDeck').classList.toggle('active', isFlipped);
+      document.getElementById('flipPrompt').style.display = isFlipped ? 'none' : 'flex';
+    }
+
+    function submitReview(grade) {
+      const card = document.getElementById('studyCard');
+      card.style.transform = 'translate(4px, 4px)';
+      card.style.boxShadow = '2px 2px 0px var(--border-dark)';
+      
+      setTimeout(() => {
+        isFlipped = false;
+        document.getElementById('rubyText').classList.remove('revealed');
+        document.getElementById('meaningText').classList.remove('revealed');
+        document.getElementById('exampleBox').classList.remove('revealed');
+        document.getElementById('ratingDeck').classList.remove('active');
+        document.getElementById('flipPrompt').style.display = 'flex';
+        
+        document.getElementById('kanjiText').innerText = '見る';
+        document.getElementById('rubyText').innerText = 'みる • miru';
+        document.getElementById('meaningText').innerText = 'xem, nhìn, ngắm';
+        
+        card.style.transform = 'translate(0, 0)';
+        card.style.boxShadow = '8px 8px 0px var(--border-dark)';
+      }, 150);
+    }
+
+    function openModal() { document.getElementById('modalBackdrop').classList.add('open'); }
+    function closeModal() { document.getElementById('modalBackdrop').classList.remove('open'); }
+    function saveEntry() {
+      alert('Đã lưu từ vựng an toàn vào CSDL cục bộ SQLite.');
+      closeModal();
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (document.getElementById('modalBackdrop').classList.contains('open')) {
+        if (e.key === 'Escape') closeModal();
+        return;
+      }
+      if (e.code === 'Space') {
+        e.preventDefault();
+        toggleAnswer();
+      } else if (isFlipped) {
+        if (e.key === '1') submitReview(1);
+        if (e.key === '2') submitReview(2);
+        if (e.key === '3') submitReview(3);
+        if (e.key === '4') submitReview(4);
+      }
+    });
+  </script>
+</body>
+</html>

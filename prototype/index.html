@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NihongoAI — Interactive Prototype (Kyoto Tactile Studio)</title>
+  
+  <!-- Google Fonts: Space Grotesk, Noto Sans JP, Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700;900&family=Plus+Jakarta+Sans:wght@500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Top Desktop Header -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-stamp">日</div>
+      <div class="brand-title">NihongoAI</div>
+      <span class="brand-badge">P4.4 Prototype</span>
+    </div>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="app-nav">
+      <button class="nav-tab active" data-view="view-review" id="tabReview">
+        <span>⚡ Ôn tập Flashcard</span>
+      </button>
+      <button class="nav-tab" data-view="view-decks" id="tabDecks">
+        <span>🗂️ Quản lý Bộ thẻ</span>
+      </button>
+      <button class="nav-tab" data-view="view-practice" id="tabPractice">
+        <span>✍️ Luyện dịch câu (IME)</span>
+      </button>
+    </nav>
+
+    <!-- Header Actions -->
+    <div class="header-actions">
+      <button class="btn-tactile primary" id="btnOpenModal">
+        <span>+ Thêm từ vựng</span>
+      </button>
+      <button class="btn-tactile" id="btnThemeToggle" title="Chuyển chế độ Day/Night Studio">
+        <span id="themeIcon">🌙</span>
+      </button>
+      <button class="btn-tactile" id="btnResetState" title="Đặt lại dữ liệu gốc">
+        <span>↺ Reset</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main View Area -->
+  <main class="main-content">
+
+    <!-- ====================================================================
+         VIEW 1: Focus Speed Review (FSRS Engine)
+         ==================================================================== -->
+    <section class="view-panel active" id="view-review">
+      
+      <!-- Daily Queue HUD -->
+      <div class="queue-hud">
+        <div class="deck-info">
+          <span style="font-size: 0.85rem; color: var(--ink-secondary); font-weight: 700;">BỘ THẺ:</span>
+          <span class="deck-title" id="currentDeckTitle">Minna no Nihongo (Bài 1 - 25)</span>
+        </div>
+        <div class="queue-chips">
+          <div class="chip new">Mới: <span id="countNew">2</span></div>
+          <div class="chip learning">Đang học: <span id="countLearning">1</span></div>
+          <div class="chip review">Cần ôn: <span id="countReview">2</span></div>
+        </div>
+      </div>
+
+      <!-- Flashcard Interactive Stage -->
+      <div class="card-stage">
+        <div class="flashcard-tactile" id="flashcardBox">
+          <div class="flashcard-meta">
+            <span class="meta-pill" id="cardJlptBadge">JLPT N5</span>
+            <span class="meta-pill" id="cardPosBadge">Động từ nhóm 2</span>
+          </div>
+
+          <div class="card-center-body">
+            <div class="kanji-hero" id="cardKanji">食べる</div>
+            <div class="reading-ruby-box" id="cardRuby">たべる • taberu</div>
+            <div class="meaning-vi-box" id="cardMeaning">ăn (dùng bữa, dùng cơm)</div>
+
+            <div class="example-box" id="cardExampleBox">
+              <div class="example-ja" id="cardExampleJa">毎朝、パンと卵を食べます。</div>
+              <div class="example-vi" id="cardExampleVi">Mỗi sáng tôi đều ăn bánh mì và trứng.</div>
+            </div>
+          </div>
+
+          <div class="flip-cue" id="flipCue">
+            <span>Bấm chuột hoặc gõ phím</span>
+            <span class="kbd-badge">Space</span>
+            <span>để xem đáp án</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FSRS 4 Rating Controls -->
+      <div class="rating-deck" id="ratingDeck">
+        <button class="rating-btn again" data-grade="1" id="btnAgain">
+          <span class="rating-keycap">1</span>
+          <span class="rating-title" style="color: var(--accent-vermilion);">Again</span>
+          <span class="rating-interval">&lt; 10m</span>
+        </button>
+
+        <button class="rating-btn hard" data-grade="2" id="btnHard">
+          <span class="rating-keycap">2</span>
+          <span class="rating-title" style="color: var(--accent-amber);">Hard</span>
+          <span class="rating-interval">2 ngày</span>
+        </button>
+
+        <button class="rating-btn good" data-grade="3" id="btnGood">
+          <span class="rating-keycap">3</span>
+          <span class="rating-title" style="color: var(--accent-pine);">Good</span>
+          <span class="rating-interval">4 ngày</span>
+        </button>
+
+        <button class="rating-btn easy" data-grade="4" id="btnEasy">
+          <span class="rating-keycap">4</span>
+          <span class="rating-title" style="color: var(--accent-cobalt);">Easy</span>
+          <span class="rating-interval">7 ngày</span>
+        </button>
+      </div>
+
+      <!-- Bottom Session Bar -->
+      <div class="review-bottom-bar">
+        <button class="btn-tactile" id="btnUndoReview" title="Hoàn tác lượt đánh giá trước (Ctrl + Z)">
+          <span>↩ Hoàn tác</span>
+          <span class="kbd-badge">Ctrl+Z</span>
+        </button>
+        <div class="progress-track" title="Tiến độ phiên học">
+          <div class="progress-fill" id="sessionProgressFill" style="width: 20%;"></div>
+        </div>
+        <div style="font-size: 0.85rem; font-weight: 700; font-family: var(--font-grotesk);" id="sessionProgressText">
+          Thẻ 1 / 5
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ====================================================================
+         VIEW 2: Decks & Card Board (Direct Drag & Lanes)
+         ==================================================================== -->
+    <section class="view-panel" id="view-decks">
+      <div class="decks-board-grid">
+        
+        <!-- Decks Column -->
+        <aside class="decks-sidebar">
+          <div class="sidebar-title">
+            <span>DANH SÁCH BỘ THẺ</span>
+            <button class="btn-tactile" style="padding: 4px 8px; font-size: 0.8rem;" id="btnNewDeck">+ Thư mục</button>
+          </div>
+          <div id="decksListContainer">
+            <!-- Rendered by JS -->
+          </div>
+        </aside>
+
+        <!-- Status Lanes Container -->
+        <main class="status-lanes-container">
+          <!-- Lane: Mới -->
+          <div class="lane" data-status="new">
+            <div class="lane-header">
+              <span class="lane-title">1. Mới (New)</span>
+              <span class="lane-count" id="laneCountNew">0</span>
+            </div>
+            <div class="lane-cards-list" id="laneListNew">
+              <!-- Draggable cards -->
+            </div>
+          </div>
+
+          <!-- Lane: Đang học -->
+          <div class="lane" data-status="learning">
+            <div class="lane-header">
+              <span class="lane-title">2. Đang học (Learning)</span>
+              <span class="lane-count" id="laneCountLearning">0</span>
+            </div>
+            <div class="lane-cards-list" id="laneListLearning">
+              <!-- Draggable cards -->
+            </div>
+          </div>
+
+          <!-- Lane: Cần ôn -->
+          <div class="lane" data-status="review">
+            <div class="lane-header">
+              <span class="lane-title">3. Cần ôn (Review Due)</span>
+              <span class="lane-count" id="laneCountReview">0</span>
+            </div>
+            <div class="lane-cards-list" id="laneListReview">
+              <!-- Draggable cards -->
+            </div>
+          </div>
+        </main>
+
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 3: Sentence Production Practice (IME Guard & AI Evaluation)
+         ==================================================================== -->
+    <section class="view-panel" id="view-practice">
+      <div class="practice-container">
+        
+        <!-- Vietnamese Prompt Box -->
+        <div class="prompt-card">
+          <div class="prompt-label">Đề bài dịch câu Việt → Nhật (JLPT N4)</div>
+          <div class="prompt-vi-text" id="practicePromptText">
+            "Tôi đã từng xem bộ phim này cùng với bạn bè."
+          </div>
+          <div class="target-knowledge-tags">
+            <span class="target-tag">Mục tiêu: 映画 (phim)</span>
+            <span class="target-tag">Mục tiêu: 見る (xem)</span>
+            <span class="target-tag">Cấu trúc: ～たことがある</span>
+          </div>
+        </div>
+
+        <!-- Japanese IME Safe Input -->
+        <div class="ime-input-group">
+          <div class="input-label-row">
+            <label class="form-label" style="font-size: 0.95rem;">Nhập câu trả lời bằng tiếng Nhật:</label>
+            <span class="ime-status-badge" id="imeBadge">Sẵn sàng (Bấm Enter để nộp)</span>
+          </div>
+          <input 
+            type="text" 
+            class="japanese-answer-input" 
+            id="japaneseInput" 
+            placeholder="友達とこの映画を見たことがあります..."
+            autocomplete="off"
+          >
+          <div style="font-size: 0.8rem; color: var(--ink-secondary); margin-top: 6px;">
+            💡 <strong>Bảo vệ IME:</strong> Khi đang nhấn phím mũi tên/Enter để chọn chữ Kanji trong bàn phím IME, phím Enter sẽ <em>không</em> nộp bài sớm.
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px;">
+          <button class="btn-tactile primary" id="btnSubmitPractice" style="padding: 12px 24px;">
+            <span>Chấm bài (AI Evaluate)</span>
+          </button>
+          <button class="btn-tactile" id="btnFillSampleAnswer">
+            <span>Điền đáp án mẫu</span>
+          </button>
+        </div>
+
+        <!-- Simulated AI Multi-dimensional Evaluation Card -->
+        <div class="ai-feedback-card" id="aiFeedbackCard">
+          <div class="score-banner">
+            <div>
+              <div style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--ink-secondary);">Kết quả đánh giá AI</div>
+              <div style="font-size: 1.15rem; font-weight: 700;">Độ chính xác rất cao! Diễn đạt tự nhiên.</div>
+            </div>
+            <div class="score-badge-big">95 / 100</div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
+            <div style="background: var(--bg-surface); border: var(--border-dark); padding: 8px 12px; border-radius: 6px;">
+              <div style="font-size: 0.75rem; color: var(--ink-secondary); font-weight: 700;">NGỮ NGHĨA</div>
+              <div style="font-weight: 800; font-size: 1.1rem; color: var(--accent-pine);">100%</div>
+            </div>
+            <div style="background: var(--bg-surface); border: var(--border-dark); padding: 8px 12px; border-radius: 6px;">
+              <div style="font-size: 0.75rem; color: var(--ink-secondary); font-weight: 700;">NGỮ PHÁP</div>
+              <div style="font-weight: 800; font-size: 1.1rem; color: var(--accent-pine);">95%</div>
+            </div>
+            <div style="background: var(--bg-surface); border: var(--border-dark); padding: 8px 12px; border-radius: 6px;">
+              <div style="font-size: 0.75rem; color: var(--ink-secondary); font-weight: 700;">ĐỘ TỰ NHIÊN</div>
+              <div style="font-weight: 800; font-size: 1.1rem; color: var(--accent-cobalt);">90%</div>
+            </div>
+          </div>
+
+          <div style="font-size: 0.9rem; line-height: 1.6; background: #FFFFFF; border: var(--border-dark); padding: 14px; border-radius: 6px;">
+            <strong>Giải thích bằng tiếng Việt:</strong> Câu trả lời của bạn rất tốt. Bạn đã chia đúng thể Ta của động từ <code>見る</code> thành <code>見た</code> và kết hợp hoàn hảo với mẫu câu kinh nghiệm <code>ことがある</code>.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ====================================================================
+       Centered Create/Edit Modal (Data Loss Prevention & Simulated Failure)
+       ==================================================================== -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 class="modal-heading" id="modalTitle">Thêm Từ Vựng / Ghi Chú Mới</h3>
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--ink-secondary);">Phím Esc để đóng</span>
+      </div>
+
+      <form id="vocabForm">
+        <!-- Target Deck -->
+        <div class="form-field">
+          <label class="form-label" for="formDeckSelect">Lưu vào Bộ thẻ:</label>
+          <select class="form-select" id="formDeckSelect">
+            <option value="deck-1">Minna no Nihongo (Bài 1 - 25)</option>
+            <option value="deck-2">Kanji N4 Căn bản</option>
+            <option value="deck-3">Mẫu câu Giao tiếp</option>
+          </select>
+        </div>
+
+        <!-- Word / Expression -->
+        <div class="form-field">
+          <label class="form-label" for="formWordInput">Từ gốc / Kanji (Bắt buộc):</label>
+          <input type="text" class="form-input-text" id="formWordInput" placeholder="Ví dụ: 旅行" required>
+          <div class="error-text">Vui lòng nhập từ gốc tiếng Nhật.</div>
+        </div>
+
+        <!-- Reading -->
+        <div class="form-field">
+          <label class="form-label" for="formReadingInput">Cách đọc (Hiragana / Katakana):</label>
+          <input type="text" class="form-input-text" id="formReadingInput" placeholder="Ví dụ: りょこう">
+        </div>
+
+        <!-- Meaning -->
+        <div class="form-field">
+          <label class="form-label" for="formMeaningInput">Nghĩa tiếng Việt (Bắt buộc):</label>
+          <input type="text" class="form-input-text" id="formMeaningInput" placeholder="Ví dụ: chuyến đi du lịch" required>
+          <div class="error-text">Vui lòng nhập ý nghĩa tiếng Việt.</div>
+        </div>
+
+        <!-- JLPT Level -->
+        <div class="form-field">
+          <label class="form-label" for="formLevelSelect">Cấp độ JLPT:</label>
+          <select class="form-select" id="formLevelSelect">
+            <option value="N5">JLPT N5 (Sơ cấp)</option>
+            <option value="N4" selected>JLPT N4 (Sơ trung cấp)</option>
+            <option value="N3">JLPT N3 (Trung cấp)</option>
+          </select>
+        </div>
+
+        <!-- Simulated Failure Toggle (For reviewing recovery behavior) -->
+        <div style="background: #FFFBEB; border: 1px solid #F59E0B; padding: 10px 14px; border-radius: 6px; margin-bottom: 16px;">
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; cursor: pointer;">
+            <input type="checkbox" id="chkSimulateError" style="width: 16px; height: 16px;">
+            <span>Mô phỏng lỗi ghi đĩa SQLite (Thử nghiệm Recovery)</span>
+          </label>
+        </div>
+
+        <div class="modal-foot">
+          <button type="button" class="btn-tactile" id="btnCancelModal">Hủy bỏ</button>
+          <button type="submit" class="btn-tactile primary" id="btnSaveModal">Lưu vào CSDL</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Dock -->
+  <div class="toast-dock" id="toastDock"></div>
+
+  <!-- Scripts -->
+  <script src="mock-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

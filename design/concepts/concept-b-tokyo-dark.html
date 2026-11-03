@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direction B: Tokyo Neo-Dark Glass — NihongoAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-space: #07090E;
+      --bg-card: rgba(18, 22, 34, 0.75);
+      --bg-surface: #101422;
+      --bg-glass: rgba(255, 255, 255, 0.03);
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --border-active: rgba(0, 240, 255, 0.4);
+      
+      --text-bright: #F5F7FB;
+      --text-muted: #8E99AD;
+      --text-dim: #545F76;
+      
+      --neon-cyan: #00F0FF;
+      --neon-sakura: #FF3B69;
+      --neon-lime: #00FF9D;
+      --neon-amber: #FFB703;
+      
+      --font-ui: 'Plus Jakarta Sans', sans-serif;
+      --font-jp: 'Noto Sans JP', sans-serif;
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 24px;
+      --glow-cyan: 0 0 30px rgba(0, 240, 255, 0.15);
+      --shadow-deep: 0 20px 50px rgba(0, 0, 0, 0.5);
+      --transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-space);
+      background-image: 
+        radial-gradient(circle at 20% 15%, rgba(0, 240, 255, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 80% 85%, rgba(255, 59, 105, 0.05) 0%, transparent 40%);
+      color: var(--text-bright);
+      font-family: var(--font-ui);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Meta Banner */
+    .concept-banner {
+      background: rgba(16, 20, 34, 0.85);
+      border-bottom: 1px solid var(--border-glass);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      backdrop-filter: blur(12px);
+    }
+    .concept-tag {
+      background: rgba(0, 240, 255, 0.1);
+      color: var(--neon-cyan);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      padding: 3px 12px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* Header */
+    .app-header {
+      padding: 18px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-glass);
+      backdrop-filter: blur(20px);
+    }
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-sakura));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1rem;
+      color: #000;
+    }
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .app-nav {
+      display: flex;
+      gap: 28px;
+    }
+    .nav-item {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    .nav-item.active {
+      color: var(--text-bright);
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+    }
+    .btn-create-modal {
+      background: linear-gradient(135deg, var(--neon-cyan), #0099FF);
+      color: #07090E;
+      border: none;
+      padding: 8px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-create-modal:hover {
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+      transform: translateY(-1px);
+    }
+
+    /* Workspace */
+    .main-workspace {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 24px;
+      flex: 1;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Queue HUD Bar */
+    .queue-status-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 12px 22px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      backdrop-filter: blur(16px);
+    }
+    .queue-counters {
+      display: flex;
+      gap: 16px;
+    }
+    .hud-stat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .hud-num {
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+    .hud-num.new { background: rgba(255, 255, 255, 0.08); color: var(--text-bright); }
+    .hud-num.learning { background: rgba(255, 183, 3, 0.15); color: var(--neon-amber); }
+    .hud-num.review { background: rgba(0, 255, 157, 0.15); color: var(--neon-lime); }
+
+    /* Flashcard Stage */
+    .card-stage {
+      width: 100%;
+      perspective: 1200px;
+      margin-bottom: 24px;
+    }
+    .flashcard {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 56px 48px;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      box-shadow: var(--shadow-deep);
+      backdrop-filter: blur(24px);
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+    }
+    .flashcard:hover {
+      border-color: var(--border-active);
+      box-shadow: var(--glow-cyan);
+    }
+    .card-meta-tag {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--neon-cyan);
+      background: rgba(0, 240, 255, 0.08);
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 240, 255, 0.15);
+    }
+    .card-kanji-target {
+      font-family: var(--font-jp);
+      font-size: 4.5rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-shadow: 0 4px 25px rgba(255, 255, 255, 0.2);
+      margin: 12px 0;
+      letter-spacing: 0.02em;
+    }
+    .card-reading-ruby {
+      font-size: 1.3rem;
+      color: var(--neon-sakura);
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: var(--transition);
+    }
+    .card-reading-ruby.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .card-meaning-vi {
+      font-size: 1.25rem;
+      color: var(--text-bright);
+      margin-top: 8px;
+      opacity: 0;
+      transition: var(--transition);
+    }
+    .card-meaning-vi.revealed { opacity: 1; }
+
+    .card-example-box {
+      margin-top: 24px;
+      padding: 16px 20px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-glass);
+      text-align: left;
+      width: 100%;
+      opacity: 0;
+      transition: var(--transition);
+    }
+    .card-example-box.revealed { opacity: 1; }
+    .card-example-ja {
+      font-family: var(--font-jp);
+      font-size: 1.05rem;
+      color: var(--text-bright);
+      margin-bottom: 4px;
+    }
+    .card-example-vi {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .flip-prompt {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .kbd-shortcut {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-glass);
+      color: var(--neon-cyan);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-family: monospace;
+      font-weight: 700;
+    }
+
+    /* Rating Deck */
+    .rating-control-deck {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px);
+      transition: var(--transition);
+    }
+    .rating-control-deck.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .rating-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 16px 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: var(--transition);
+      position: relative;
+      backdrop-filter: blur(16px);
+    }
+    .rating-btn:hover {
+      transform: translateY(-3px);
+    }
+    .rating-btn.again:hover {
+      border-color: var(--neon-sakura);
+      box-shadow: 0 0 20px rgba(255, 59, 105, 0.25);
+    }
+    .rating-btn.hard:hover {
+      border-color: var(--neon-amber);
+      box-shadow: 0 0 20px rgba(255, 183, 3, 0.25);
+    }
+    .rating-btn.good:hover {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+    }
+    .rating-btn.easy:hover {
+      border-color: var(--neon-lime);
+      box-shadow: 0 0 20px rgba(0, 255, 157, 0.25);
+    }
+    .rating-keycap {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      font-weight: 700;
+    }
+    .rating-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-bright);
+    }
+    .rating-interval-badge {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition);
+      z-index: 100;
+    }
+    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .modal-card {
+      background: #111524;
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 36px 40px;
+      width: 100%;
+      max-width: 580px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+      transform: scale(0.95);
+      transition: var(--transition);
+    }
+    .modal-backdrop.open .modal-card { transform: scale(1); }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-glass);
+      padding-bottom: 14px;
+    }
+    .modal-title { font-size: 1.25rem; font-weight: 700; color: #FFFFFF; }
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+      color: #FFFFFF;
+      transition: var(--transition);
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border-glass);
+      color: var(--text-muted);
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--neon-cyan);
+      color: #07090E;
+      border: none;
+      padding: 10px 24px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Meta Header -->
+  <div class="concept-banner">
+    <div><strong>Direction B:</strong> Tokyo Neo-Dark Glass (High-tech Dark Mode & Luminescent Accents)</div>
+    <div class="concept-tag">Aesthetic: Futuristic, Engaging, High-energy</div>
+  </div>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="brand-mark">
+      <div class="brand-logo-icon">N</div>
+      <span class="brand-title">NihongoAI</span>
+    </div>
+    <nav class="app-nav">
+      <span class="nav-item active">Ôn tập (Review)</span>
+      <span class="nav-item">Bộ thẻ (Decks)</span>
+      <span class="nav-item">Luyện câu (Practice)</span>
+      <span class="nav-item">Hội thoại (Kaiwa)</span>
+      <span class="nav-item">Thống kê (Stats)</span>
+    </nav>
+    <button class="btn-create-modal" onclick="openModal()">+ Thêm từ mới</button>
+  </header>
+
+  <!-- Workspace -->
+  <main class="main-workspace">
+
+    <!-- Queue HUD -->
+    <div class="queue-status-bar">
+      <div style="font-size: 0.9rem; font-weight: 600;">Bộ thẻ: Minna no Nihongo (Bài 1-25)</div>
+      <div class="queue-counters">
+        <div class="hud-stat">Mới: <span class="hud-num new">12</span></div>
+        <div class="hud-stat">Đang học: <span class="hud-num learning">8</span></div>
+        <div class="hud-stat">Cần ôn: <span class="hud-num review">24</span></div>
+      </div>
+    </div>
+
+    <!-- Review Flashcard -->
+    <div class="card-stage">
+      <div class="flashcard" id="studyCard" onclick="toggleAnswer()">
+        <span class="card-meta-tag">JLPT N4 • Động từ</span>
+        
+        <div>
+          <div class="card-kanji-target" id="kanjiText">食べる</div>
+          <div class="card-reading-ruby" id="rubyText">たべる • taberu</div>
+          <div class="card-meaning-vi" id="meaningText">ăn (dùng bữa, ăn cơm)</div>
+          
+          <div class="card-example-box" id="exampleBox">
+            <div class="card-example-ja">毎朝、パンと卵を食べます。</div>
+            <div class="card-example-vi">Mỗi sáng tôi đều ăn bánh mì và trứng.</div>
+          </div>
+        </div>
+
+        <div class="flip-prompt" id="flipPrompt">
+          <span>Nhấn chuột hoặc phím</span>
+          <span class="kbd-shortcut">Space</span>
+          <span>để xem đáp án</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rating Controls -->
+    <div class="rating-control-deck" id="ratingDeck">
+      <button class="rating-btn again" onclick="submitReview(1)">
+        <span class="rating-keycap">1</span>
+        <span class="rating-title" style="color: var(--neon-sakura);">Again</span>
+        <span class="rating-interval-badge">&lt; 10m</span>
+      </button>
+      <button class="rating-btn hard" onclick="submitReview(2)">
+        <span class="rating-keycap">2</span>
+        <span class="rating-title" style="color: var(--neon-amber);">Hard</span>
+        <span class="rating-interval-badge">2 ngày</span>
+      </button>
+      <button class="rating-btn good" onclick="submitReview(3)">
+        <span class="rating-keycap">3</span>
+        <span class="rating-title" style="color: var(--neon-cyan);">Good</span>
+        <span class="rating-interval-badge">4 ngày</span>
+      </button>
+      <button class="rating-btn easy" onclick="submitReview(4)">
+        <span class="rating-keycap">4</span>
+        <span class="rating-title" style="color: var(--neon-lime);">Easy</span>
+        <span class="rating-interval-badge">7 ngày</span>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Thêm mục tri thức mới</h3>
+        <span style="font-size: 0.8rem; color: var(--text-dim);">Esc để đóng</span>
+      </div>
+      <form onsubmit="event.preventDefault(); saveEntry();">
+        <div class="form-group">
+          <label class="form-label">Từ gốc / Kanji (Bắt buộc)</label>
+          <input type="text" class="form-input" id="wordInput" placeholder="Ví dụ: 映画" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cách đọc (Hiragana)</label>
+          <input type="text" class="form-input" id="readingInput" placeholder="Ví dụ: えいが">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nghĩa tiếng Việt (Bắt buộc)</label>
+          <input type="text" class="form-input" id="meaningInput" placeholder="Ví dụ: bộ phim, điện ảnh" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cấp độ JLPT</label>
+          <select class="form-input" id="levelInput">
+            <option value="N5">JLPT N5</option>
+            <option value="N4" selected>JLPT N4</option>
+            <option value="N3">JLPT N3</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal()">Hủy bỏ</button>
+          <button type="submit" class="btn-primary">Lưu tri thức</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let isFlipped = false;
+
+    function toggleAnswer() {
+      isFlipped = !isFlipped;
+      document.getElementById('rubyText').classList.toggle('revealed', isFlipped);
+      document.getElementById('meaningText').classList.toggle('revealed', isFlipped);
+      document.getElementById('exampleBox').classList.toggle('revealed', isFlipped);
+      document.getElementById('ratingDeck').classList.toggle('active', isFlipped);
+      document.getElementById('flipPrompt').style.display = isFlipped ? 'none' : 'flex';
+    }
+
+    function submitReview(grade) {
+      const card = document.getElementById('studyCard');
+      card.style.transform = 'scale(0.98)';
+      card.style.opacity = '0.5';
+      
+      setTimeout(() => {
+        isFlipped = false;
+        document.getElementById('rubyText').classList.remove('revealed');
+        document.getElementById('meaningText').classList.remove('revealed');
+        document.getElementById('exampleBox').classList.remove('revealed');
+        document.getElementById('ratingDeck').classList.remove('active');
+        document.getElementById('flipPrompt').style.display = 'flex';
+        
+        document.getElementById('kanjiText').innerText = '見る';
+        document.getElementById('rubyText').innerText = 'みる • miru';
+        document.getElementById('meaningText').innerText = 'xem, nhìn, ngắm';
+        
+        card.style.transform = 'scale(1)';
+        card.style.opacity = '1';
+      }, 200);
+    }
+
+    function openModal() { document.getElementById('modalBackdrop').classList.add('open'); }
+    function closeModal() { document.getElementById('modalBackdrop').classList.remove('open'); }
+    function saveEntry() {
+      alert('Đã lưu từ vựng an toàn vào CSDL cục bộ SQLite.');
+      closeModal();
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (document.getElementById('modalBackdrop').classList.contains('open')) {
+        if (e.key === 'Escape') closeModal();
+        return;
+      }
+      if (e.code === 'Space') {
+        e.preventDefault();
+        toggleAnswer();
+      } else if (isFlipped) {
+        if (e.key === '1') submitReview(1);
+        if (e.key === '2') submitReview(2);
+        if (e.key === '3') submitReview(3);
+        if (e.key === '4') submitReview(4);
+      }
+    });
+  </script>
+</body>
+</html>
