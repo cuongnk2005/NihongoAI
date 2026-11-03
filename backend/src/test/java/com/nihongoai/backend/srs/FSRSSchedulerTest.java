@@ -18,37 +18,47 @@ class FSRSSchedulerTest {
     }
 
     @Test
-    @DisplayName("New card first review with GOOD rating transitions to REVIEW state")
-    void testNewCardGoodRating() {
+    @DisplayName("New card first review follows Anki 1m, 6m, 10m, 2d learning steps")
+    void testNewCardAnkiLearningSteps() {
+        LocalDateTime now = LocalDateTime.now();
+
+        // AGAIN -> 1 minute (LEARNING)
+        FSRSResult againResult = scheduler.computeNextState(0.0, 5.0, 0, 0, FSRSState.NEW, null, FSRSRating.AGAIN, now);
+        assertEquals(FSRSState.LEARNING, againResult.state());
+        assertEquals(0, againResult.scheduledDays());
+        assertEquals(now.plusMinutes(1), againResult.nextDue());
+
+        // HARD -> 6 minutes (LEARNING)
+        FSRSResult hardResult = scheduler.computeNextState(0.0, 5.0, 0, 0, FSRSState.NEW, null, FSRSRating.HARD, now);
+        assertEquals(FSRSState.LEARNING, hardResult.state());
+        assertEquals(0, hardResult.scheduledDays());
+        assertEquals(now.plusMinutes(6), hardResult.nextDue());
+
+        // GOOD -> 10 minutes (LEARNING)
+        FSRSResult goodResult = scheduler.computeNextState(0.0, 5.0, 0, 0, FSRSState.NEW, null, FSRSRating.GOOD, now);
+        assertEquals(FSRSState.LEARNING, goodResult.state());
+        assertEquals(0, goodResult.scheduledDays());
+        assertEquals(now.plusMinutes(10), goodResult.nextDue());
+
+        // EASY -> 2 days (REVIEW)
+        FSRSResult easyResult = scheduler.computeNextState(0.0, 5.0, 0, 0, FSRSState.NEW, null, FSRSRating.EASY, now);
+        assertEquals(FSRSState.REVIEW, easyResult.state());
+        assertEquals(2, easyResult.scheduledDays());
+        assertEquals(now.plusDays(2), easyResult.nextDue());
+    }
+
+    @Test
+    @DisplayName("Learning card seen once graduates to REVIEW (1 day) on GOOD rating")
+    void testLearningCardGraduatesOnGood() {
         LocalDateTime now = LocalDateTime.now();
         FSRSResult result = scheduler.computeNextState(
-                0.0, 5.0, 0, 0, FSRSState.NEW, null, FSRSRating.GOOD, now
+                1.0, 4.8, 1, 0, FSRSState.LEARNING, now.minusMinutes(10), FSRSRating.GOOD, now
         );
 
         assertNotNull(result);
         assertEquals(FSRSState.REVIEW, result.state());
-        assertEquals(2.5, result.stability());
-        assertEquals(4.8, result.difficulty());
-        assertEquals(1, result.reps());
-        assertEquals(0, result.lapses());
-        assertTrue(result.scheduledDays() >= 1);
-        assertTrue(result.nextDue().isAfter(now));
-    }
-
-    @Test
-    @DisplayName("New card first review with AGAIN rating transitions to LEARNING state")
-    void testNewCardAgainRating() {
-        LocalDateTime now = LocalDateTime.now();
-        FSRSResult result = scheduler.computeNextState(
-                0.0, 5.0, 0, 0, FSRSState.NEW, null, FSRSRating.AGAIN, now
-        );
-
-        assertNotNull(result);
-        assertEquals(FSRSState.LEARNING, result.state());
-        assertEquals(0.4, result.stability());
-        assertEquals(8.0, result.difficulty());
-        assertEquals(1, result.lapses());
-        assertEquals(0, result.scheduledDays());
+        assertEquals(1, result.scheduledDays());
+        assertEquals(2, result.reps());
     }
 
     @Test

@@ -7,5 +7,16 @@ public record PracticeQuestionDto(
     String exampleAnswerJa,
     List<String> targetVocabulary,
     List<String> targetGrammar,
-    String difficulty
-) {}
+    String difficulty,
+    String hintVi
+) {
+    public PracticeQuestionDto(
+        String sentenceVi,
+        String exampleAnswerJa,
+        List<String> targetVocabulary,
+        List<String> targetGrammar,
+        String difficulty
+    ) {
+        this(sentenceVi, exampleAnswerJa, targetVocabulary, targetGrammar, difficulty, null);
+    }
+}

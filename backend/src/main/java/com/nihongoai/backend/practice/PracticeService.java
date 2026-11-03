@@ -10,6 +10,8 @@ import com.nihongoai.backend.repository.GrammarRepository;
 import com.nihongoai.backend.repository.VocabularyRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -34,8 +36,19 @@ public class PracticeService {
         List<VocabularyEntity> vocabs = vocabularyRepository.findByJlptLevel(targetLevel);
         List<GrammarEntity> grammars = grammarRepository.findByJlptLevel(targetLevel);
 
-        List<String> targetVocabWords = vocabs.stream().map(VocabularyEntity::getWord).limit(3).toList();
-        List<String> targetGrammarPatterns = grammars.stream().map(GrammarEntity::getPattern).limit(2).toList();
+        List<String> targetVocabWords = new ArrayList<>();
+        if (!vocabs.isEmpty()) {
+            List<String> vocabPool = new ArrayList<>(vocabs.stream().map(VocabularyEntity::getWord).toList());
+            Collections.shuffle(vocabPool);
+            targetVocabWords = vocabPool.stream().limit(3).toList();
+        }
+
+        List<String> targetGrammarPatterns = new ArrayList<>();
+        if (!grammars.isEmpty()) {
+            List<String> grammarPool = new ArrayList<>(grammars.stream().map(GrammarEntity::getPattern).toList());
+            Collections.shuffle(grammarPool);
+            targetGrammarPatterns = grammarPool.stream().limit(2).toList();
+        }
 
         AiProvider provider = aiProviderFactory.getProvider();
         return provider.generateExercise(targetVocabWords, targetGrammarPatterns, targetLevel);

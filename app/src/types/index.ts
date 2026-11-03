@@ -32,6 +32,7 @@ export interface PracticeQuestion {
   targetVocabulary: string[];
   targetGrammar: string[];
   difficulty: string;
+  hintVi?: string;
 }
 
 export interface EvaluationResult {
@@ -40,6 +41,42 @@ export interface EvaluationResult {
   meaningScore: number;
   grammarScore: number;
   naturalnessScore: number;
+  grammarErrors?: string[];
+  vocabularyErrors?: string[];
   suggestedAnswer: string;
   explanationVi: string;
+}
+
+export type CardType = 'vocab' | 'typing_2way' | 'basic' | 'reversed' | 'cloze';
+
+export type TypingDirection = 'kanji_to_reading' | 'meaning_to_ja';
+
+export type AnkiCardState = 'new' | 'learning' | 'review' | 'relearning';
+
+export interface Flashcard {
+  id: number;
+  word: string;
+  reading?: string;
+  meaningVi?: string;
+  sinoVietnamese?: string;
+  audioUrl?: string;
+  partOfSpeech?: string;
+  jlptLevel?: string;
+  exampleSentenceJa?: string;
+  exampleSentenceVi?: string;
+  intervalDays?: number;
+  reps?: number;
+  lapses?: number;
+  stability?: number;
+  difficulty?: number;
+  cardState?: AnkiCardState;
+  learningStep?: number;
+  lastIntervalLabel?: string;
+  deckId?: string;
+  deckName?: string;
+  cardType?: CardType;
+  typingDirection?: TypingDirection;
+  frontContent?: string;
+  backContent?: string;
+  clozeHint?: string;
 }

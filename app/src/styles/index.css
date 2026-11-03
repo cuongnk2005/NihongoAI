@@ -346,6 +346,21 @@ body {
 .chip.learning { background: #FEF08A; color: #713F12; }
 .chip.review { background: #BBF7D0; color: #14532D; }
 
+.deck-count-chip {
+  min-width: 44px;
+  height: 24px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: var(--font-grotesk);
+  font-variant-numeric: tabular-nums;
+  box-sizing: border-box;
+}
+
 /* Speed Flashcard Stage */
 .card-stage {
   margin-bottom: 24px;
@@ -640,6 +655,50 @@ body {
 
 [data-theme="dark"] .tactile-table tr:hover td {
   background: rgba(255, 255, 255, 0.03);
+}
+
+.tactile-table tr.selected-deck-row td {
+  background: rgba(255, 232, 214, 0.55);
+}
+
+[data-theme="dark"] .tactile-table tr.selected-deck-row td {
+  background: rgba(255, 232, 214, 0.15);
+}
+
+.tactile-table tr.selected-deck-row:hover td {
+  background: rgba(255, 232, 214, 0.7);
+}
+
+.tactile-table tr.drop-target-row td {
+  background: rgba(45, 106, 79, 0.18) !important;
+  border-top: 2px dashed var(--accent-pine) !important;
+  border-bottom: 2px dashed var(--accent-pine) !important;
+}
+
+[data-theme="dark"] .tactile-table tr.drop-target-row td {
+  background: rgba(45, 106, 79, 0.3) !important;
+}
+
+.tactile-table tr.dragging-row td {
+  background: var(--bg-subtle) !important;
+  opacity: 0.4;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: var(--ink-muted);
+  opacity: 0.45;
+  transition: opacity 0.15s ease, color 0.15s ease;
+  user-select: none;
+}
+
+.tactile-table tr:hover .drag-handle {
+  opacity: 1;
+  color: var(--ink-secondary);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 /* Japanese Typography Elements */
