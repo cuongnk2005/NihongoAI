@@ -2,6 +2,9 @@
 backend/target/
 backend/nihongoai.db
 *.db
+.env
+*.env
+backend/.env
 
 # Node dependencies & dist
 app/node_modules/

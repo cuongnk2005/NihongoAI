@@ -254,6 +254,10 @@ public class GeminiAiProvider implements AiProvider {
     }
 
     private String resolveApiKey() {
+        String env = System.getenv("GEMINI_API_KEY");
+        if (env != null && !env.isBlank()) return env;
+        String prop = System.getProperty("GEMINI_API_KEY");
+        if (prop != null && !prop.isBlank()) return prop;
         return settingRepository.findById("ai.gemini.api-key")
                 .map(setting -> setting.getSettingValue() != null && !setting.getSettingValue().isBlank() 
                         ? setting.getSettingValue() : configuredApiKey)
@@ -261,6 +265,10 @@ public class GeminiAiProvider implements AiProvider {
     }
 
     private String resolveModel() {
+        String env = System.getenv("GEMINI_MODEL");
+        if (env != null && !env.isBlank()) return env;
+        String prop = System.getProperty("GEMINI_MODEL");
+        if (prop != null && !prop.isBlank()) return prop;
         return settingRepository.findById("ai.gemini.model")
                 .map(setting -> setting.getSettingValue() != null && !setting.getSettingValue().isBlank()
                         ? setting.getSettingValue() : configuredModel)

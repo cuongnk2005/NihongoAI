@@ -270,6 +270,16 @@ public class OpenAiCompatibleAiProvider implements AiProvider {
     }
 
     private String resolveChatEndpoint() {
+        String env = System.getenv("FREELLMAPI_BASE_URL");
+        if (env == null || env.isBlank()) env = System.getProperty("FREELLMAPI_BASE_URL");
+        if (env != null && !env.isBlank()) {
+            String base = env.trim();
+            if (base.endsWith("/")) base = base.substring(0, base.length() - 1);
+            if (base.endsWith("/chat/completions")) return base;
+            if (base.endsWith("/v1")) return base + "/chat/completions";
+            return base + "/v1/chat/completions";
+        }
+
         String base = settingRepository.findById("ai.freellmapi.base-url")
                 .map(setting -> setting.getSettingValue() != null && !setting.getSettingValue().isBlank()
                         ? setting.getSettingValue() : configuredBaseUrl)
@@ -290,15 +300,25 @@ public class OpenAiCompatibleAiProvider implements AiProvider {
     }
 
     private String resolveApiKey() {
+        String env = System.getenv("FREELLMAPI_API_KEY");
+        if (env != null && !env.isBlank()) return env;
+        String prop = System.getProperty("FREELLMAPI_API_KEY");
+        if (prop != null && !prop.isBlank()) return prop;
+
         return settingRepository.findById("ai.freellmapi.api-key")
-                .map(setting -> setting.getSettingValue() != null && !setting.getSettingValue().isBlank()
+                .map(setting -> setting.getSettingValue() != null && !setting.getSettingValue().isBlank() 
                         ? setting.getSettingValue() : configuredApiKey)
                 .orElse(configuredApiKey);
     }
 
     private String resolveModel() {
+        String env = System.getenv("FREELLMAPI_MODEL");
+        if (env != null && !env.isBlank()) return env;
+        String prop = System.getProperty("FREELLMAPI_MODEL");
+        if (prop != null && !prop.isBlank()) return prop;
+
         return settingRepository.findById("ai.freellmapi.model")
-                .map(setting -> setting.getSettingValue() != null && !setting.getSettingValue().isBlank()
+                .map(setting -> setting.getSettingValue() != null && !setting.getSettingValue().isBlank() 
                         ? setting.getSettingValue() : configuredModel)
                 .orElse(configuredModel);
     }
