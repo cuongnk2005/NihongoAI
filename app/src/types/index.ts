@@ -1,4 +1,4 @@
-export interface Vocabulary {
+﻿export interface Vocabulary {
   id?: number;
   word: string;
   reading: string;
@@ -79,4 +79,13 @@ export interface Flashcard {
   frontContent?: string;
   backContent?: string;
   clozeHint?: string;
+}
+
+export interface GrammarStudyItem extends Grammar {
+  id: number;
+  state: string;
+  reps: number;
+  stability: number;
+  difficulty: number;
+  due: string;
 }

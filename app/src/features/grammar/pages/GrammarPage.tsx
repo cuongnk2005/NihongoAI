@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../../services/apiConfig';
 import { Grammar } from '../../../types';
-import { Plus, Trash2, Search, X, Copy, Check, FileSpreadsheet, Sparkles } from 'lucide-react';
+import { Plus, Trash2, Search, X, Copy, Check, FileSpreadsheet, Sparkles, GraduationCap } from 'lucide-react';
+import { GrammarStudyModal } from '../components/GrammarStudyModal';
 
 const CSV_PROMPT_TEMPLATE = `Bạn là một chuyên gia ngôn ngữ tiếng Nhật. Hãy tạo giúp tôi danh sách các mẫu ngữ pháp tiếng Nhật trình độ [N5 / N4 / N3 / N2 / N1] dưới dạng bảng dữ liệu CSV (chuẩn UTF-8, dấu phân cách bằng dấu phẩy) để tôi import vào ứng dụng học tập NihongoAI.
 
@@ -51,7 +52,6 @@ function parseGrammarCsv(csvText: string): Array<{
 
   for (let i = startIndex; i < lines.length; i++) {
     const line = lines[i];
-    // Simple split respecting basic quotes
     const cells: string[] = [];
     let insideQuotes = false;
     let currentCell = '';
@@ -96,6 +96,7 @@ export const GrammarPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterLevel, setFilterLevel] = useState<string>('ALL');
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
+  const [showStudyModal, setShowStudyModal] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'single' | 'csv'>('single');
 
   // Copy state
@@ -222,9 +223,30 @@ export const GrammarPage: React.FC = () => {
           </p>
         </div>
 
-        <button className="btn-tactile primary" onClick={() => { setShowAddForm(true); setActiveTab('single'); }}>
-          <Plus size={16} /> Thêm Ngữ pháp
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* Nút Học Ngữ Pháp 5 Mẫu */}
+          <button
+            type="button"
+            className="btn-tactile lg"
+            onClick={() => setShowStudyModal(true)}
+            style={{
+              background: '#FEF08A',
+              color: '#0F172A',
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              border: '2px solid #0F172A'
+            }}
+          >
+            <GraduationCap size={18} color="#713F12" />
+            <span>{filterLevel !== 'ALL' ? `Học 5 Mẫu ${filterLevel}` : 'Học Ngữ Pháp (5 mẫu)'}</span>
+          </button>
+
+          <button className="btn-tactile primary" onClick={() => { setShowAddForm(true); setActiveTab('single'); }}>
+            <Plus size={16} /> Thêm Ngữ pháp
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
@@ -318,6 +340,15 @@ export const GrammarPage: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Grammar Study Modal (Anki SRS Session) */}
+      {showStudyModal && (
+        <GrammarStudyModal
+          initialLevel={filterLevel}
+          onClose={() => setShowStudyModal(false)}
+          onSessionComplete={loadGrammars}
+        />
+      )}
 
       {/* Add / Import Modal */}
       {showAddForm && (
