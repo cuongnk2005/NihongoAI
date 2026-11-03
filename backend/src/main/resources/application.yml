@@ -14,7 +14,7 @@ spring:
     baseline-on-migrate: true
 
 server:
-  port: 8088
+  port: ${PORT:8088}
 
 ai:
   provider: ${AI_PROVIDER:gemini}
