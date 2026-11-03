@@ -12,8 +12,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class GeminiAiProvider implements AiProvider {
@@ -25,9 +28,13 @@ public class GeminiAiProvider implements AiProvider {
     private final ObjectMapper objectMapper;
     private final LocalMockAiProvider fallbackMockProvider;
     private final SystemSettingRepository settingRepository;
+    private final AtomicInteger keyIndexCounter = new AtomicInteger(0);
 
     @Value("${ai.gemini.api-key:}")
     private String configuredApiKey;
+
+    @Value("${ai.gemini.api-keys:}")
+    private String configuredApiKeys;
 
     @Value("${ai.gemini.model:gemini-3.5-flash-lite}")
     private String configuredModel;
@@ -50,15 +57,15 @@ public class GeminiAiProvider implements AiProvider {
 
     @Override
     public PracticeQuestionDto generateExercise(List<String> targetVocab, List<String> targetGrammar, String level) {
-        String apiKey = resolveApiKey();
-        if (apiKey == null || apiKey.isBlank()) {
-            log.info("Gemini API key is not configured. Falling back to LocalMockAiProvider for exercise generation.");
+        List<String> apiKeys = resolveApiKeys();
+        if (apiKeys.isEmpty()) {
+            log.info("No Gemini API keys configured. Falling back to LocalMockAiProvider for exercise generation.");
             return fallbackMockProvider.generateExercise(targetVocab, targetGrammar, level);
         }
 
         String prompt = buildExercisePrompt(targetVocab, targetGrammar, level);
         try {
-            String jsonText = callGemini(prompt, apiKey, 0.7);
+            String jsonText = callGemini(prompt, 0.7);
             JsonNode root = objectMapper.readTree(cleanJson(jsonText));
 
             String sentenceVi = root.path("sentenceVi").asText("Tôi đã từng xem bộ phim này cùng với bạn bè.");
@@ -90,15 +97,15 @@ public class GeminiAiProvider implements AiProvider {
 
     @Override
     public EvaluationResultDto evaluateAnswer(String sentenceVi, String exampleJa, String userAnswer, String level) {
-        String apiKey = resolveApiKey();
-        if (apiKey == null || apiKey.isBlank()) {
-            log.info("Gemini API key is not configured. Falling back to LocalMockAiProvider for answer evaluation.");
+        List<String> apiKeys = resolveApiKeys();
+        if (apiKeys.isEmpty()) {
+            log.info("No Gemini API keys configured. Falling back to LocalMockAiProvider for answer evaluation.");
             return fallbackMockProvider.evaluateAnswer(sentenceVi, exampleJa, userAnswer, level);
         }
 
         String prompt = buildEvaluationPrompt(sentenceVi, exampleJa, userAnswer, level);
         try {
-            String jsonText = callGemini(prompt, apiKey, 0.2);
+            String jsonText = callGemini(prompt, 0.2);
             JsonNode root = objectMapper.readTree(cleanJson(jsonText));
 
             boolean correct = root.path("correct").asBoolean(true);
@@ -139,15 +146,15 @@ public class GeminiAiProvider implements AiProvider {
 
     @Override
     public KaiwaResponseDto chatKaiwa(String userMessage, String level) {
-        String apiKey = resolveApiKey();
-        if (apiKey == null || apiKey.isBlank()) {
-            log.info("Gemini API key is not configured. Falling back to LocalMockAiProvider for Kaiwa.");
+        List<String> apiKeys = resolveApiKeys();
+        if (apiKeys.isEmpty()) {
+            log.info("No Gemini API keys configured. Falling back to LocalMockAiProvider for Kaiwa.");
             return fallbackMockProvider.chatKaiwa(userMessage, level);
         }
 
         String prompt = buildKaiwaPrompt(userMessage, level);
         try {
-            String jsonText = callGemini(prompt, apiKey, 0.6);
+            String jsonText = callGemini(prompt, 0.6);
             JsonNode root = objectMapper.readTree(cleanJson(jsonText));
 
             String aiReply = root.path("aiReply").asText("こんにちは！お元気ですか？");
@@ -163,15 +170,15 @@ public class GeminiAiProvider implements AiProvider {
 
     @Override
     public KanjiLookupDto lookupKanji(String word) {
-        String apiKey = resolveApiKey();
-        if (apiKey == null || apiKey.isBlank()) {
-            log.info("Gemini API key is not configured. Falling back to LocalMockAiProvider for Kanji lookup.");
+        List<String> apiKeys = resolveApiKeys();
+        if (apiKeys.isEmpty()) {
+            log.info("No Gemini API keys configured. Falling back to LocalMockAiProvider for Kanji lookup.");
             return fallbackMockProvider.lookupKanji(word);
         }
 
         String prompt = buildKanjiLookupPrompt(word);
         try {
-            String jsonText = callGemini(prompt, apiKey, 0.2);
+            String jsonText = callGemini(prompt, 0.2);
             JsonNode root = objectMapper.readTree(cleanJson(jsonText));
 
             String resWord = root.path("word").asText(word);
@@ -229,35 +236,66 @@ public class GeminiAiProvider implements AiProvider {
                 """.formatted(word);
     }
 
-    private String callGemini(String prompt, String apiKey, double temperature) throws JsonProcessingException {
-        String model = resolveModel();
-        String url = GEMINI_API_BASE + model + ":generateContent?key=" + apiKey;
-
-        Map<String, Object> requestBody = Map.of(
-                "contents", List.of(
-                        Map.of("parts", List.of(Map.of("text", prompt)))
-                ),
-                "generationConfig", Map.of(
-                        "temperature", temperature,
-                        "response_mime_type", "application/json"
-                )
-        );
-
-        String rawResponse = restClient.post()
-                .uri(url)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(requestBody)
-                .retrieve()
-                .body(String.class);
-
-        JsonNode responseNode = objectMapper.readTree(rawResponse);
-        JsonNode candidates = responseNode.path("candidates");
-        if (candidates.isArray() && !candidates.isEmpty()) {
-            JsonNode textNode = candidates.get(0).path("content").path("parts").get(0).path("text");
-            return textNode.asText("{}");
+    /**
+     * Executes the Gemini call with Round-Robin key rotation and automatic failover across the key pool.
+     */
+    private String callGemini(String prompt, double temperature) throws JsonProcessingException {
+        List<String> keys = resolveApiKeys();
+        if (keys.isEmpty()) {
+            throw new IllegalStateException("No Gemini API keys available");
         }
 
-        return "{}";
+        String model = resolveModel();
+        int totalKeys = keys.size();
+        int startIndex = Math.abs(keyIndexCounter.getAndIncrement() % totalKeys);
+
+        Exception lastException = null;
+
+        for (int attempt = 0; attempt < totalKeys; attempt++) {
+            int currentIdx = (startIndex + attempt) % totalKeys;
+            String apiKey = keys.get(currentIdx);
+            String maskedKey = maskKey(apiKey);
+
+            String url = GEMINI_API_BASE + model + ":generateContent?key=" + apiKey;
+
+            Map<String, Object> requestBody = Map.of(
+                    "contents", List.of(
+                            Map.of("parts", List.of(Map.of("text", prompt)))
+                    ),
+                    "generationConfig", Map.of(
+                            "temperature", temperature,
+                            "response_mime_type", "application/json"
+                    )
+            );
+
+            try {
+                String rawResponse = restClient.post()
+                        .uri(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(requestBody)
+                        .retrieve()
+                        .body(String.class);
+
+                JsonNode responseNode = objectMapper.readTree(rawResponse);
+                JsonNode candidates = responseNode.path("candidates");
+                if (candidates.isArray() && !candidates.isEmpty()) {
+                    JsonNode textNode = candidates.get(0).path("content").path("parts").get(0).path("text");
+                    return textNode.asText("{}");
+                }
+                return "{}";
+            } catch (Exception e) {
+                lastException = e;
+                log.warn("Gemini API key [{}] (pool index {}/{}) failed: {}. Attempting failover to next key in pool...",
+                        maskedKey, currentIdx + 1, totalKeys, e.getMessage());
+            }
+        }
+
+        throw new RuntimeException("All " + totalKeys + " Gemini API keys in pool failed or exhausted.", lastException);
+    }
+
+    private String maskKey(String key) {
+        if (key == null || key.length() < 8) return "***";
+        return key.substring(0, 6) + "..." + key.substring(key.length() - 3);
     }
 
     private String cleanJson(String raw) {
@@ -344,15 +382,57 @@ public class GeminiAiProvider implements AiProvider {
                 """.formatted(level, userMessage, level);
     }
 
-    private String resolveApiKey() {
+    public List<String> resolveApiKeys() {
+        // 1. Check GEMINI_API_KEYS (comma or semicolon separated list)
+        String envList = System.getenv("GEMINI_API_KEYS");
+        if (envList != null && !envList.isBlank()) {
+            return parseKeyList(envList);
+        }
+
+        String propList = System.getProperty("GEMINI_API_KEYS");
+        if (propList != null && !propList.isBlank()) {
+            return parseKeyList(propList);
+        }
+
+        // 2. Check setting repository for multiple keys
+        Optional<String> repoList = settingRepository.findById("ai.gemini.api-keys")
+                .map(setting -> setting.getSettingValue())
+                .filter(val -> val != null && !val.isBlank());
+        if (repoList.isPresent()) {
+            return parseKeyList(repoList.get());
+        }
+
+        // 3. Check configuredApiKeys property from application.yml
+        if (configuredApiKeys != null && !configuredApiKeys.isBlank()) {
+            return parseKeyList(configuredApiKeys);
+        }
+
+        // 4. Fallback to single key GEMINI_API_KEY
+        String single = resolveSingleApiKey();
+        if (single != null && !single.isBlank()) {
+            return List.of(single);
+        }
+
+        return List.of();
+    }
+
+    private String resolveSingleApiKey() {
         String env = System.getenv("GEMINI_API_KEY");
         if (env != null && !env.isBlank()) return env;
         String prop = System.getProperty("GEMINI_API_KEY");
         if (prop != null && !prop.isBlank()) return prop;
         return settingRepository.findById("ai.gemini.api-key")
-                .map(setting -> setting.getSettingValue() != null && !setting.getSettingValue().isBlank() 
+                .map(setting -> setting.getSettingValue() != null && !setting.getSettingValue().isBlank()
                         ? setting.getSettingValue() : configuredApiKey)
                 .orElse(configuredApiKey);
+    }
+
+    private List<String> parseKeyList(String raw) {
+        if (raw == null || raw.isBlank()) return List.of();
+        return Arrays.stream(raw.split("[,;\\r?\\n]+"))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .toList();
     }
 
     private String resolveModel() {

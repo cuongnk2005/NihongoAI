@@ -82,4 +82,19 @@ class GeminiAiProviderTest {
         ));
         assertEquals("local-mock", factory.getProvider().getProviderName());
     }
+
+    @Test
+    @DisplayName("GeminiAiProvider parses multiple keys correctly from repository setting")
+    void testResolveMultipleKeys() {
+        when(settingRepository.findById("ai.gemini.api-keys")).thenReturn(Optional.of(
+                new SystemSettingEntity("ai.gemini.api-keys", "key1, key2; key3\nkey4")
+        ));
+
+        List<String> keys = geminiProvider.resolveApiKeys();
+        assertEquals(4, keys.size());
+        assertEquals("key1", keys.get(0));
+        assertEquals("key2", keys.get(1));
+        assertEquals("key3", keys.get(2));
+        assertEquals("key4", keys.get(3));
+    }
 }

@@ -20,6 +20,7 @@ ai:
   provider: ${AI_PROVIDER:gemini}
   gemini:
     api-key: ${GEMINI_API_KEY:}
+    api-keys: ${GEMINI_API_KEYS:}
     model: ${GEMINI_MODEL:gemini-3.5-flash-lite}
   freellmapi:
     base-url: ${FREELLMAPI_BASE_URL:http://localhost:3001/v1}
