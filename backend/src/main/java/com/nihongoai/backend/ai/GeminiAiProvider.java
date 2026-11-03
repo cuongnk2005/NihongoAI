@@ -29,7 +29,7 @@ public class GeminiAiProvider implements AiProvider {
     @Value("${ai.gemini.api-key:}")
     private String configuredApiKey;
 
-    @Value("${ai.gemini.model:gemini-1.5-flash}")
+    @Value("${ai.gemini.model:gemini-3.5-flash-lite}")
     private String configuredModel;
 
     public GeminiAiProvider(
@@ -58,25 +58,25 @@ public class GeminiAiProvider implements AiProvider {
 
         String prompt = buildExercisePrompt(targetVocab, targetGrammar, level);
         try {
-            String jsonText = callGemini(prompt, apiKey);
-            JsonNode root = objectMapper.readTree(jsonText);
+            String jsonText = callGemini(prompt, apiKey, 0.7);
+            JsonNode root = objectMapper.readTree(cleanJson(jsonText));
 
             String sentenceVi = root.path("sentenceVi").asText("Tôi đã từng xem bộ phim này cùng với bạn bè.");
             String exampleAnswerJa = root.path("exampleAnswerJa").asText("友達とこの映画を見たことがあります。");
             String difficulty = root.path("difficulty").asText(level != null ? level : "N4");
-            String hintVi = root.path("hintVi").asText(null);
+            String hintVi = root.has("hintVi") && !root.get("hintVi").isNull() ? root.path("hintVi").asText() : null;
 
             List<String> vocabs = new ArrayList<>();
             if (root.has("targetVocabulary") && root.get("targetVocabulary").isArray()) {
                 root.get("targetVocabulary").forEach(node -> vocabs.add(node.asText()));
-            } else {
+            } else if (targetVocab != null) {
                 vocabs.addAll(targetVocab);
             }
 
             List<String> grammars = new ArrayList<>();
             if (root.has("targetGrammar") && root.get("targetGrammar").isArray()) {
                 root.get("targetGrammar").forEach(node -> grammars.add(node.asText()));
-            } else {
+            } else if (targetGrammar != null) {
                 grammars.addAll(targetGrammar);
             }
 
@@ -98,8 +98,8 @@ public class GeminiAiProvider implements AiProvider {
 
         String prompt = buildEvaluationPrompt(sentenceVi, exampleJa, userAnswer, level);
         try {
-            String jsonText = callGemini(prompt, apiKey);
-            JsonNode root = objectMapper.readTree(jsonText);
+            String jsonText = callGemini(prompt, apiKey, 0.2);
+            JsonNode root = objectMapper.readTree(cleanJson(jsonText));
 
             boolean correct = root.path("correct").asBoolean(true);
             int score = root.path("score").asInt(85);
@@ -147,8 +147,8 @@ public class GeminiAiProvider implements AiProvider {
 
         String prompt = buildKaiwaPrompt(userMessage, level);
         try {
-            String jsonText = callGemini(prompt, apiKey);
-            JsonNode root = objectMapper.readTree(jsonText);
+            String jsonText = callGemini(prompt, apiKey, 0.6);
+            JsonNode root = objectMapper.readTree(cleanJson(jsonText));
 
             String aiReply = root.path("aiReply").asText("こんにちは！お元気ですか？");
             String correctionVi = root.path("correctionVi").asText("Câu trả lời của bạn chuẩn ngữ pháp.");
@@ -161,7 +161,7 @@ public class GeminiAiProvider implements AiProvider {
         }
     }
 
-    private String callGemini(String prompt, String apiKey) throws JsonProcessingException {
+    private String callGemini(String prompt, String apiKey, double temperature) throws JsonProcessingException {
         String model = resolveModel();
         String url = GEMINI_API_BASE + model + ":generateContent?key=" + apiKey;
 
@@ -170,7 +170,7 @@ public class GeminiAiProvider implements AiProvider {
                         Map.of("parts", List.of(Map.of("text", prompt)))
                 ),
                 "generationConfig", Map.of(
-                        "temperature", 0.3,
+                        "temperature", temperature,
                         "response_mime_type", "application/json"
                 )
         );
@@ -192,23 +192,46 @@ public class GeminiAiProvider implements AiProvider {
         return "{}";
     }
 
+    private String cleanJson(String raw) {
+        if (raw == null) return "{}";
+        String trimmed = raw.trim();
+        if (trimmed.startsWith("```json")) {
+            trimmed = trimmed.substring(7);
+        } else if (trimmed.startsWith("```")) {
+            trimmed = trimmed.substring(3);
+        }
+        if (trimmed.endsWith("```")) {
+            trimmed = trimmed.substring(0, trimmed.length() - 3);
+        }
+        return trimmed.trim();
+    }
+
     private String buildExercisePrompt(List<String> targetVocab, List<String> targetGrammar, String level) {
+        String vocabHint = (targetVocab != null && !targetVocab.isEmpty())
+                ? "Optional vocabulary suggestions (feel free to choose other common " + level + " words if suitable): " + String.join(", ", targetVocab)
+                : "Choose common, natural " + level + " vocabulary.";
+
+        String grammarHint = (targetGrammar != null && !targetGrammar.isEmpty())
+                ? "Optional grammar suggestions (or other core " + level + " grammar): " + String.join(", ", targetGrammar)
+                : "Choose core " + level + " grammar patterns.";
+
         return """
-                You are a professional Japanese language learning assistant.
-                Task: Generate a Vietnamese sentence for Japanese translation practice at JLPT %s level.
-                Ensure that the targetVocabulary and targetGrammar you return actually match the Vietnamese sentence and Japanese example answer.
-                Preferred Vocabulary pool: %s
-                Preferred Grammar pool: %s
+                You are a professional Japanese language tutor.
+                Task: Generate a UNIQUE, fresh, and engaging Vietnamese sentence for Japanese translation practice at JLPT %s level.
+                Vary the scenario every single time (e.g. workplace, university, dining, public transit, weather, shopping, weekend plans, healthcare).
+                Do NOT repeat the movie-watching scenario.
+                %s
+                %s
                 Output MUST be strict JSON with this exact schema:
                 {
-                  "sentenceVi": "Vietnamese prompt sentence",
-                  "exampleAnswerJa": "Expected natural Japanese translation",
-                  "targetVocabulary": ["vocabulary1 (reading)", "vocabulary2 (reading)"],
+                  "sentenceVi": "Vietnamese sentence to translate",
+                  "exampleAnswerJa": "Natural, standard Japanese translation",
+                  "targetVocabulary": ["vocabulary1 (hiragana)", "vocabulary2 (hiragana)"],
                   "targetGrammar": ["grammarPattern"],
                   "difficulty": "%s",
-                  "hintVi": "Short grammar/structure hint in Vietnamese"
+                  "hintVi": "Short helpful tip in Vietnamese on key grammar structure or particle"
                 }
-                """.formatted(level, String.join(", ", targetVocab), String.join(", ", targetGrammar), level);
+                """.formatted(level, vocabHint, grammarHint, level);
     }
 
     private String buildEvaluationPrompt(String sentenceVi, String exampleJa, String userAnswer, String level) {
