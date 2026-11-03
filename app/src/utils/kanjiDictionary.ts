@@ -365,3 +365,4 @@ export function lookupJapaneseWord(rawText: string): LookupResult | null {
     kanjiList: []
   };
 }
+

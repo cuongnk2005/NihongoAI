@@ -109,10 +109,12 @@ export const useTextLookup = (): UseTextLookupReturn => {
 
     window.addEventListener('keydown', handleKeyDown);
     document.addEventListener('click', handleDocumentClick);
+    window.addEventListener('scroll', closeLookup, { passive: true });
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('click', handleDocumentClick);
+      window.removeEventListener('scroll', closeLookup);
     };
   }, [closeLookup]);
 

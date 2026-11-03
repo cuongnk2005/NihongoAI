@@ -37,7 +37,7 @@ export const KanjiLookupPopover: React.FC<KanjiLookupPopoverProps> = ({
     try {
       await api.createVocabulary({
         word: result.rootForm || result.word,
-        reading: result.reading !== '---' ? result.reading : '',
+        reading: result.reading && result.reading !== '---' ? result.reading : (result.rootForm || result.word),
         meaningVi: result.meaningVi,
         jlptLevel: 'N4',
         partOfSpeech: result.sinoVietnamese ? `Hán Việt: ${result.sinoVietnamese}` : 'Từ vựng'
