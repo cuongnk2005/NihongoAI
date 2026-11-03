@@ -1,7 +1,9 @@
 package com.nihongoai.backend.controller;
 
+import com.nihongoai.backend.dto.GrammarStudyItemDto;
 import com.nihongoai.backend.entity.GrammarEntity;
 import com.nihongoai.backend.service.GrammarService;
+import com.nihongoai.backend.srs.FSRSResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,22 @@ public class GrammarController {
             @RequestParam(required = false) String q
     ) {
         return ResponseEntity.ok(grammarService.getAllGrammars(level, q));
+    }
+
+    @GetMapping("/study-session")
+    public ResponseEntity<List<GrammarStudyItemDto>> getStudySession(
+            @RequestParam(defaultValue = "ALL") String level,
+            @RequestParam(defaultValue = "5") int limit
+    ) {
+        return ResponseEntity.ok(grammarService.getStudySession(level, limit));
+    }
+
+    @PostMapping("/{id}/review")
+    public ResponseEntity<FSRSResult> processReview(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "Good") String rating
+    ) {
+        return ResponseEntity.ok(grammarService.processGrammarReview(id, rating));
     }
 
     @GetMapping("/{id}")

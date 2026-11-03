@@ -1,168 +1,168 @@
-import { Vocabulary, Grammar, PracticeQuestion, EvaluationResult } from '../types';
+﻿import { Vocabulary, Grammar, PracticeQuestion, EvaluationResult } from '../types';
 
 const BASE_URL = 'http://localhost:8088/api';
 
 const LOCAL_PRACTICE_BANK: Record<string, PracticeQuestion[]> = {
   N5: [
     {
-      sentenceVi: 'Mỗi sáng tôi đều uống cà phê rồi đi làm.',
-      exampleAnswerJa: '毎朝コーヒーを飲んでから会社へ行きます。',
-      targetVocabulary: ['毎朝 (まいあさ)', '飲む (のむ)', '会社 (かいしゃ)'],
-      targetGrammar: ['～てから'],
+      sentenceVi: 'Má»—i sÃ¡ng tÃ´i Ä‘á»u uá»‘ng cÃ  phÃª rá»“i Ä‘i lÃ m.',
+      exampleAnswerJa: 'æ¯Žæœã‚³ãƒ¼ãƒ’ãƒ¼ã‚’é£²ã‚“ã§ã‹ã‚‰ä¼šç¤¾ã¸è¡Œãã¾ã™ã€‚',
+      targetVocabulary: ['æ¯Žæœ (ã¾ã„ã‚ã•)', 'é£²ã‚€ (ã®ã‚€)', 'ä¼šç¤¾ (ã‹ã„ã—ã‚ƒ)'],
+      targetGrammar: ['ï½žã¦ã‹ã‚‰'],
       difficulty: 'N5',
-      hintVi: 'Cấu trúc: [Động từ thể て] + から (Sau khi làm V1 thì làm V2).'
+      hintVi: 'Cáº¥u trÃºc: [Äá»™ng tá»« thá»ƒ ã¦] + ã‹ã‚‰ (Sau khi lÃ m V1 thÃ¬ lÃ m V2).'
     },
     {
-      sentenceVi: 'Cuối tuần trước tôi đã đi xem phim cùng với bạn bè.',
-      exampleAnswerJa: '先週の週末、友達と映画を見に行きました。',
-      targetVocabulary: ['週末 (しゅうまつ)', '友達 (ともだち)', '映画 (えいが)'],
-      targetGrammar: ['～に行く'],
+      sentenceVi: 'Cuá»‘i tuáº§n trÆ°á»›c tÃ´i Ä‘Ã£ Ä‘i xem phim cÃ¹ng vá»›i báº¡n bÃ¨.',
+      exampleAnswerJa: 'å…ˆé€±ã®é€±æœ«ã€å‹é”ã¨æ˜ ç”»ã‚’è¦‹ã«è¡Œãã¾ã—ãŸã€‚',
+      targetVocabulary: ['é€±æœ« (ã—ã‚…ã†ã¾ã¤)', 'å‹é” (ã¨ã‚‚ã ã¡)', 'æ˜ ç”» (ãˆã„ãŒ)'],
+      targetGrammar: ['ï½žã«è¡Œã'],
       difficulty: 'N5',
-      hintVi: 'Cấu trúc chỉ mục đích di chuyển: [V-bỏ ます] + に行く (Đi để làm gì).'
+      hintVi: 'Cáº¥u trÃºc chá»‰ má»¥c Ä‘Ã­ch di chuyá»ƒn: [V-bá» ã¾ã™] + ã«è¡Œã (Äi Ä‘á»ƒ lÃ m gÃ¬).'
     },
     {
-      sentenceVi: 'Tối nay chúng ta cùng ăn món Nhật ở nhà hàng nhé?',
-      exampleAnswerJa: '今晩、レストランで日本料理を食べませんか。',
-      targetVocabulary: ['今晩 (こんばん)', '日本料理 (にほんりょうり)', '食べる (たべる)'],
-      targetGrammar: ['～ませんか'],
+      sentenceVi: 'Tá»‘i nay chÃºng ta cÃ¹ng Äƒn mÃ³n Nháº­t á»Ÿ nhÃ  hÃ ng nhÃ©?',
+      exampleAnswerJa: 'ä»Šæ™©ã€ãƒ¬ã‚¹ãƒˆãƒ©ãƒ³ã§æ—¥æœ¬æ–™ç†ã‚’é£Ÿã¹ã¾ã›ã‚“ã‹ã€‚',
+      targetVocabulary: ['ä»Šæ™© (ã“ã‚“ã°ã‚“)', 'æ—¥æœ¬æ–™ç† (ã«ã»ã‚“ã‚Šã‚‡ã†ã‚Š)', 'é£Ÿã¹ã‚‹ (ãŸã¹ã‚‹)'],
+      targetGrammar: ['ï½žã¾ã›ã‚“ã‹'],
       difficulty: 'N5',
-      hintVi: 'Mẫu câu rủ rê lịch sự: [Động từ bỏ ます] + ませんか.'
+      hintVi: 'Máº«u cÃ¢u rá»§ rÃª lá»‹ch sá»±: [Äá»™ng tá»« bá» ã¾ã™] + ã¾ã›ã‚“ã‹.'
     },
     {
-      sentenceVi: 'Vì trời đang mưa nên tôi sẽ đi bằng tàu điện.',
-      exampleAnswerJa: '雨が降っていますから、電車で行きます。',
-      targetVocabulary: ['雨 (あめ)', '降る (ふる)', '電車 (でんしゃ)'],
-      targetGrammar: ['～ています', '～から'],
+      sentenceVi: 'VÃ¬ trá»i Ä‘ang mÆ°a nÃªn tÃ´i sáº½ Ä‘i báº±ng tÃ u Ä‘iá»‡n.',
+      exampleAnswerJa: 'é›¨ãŒé™ã£ã¦ã„ã¾ã™ã‹ã‚‰ã€é›»è»Šã§è¡Œãã¾ã™ã€‚',
+      targetVocabulary: ['é›¨ (ã‚ã‚)', 'é™ã‚‹ (ãµã‚‹)', 'é›»è»Š (ã§ã‚“ã—ã‚ƒ)'],
+      targetGrammar: ['ï½žã¦ã„ã¾ã™', 'ï½žã‹ã‚‰'],
       difficulty: 'N5',
-      hintVi: 'Sử dụng 雨が降っています để diễn tả trời đang mưa và trợ từ で chỉ phương tiện.'
+      hintVi: 'Sá»­ dá»¥ng é›¨ãŒé™ã£ã¦ã„ã¾ã™ Ä‘á»ƒ diá»…n táº£ trá»i Ä‘ang mÆ°a vÃ  trá»£ tá»« ã§ chá»‰ phÆ°Æ¡ng tiá»‡n.'
     },
     {
-      sentenceVi: 'Tôi muốn mua một chiếc máy tính mới vào tháng sau.',
-      exampleAnswerJa: '来月、新しいパソコンを買いたいです。',
-      targetVocabulary: ['来月 (らいげつ)', '新しい (あたらしい)', 'パソコン'],
-      targetGrammar: ['～たいです'],
+      sentenceVi: 'TÃ´i muá»‘n mua má»™t chiáº¿c mÃ¡y tÃ­nh má»›i vÃ o thÃ¡ng sau.',
+      exampleAnswerJa: 'æ¥æœˆã€æ–°ã—ã„ãƒ‘ã‚½ã‚³ãƒ³ã‚’è²·ã„ãŸã„ã§ã™ã€‚',
+      targetVocabulary: ['æ¥æœˆ (ã‚‰ã„ã’ã¤)', 'æ–°ã—ã„ (ã‚ãŸã‚‰ã—ã„)', 'ãƒ‘ã‚½ã‚³ãƒ³'],
+      targetGrammar: ['ï½žãŸã„ã§ã™'],
       difficulty: 'N5',
-      hintVi: 'Nói về mong muốn của bản thân: [Động từ bỏ ます] + たいです.'
+      hintVi: 'NÃ³i vá» mong muá»‘n cá»§a báº£n thÃ¢n: [Äá»™ng tá»« bá» ã¾ã™] + ãŸã„ã§ã™.'
     }
   ],
   N4: [
     {
-      sentenceVi: 'Tôi đã từng xem bộ phim này cùng với bạn bè.',
-      exampleAnswerJa: '友達とこの映画を見たことがあります。',
-      targetVocabulary: ['友達 (ともだち)', '映画 (えいが)', '見る (みる)'],
-      targetGrammar: ['～たことがある'],
+      sentenceVi: 'TÃ´i Ä‘Ã£ tá»«ng xem bá»™ phim nÃ y cÃ¹ng vá»›i báº¡n bÃ¨.',
+      exampleAnswerJa: 'å‹é”ã¨ã“ã®æ˜ ç”»ã‚’è¦‹ãŸã“ã¨ãŒã‚ã‚Šã¾ã™ã€‚',
+      targetVocabulary: ['å‹é” (ã¨ã‚‚ã ã¡)', 'æ˜ ç”» (ãˆã„ãŒ)', 'è¦‹ã‚‹ (ã¿ã‚‹)'],
+      targetGrammar: ['ï½žãŸã“ã¨ãŒã‚ã‚‹'],
       difficulty: 'N4',
-      hintVi: 'Diễn tả kinh nghiệm trong quá khứ: [Động từ thể た] + ことがある.'
+      hintVi: 'Diá»…n táº£ kinh nghiá»‡m trong quÃ¡ khá»©: [Äá»™ng tá»« thá»ƒ ãŸ] + ã“ã¨ãŒã‚ã‚‹.'
     },
     {
-      sentenceVi: 'Kỳ nghỉ hè năm sau tôi dự định sẽ đi du lịch Nhật Bản.',
-      exampleAnswerJa: '来年の夏休みに日本へ旅行に行くつもりです。',
-      targetVocabulary: ['夏休み (なつやすみ)', '旅行 (りょこう)', '日本 (にほん)'],
-      targetGrammar: ['～つもりです'],
+      sentenceVi: 'Ká»³ nghá»‰ hÃ¨ nÄƒm sau tÃ´i dá»± Ä‘á»‹nh sáº½ Ä‘i du lá»‹ch Nháº­t Báº£n.',
+      exampleAnswerJa: 'æ¥å¹´ã®å¤ä¼‘ã¿ã«æ—¥æœ¬ã¸æ—…è¡Œã«è¡Œãã¤ã‚‚ã‚Šã§ã™ã€‚',
+      targetVocabulary: ['å¤ä¼‘ã¿ (ãªã¤ã‚„ã™ã¿)', 'æ—…è¡Œ (ã‚Šã‚‡ã“ã†)', 'æ—¥æœ¬ (ã«ã»ã‚“)'],
+      targetGrammar: ['ï½žã¤ã‚‚ã‚Šã§ã™'],
       difficulty: 'N4',
-      hintVi: 'Diễn tả dự định chắc chắn: [Động từ thể từ điển] + つもりです.'
+      hintVi: 'Diá»…n táº£ dá»± Ä‘á»‹nh cháº¯c cháº¯n: [Äá»™ng tá»« thá»ƒ tá»« Ä‘iá»ƒn] + ã¤ã‚‚ã‚Šã§ã™.'
     },
     {
-      sentenceVi: 'Ngày mai tôi có cuộc hẹn quan trọng nên phải dậy sớm.',
-      exampleAnswerJa: '明日は大切な約束があるので、早く起きなければなりません。',
-      targetVocabulary: ['大切な (たいせつな)', '約束 (やくそく)', '起きる (おきる)'],
-      targetGrammar: ['～ので', '～なければなりません'],
+      sentenceVi: 'NgÃ y mai tÃ´i cÃ³ cuá»™c háº¹n quan trá»ng nÃªn pháº£i dáº­y sá»›m.',
+      exampleAnswerJa: 'æ˜Žæ—¥ã¯å¤§åˆ‡ãªç´„æŸãŒã‚ã‚‹ã®ã§ã€æ—©ãèµ·ããªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“ã€‚',
+      targetVocabulary: ['å¤§åˆ‡ãª (ãŸã„ã›ã¤ãª)', 'ç´„æŸ (ã‚„ããã)', 'èµ·ãã‚‹ (ãŠãã‚‹)'],
+      targetGrammar: ['ï½žã®ã§', 'ï½žãªã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“'],
       difficulty: 'N4',
-      hintVi: 'Bắt buộc phải làm gì: [Động từ thể ない bỏ い] + ければなりません.'
+      hintVi: 'Báº¯t buá»™c pháº£i lÃ m gÃ¬: [Äá»™ng tá»« thá»ƒ ãªã„ bá» ã„] + ã‘ã‚Œã°ãªã‚Šã¾ã›ã‚“.'
     },
     {
-      sentenceVi: 'Nếu có thời gian rảnh, tôi muốn học cách nấu món ăn Nhật.',
-      exampleAnswerJa: '暇な時間があったら、日本の料理の作り方を習いたいです。',
-      targetVocabulary: ['時間 (じかん)', '料理 (りょうり)', '習う (ならう)'],
-      targetGrammar: ['～たら', '～方 (かた)'],
+      sentenceVi: 'Náº¿u cÃ³ thá»i gian ráº£nh, tÃ´i muá»‘n há»c cÃ¡ch náº¥u mÃ³n Äƒn Nháº­t.',
+      exampleAnswerJa: 'æš‡ãªæ™‚é–“ãŒã‚ã£ãŸã‚‰ã€æ—¥æœ¬ã®æ–™ç†ã®ä½œã‚Šæ–¹ã‚’ç¿’ã„ãŸã„ã§ã™ã€‚',
+      targetVocabulary: ['æ™‚é–“ (ã˜ã‹ã‚“)', 'æ–™ç† (ã‚Šã‚‡ã†ã‚Š)', 'ç¿’ã† (ãªã‚‰ã†)'],
+      targetGrammar: ['ï½žãŸã‚‰', 'ï½žæ–¹ (ã‹ãŸ)'],
       difficulty: 'N4',
-      hintVi: 'Câu điều kiện giả định: [Thể た] + ら và cách làm gì đó: [V-bỏ ます] + 方.'
+      hintVi: 'CÃ¢u Ä‘iá»u kiá»‡n giáº£ Ä‘á»‹nh: [Thá»ƒ ãŸ] + ã‚‰ vÃ  cÃ¡ch lÃ m gÃ¬ Ä‘Ã³: [V-bá» ã¾ã™] + æ–¹.'
     },
     {
-      sentenceVi: 'Bác sĩ khuyên tôi nên ăn nhiều rau và tập thể dục mỗi ngày.',
-      exampleAnswerJa: '毎日もっと野菜を食べて、運動したほうがいいです。',
-      targetVocabulary: ['野菜 (やさい)', '食べる (たべる)', '運動する (うんどうする)'],
-      targetGrammar: ['～たほうがいいです'],
+      sentenceVi: 'BÃ¡c sÄ© khuyÃªn tÃ´i nÃªn Äƒn nhiá»u rau vÃ  táº­p thá»ƒ dá»¥c má»—i ngÃ y.',
+      exampleAnswerJa: 'æ¯Žæ—¥ã‚‚ã£ã¨é‡Žèœã‚’é£Ÿã¹ã¦ã€é‹å‹•ã—ãŸã»ã†ãŒã„ã„ã§ã™ã€‚',
+      targetVocabulary: ['é‡Žèœ (ã‚„ã•ã„)', 'é£Ÿã¹ã‚‹ (ãŸã¹ã‚‹)', 'é‹å‹•ã™ã‚‹ (ã†ã‚“ã©ã†ã™ã‚‹)'],
+      targetGrammar: ['ï½žãŸã»ã†ãŒã„ã„ã§ã™'],
       difficulty: 'N4',
-      hintVi: 'Lời khuyên nên làm gì: [Động từ thể た] + ほうがいいです.'
+      hintVi: 'Lá»i khuyÃªn nÃªn lÃ m gÃ¬: [Äá»™ng tá»« thá»ƒ ãŸ] + ã»ã†ãŒã„ã„ã§ã™.'
     }
   ],
   N3: [
     {
-      sentenceVi: 'Nhờ có sự giúp đỡ của giáo viên mà tôi đã đỗ kỳ thi năng lực tiếng Nhật.',
-      exampleAnswerJa: '先生のおかげで、日本語能力試験に合格することができました。',
-      targetVocabulary: ['先生 (せんせい)', '試験 (しけん)', '合格する (ごうかくする)'],
-      targetGrammar: ['～おかげで', '～ことができる'],
+      sentenceVi: 'Nhá» cÃ³ sá»± giÃºp Ä‘á»¡ cá»§a giÃ¡o viÃªn mÃ  tÃ´i Ä‘Ã£ Ä‘á»— ká»³ thi nÄƒng lá»±c tiáº¿ng Nháº­t.',
+      exampleAnswerJa: 'å…ˆç”Ÿã®ãŠã‹ã’ã§ã€æ—¥æœ¬èªžèƒ½åŠ›è©¦é¨“ã«åˆæ ¼ã™ã‚‹ã“ã¨ãŒã§ãã¾ã—ãŸã€‚',
+      targetVocabulary: ['å…ˆç”Ÿ (ã›ã‚“ã›ã„)', 'è©¦é¨“ (ã—ã‘ã‚“)', 'åˆæ ¼ã™ã‚‹ (ã”ã†ã‹ãã™ã‚‹)'],
+      targetGrammar: ['ï½žãŠã‹ã’ã§', 'ï½žã“ã¨ãŒã§ãã‚‹'],
       difficulty: 'N3',
-      hintVi: 'Nhờ vào (kết quả tích cực): [Danh từ + の] + おかげで.'
+      hintVi: 'Nhá» vÃ o (káº¿t quáº£ tÃ­ch cá»±c): [Danh tá»« + ã®] + ãŠã‹ã’ã§.'
     },
     {
-      sentenceVi: 'Dù công việc bận rộn đến mấy, tôi vẫn cố gắng học tiếng Nhật mỗi ngày.',
-      exampleAnswerJa: 'どんなに仕事が忙しくても、毎日日本語を勉強するようにしています。',
-      targetVocabulary: ['仕事 (しごと)', '忙しい (いそがしい)', '勉強する (べんきょうする)'],
-      targetGrammar: ['どんなに～ても', '～ようにしている'],
+      sentenceVi: 'DÃ¹ cÃ´ng viá»‡c báº­n rá»™n Ä‘áº¿n máº¥y, tÃ´i váº«n cá»‘ gáº¯ng há»c tiáº¿ng Nháº­t má»—i ngÃ y.',
+      exampleAnswerJa: 'ã©ã‚“ãªã«ä»•äº‹ãŒå¿™ã—ãã¦ã‚‚ã€æ¯Žæ—¥æ—¥æœ¬èªžã‚’å‹‰å¼·ã™ã‚‹ã‚ˆã†ã«ã—ã¦ã„ã¾ã™ã€‚',
+      targetVocabulary: ['ä»•äº‹ (ã—ã”ã¨)', 'å¿™ã—ã„ (ã„ããŒã—ã„)', 'å‹‰å¼·ã™ã‚‹ (ã¹ã‚“ãã‚‡ã†ã™ã‚‹)'],
+      targetGrammar: ['ã©ã‚“ãªã«ï½žã¦ã‚‚', 'ï½žã‚ˆã†ã«ã—ã¦ã„ã‚‹'],
       difficulty: 'N3',
-      hintVi: 'Duy trì thói quen/cố gắng đều đặn: [Động từ thể từ điển] + ようにしている.'
+      hintVi: 'Duy trÃ¬ thÃ³i quen/cá»‘ gáº¯ng Ä‘á»u Ä‘áº·n: [Äá»™ng tá»« thá»ƒ tá»« Ä‘iá»ƒn] + ã‚ˆã†ã«ã—ã¦ã„ã‚‹.'
     },
     {
-      sentenceVi: 'So với năm ngoái, tiếng Nhật của bạn đã trở nên trôi chảy hơn nhiều.',
-      exampleAnswerJa: '去年に比べて、日本語がずっと上手になりましたね。',
-      targetVocabulary: ['去年 (きょねん)', '上手 (じょうず)', '日本語 (にほんご)'],
-      targetGrammar: ['～に比べて', '～ようになる / ～くなる'],
+      sentenceVi: 'So vá»›i nÄƒm ngoÃ¡i, tiáº¿ng Nháº­t cá»§a báº¡n Ä‘Ã£ trá»Ÿ nÃªn trÃ´i cháº£y hÆ¡n nhiá»u.',
+      exampleAnswerJa: 'åŽ»å¹´ã«æ¯”ã¹ã¦ã€æ—¥æœ¬èªžãŒãšã£ã¨ä¸Šæ‰‹ã«ãªã‚Šã¾ã—ãŸã­ã€‚',
+      targetVocabulary: ['åŽ»å¹´ (ãã‚‡ã­ã‚“)', 'ä¸Šæ‰‹ (ã˜ã‚‡ã†ãš)', 'æ—¥æœ¬èªž (ã«ã»ã‚“ã”)'],
+      targetGrammar: ['ï½žã«æ¯”ã¹ã¦', 'ï½žã‚ˆã†ã«ãªã‚‹ / ï½žããªã‚‹'],
       difficulty: 'N3',
-      hintVi: 'So với: [Danh từ] + に比べて.'
+      hintVi: 'So vá»›i: [Danh tá»«] + ã«æ¯”ã¹ã¦.'
     },
     {
-      sentenceVi: 'Trong lúc đang nấu ăn thì có điện thoại gọi đến từ công ty.',
-      exampleAnswerJa: '料理を作っている最中に、会社から電話がかかってきました。',
-      targetVocabulary: ['料理 (りょうり)', '会社 (かいしゃ)', '電話 (でんわ)'],
-      targetGrammar: ['～最中に (さいちゅうに)'],
+      sentenceVi: 'Trong lÃºc Ä‘ang náº¥u Äƒn thÃ¬ cÃ³ Ä‘iá»‡n thoáº¡i gá»i Ä‘áº¿n tá»« cÃ´ng ty.',
+      exampleAnswerJa: 'æ–™ç†ã‚’ä½œã£ã¦ã„ã‚‹æœ€ä¸­ã«ã€ä¼šç¤¾ã‹ã‚‰é›»è©±ãŒã‹ã‹ã£ã¦ãã¾ã—ãŸã€‚',
+      targetVocabulary: ['æ–™ç† (ã‚Šã‚‡ã†ã‚Š)', 'ä¼šç¤¾ (ã‹ã„ã—ã‚ƒ)', 'é›»è©± (ã§ã‚“ã‚)'],
+      targetGrammar: ['ï½žæœ€ä¸­ã« (ã•ã„ã¡ã‚…ã†ã«)'],
       difficulty: 'N3',
-      hintVi: 'Đúng lúc đang làm gì thì có sự việc bất ngờ xen vào: [V-ている] + 最中に.'
+      hintVi: 'ÄÃºng lÃºc Ä‘ang lÃ m gÃ¬ thÃ¬ cÃ³ sá»± viá»‡c báº¥t ngá» xen vÃ o: [V-ã¦ã„ã‚‹] + æœ€ä¸­ã«.'
     }
   ],
   N2: [
     {
-      sentenceVi: 'Không chỉ giỏi tiếng Anh mà anh ấy còn có thể nói thông thạo cả tiếng Nhật.',
-      exampleAnswerJa: '彼は英語が話せるだけでなく、日本語も流暢に話すことができる。',
-      targetVocabulary: ['英語 (えいご)', '流暢 (りゅうちょう)', '話す (はなす)'],
-      targetGrammar: ['～だけでなく～も'],
+      sentenceVi: 'KhÃ´ng chá»‰ giá»i tiáº¿ng Anh mÃ  anh áº¥y cÃ²n cÃ³ thá»ƒ nÃ³i thÃ´ng tháº¡o cáº£ tiáº¿ng Nháº­t.',
+      exampleAnswerJa: 'å½¼ã¯è‹±èªžãŒè©±ã›ã‚‹ã ã‘ã§ãªãã€æ—¥æœ¬èªžã‚‚æµæš¢ã«è©±ã™ã“ã¨ãŒã§ãã‚‹ã€‚',
+      targetVocabulary: ['è‹±èªž (ãˆã„ã”)', 'æµæš¢ (ã‚Šã‚…ã†ã¡ã‚‡ã†)', 'è©±ã™ (ã¯ãªã™)'],
+      targetGrammar: ['ï½žã ã‘ã§ãªãï½žã‚‚'],
       difficulty: 'N2',
-      hintVi: 'Không những... mà còn...: [Thể thông thường] + だけでなく、[Danh từ] + も.'
+      hintVi: 'KhÃ´ng nhá»¯ng... mÃ  cÃ²n...: [Thá»ƒ thÃ´ng thÆ°á»ng] + ã ã‘ã§ãªãã€[Danh tá»«] + ã‚‚.'
     },
     {
-      sentenceVi: 'Một khi đã hứa với khách hàng thì tuyệt đối không được phép thất hứa.',
-      exampleAnswerJa: '一度お客様と約束したからには、絶対に守らなければならない。',
-      targetVocabulary: ['お客様 (おきゃくさま)', '約束 (やくそく)', '守る (まもる)'],
-      targetGrammar: ['～からには'],
+      sentenceVi: 'Má»™t khi Ä‘Ã£ há»©a vá»›i khÃ¡ch hÃ ng thÃ¬ tuyá»‡t Ä‘á»‘i khÃ´ng Ä‘Æ°á»£c phÃ©p tháº¥t há»©a.',
+      exampleAnswerJa: 'ä¸€åº¦ãŠå®¢æ§˜ã¨ç´„æŸã—ãŸã‹ã‚‰ã«ã¯ã€çµ¶å¯¾ã«å®ˆã‚‰ãªã‘ã‚Œã°ãªã‚‰ãªã„ã€‚',
+      targetVocabulary: ['ãŠå®¢æ§˜ (ãŠãã‚ƒãã•ã¾)', 'ç´„æŸ (ã‚„ããã)', 'å®ˆã‚‹ (ã¾ã‚‚ã‚‹)'],
+      targetGrammar: ['ï½žã‹ã‚‰ã«ã¯'],
       difficulty: 'N2',
-      hintVi: 'Một khi đã...: [Động từ thể thông thường] + からには.'
+      hintVi: 'Má»™t khi Ä‘Ã£...: [Äá»™ng tá»« thá»ƒ thÃ´ng thÆ°á»ng] + ã‹ã‚‰ã«ã¯.'
     },
     {
-      sentenceVi: 'Cùng với sự phát triển của công nghệ AI, cách làm việc của con người đang thay đổi lớn.',
-      exampleAnswerJa: 'AI技術の発展に伴って、人々の働き方が大きく変わりつつある。',
-      targetVocabulary: ['発展 (はってん)', '働き方 (はたらきかた)', '変わる (かわる)'],
-      targetGrammar: ['～に伴って', '～つつある'],
+      sentenceVi: 'CÃ¹ng vá»›i sá»± phÃ¡t triá»ƒn cá»§a cÃ´ng nghá»‡ AI, cÃ¡ch lÃ m viá»‡c cá»§a con ngÆ°á»i Ä‘ang thay Ä‘á»•i lá»›n.',
+      exampleAnswerJa: 'AIæŠ€è¡“ã®ç™ºå±•ã«ä¼´ã£ã¦ã€äººã€…ã®åƒãæ–¹ãŒå¤§ããå¤‰ã‚ã‚Šã¤ã¤ã‚ã‚‹ã€‚',
+      targetVocabulary: ['ç™ºå±• (ã¯ã£ã¦ã‚“)', 'åƒãæ–¹ (ã¯ãŸã‚‰ãã‹ãŸ)', 'å¤‰ã‚ã‚‹ (ã‹ã‚ã‚‹)'],
+      targetGrammar: ['ï½žã«ä¼´ã£ã¦', 'ï½žã¤ã¤ã‚ã‚‹'],
       difficulty: 'N2',
-      hintVi: 'Cùng với sự biến đổi: [Danh từ] + に伴って và đang dần chuyển biến: [V-bỏ ます] + つつある.'
+      hintVi: 'CÃ¹ng vá»›i sá»± biáº¿n Ä‘á»•i: [Danh tá»«] + ã«ä¼´ã£ã¦ vÃ  Ä‘ang dáº§n chuyá»ƒn biáº¿n: [V-bá» ã¾ã™] + ã¤ã¤ã‚ã‚‹.'
     }
   ],
   N1: [
     {
-      sentenceVi: 'Dù biết rõ sẽ gặp nhiều khó khăn nhưng anh ấy vẫn quyết tâm khởi nghiệp.',
-      exampleAnswerJa: '多くの困難があることを知りつつも、彼は起業する決意を固めた。',
-      targetVocabulary: ['困難 (こんなん)', '起業 (きぎょう)', '決意 (けつい)'],
-      targetGrammar: ['～つつも'],
+      sentenceVi: 'DÃ¹ biáº¿t rÃµ sáº½ gáº·p nhiá»u khÃ³ khÄƒn nhÆ°ng anh áº¥y váº«n quyáº¿t tÃ¢m khá»Ÿi nghiá»‡p.',
+      exampleAnswerJa: 'å¤šãã®å›°é›£ãŒã‚ã‚‹ã“ã¨ã‚’çŸ¥ã‚Šã¤ã¤ã‚‚ã€å½¼ã¯èµ·æ¥­ã™ã‚‹æ±ºæ„ã‚’å›ºã‚ãŸã€‚',
+      targetVocabulary: ['å›°é›£ (ã“ã‚“ãªã‚“)', 'èµ·æ¥­ (ããŽã‚‡ã†)', 'æ±ºæ„ (ã‘ã¤ã„)'],
+      targetGrammar: ['ï½žã¤ã¤ã‚‚'],
       difficulty: 'N1',
-      hintVi: 'Mặc dù biết/làm A nhưng vẫn B: [Động từ bỏ ます] + つつ(も).'
+      hintVi: 'Máº·c dÃ¹ biáº¿t/lÃ m A nhÆ°ng váº«n B: [Äá»™ng tá»« bá» ã¾ã™] + ã¤ã¤(ã‚‚).'
     },
     {
-      sentenceVi: 'Thành công của dự án này không thể có được nếu thiếu sự hợp tác của toàn bộ các thành viên.',
-      exampleAnswerJa: 'このプロジェクトの成功は、メンバー全員の協力なしにはあり得なかった。',
-      targetVocabulary: ['成功 (せいこう)', '協力 (きょうりょく)', 'あり得る (ありえる)'],
-      targetGrammar: ['～なしには～ない'],
+      sentenceVi: 'ThÃ nh cÃ´ng cá»§a dá»± Ã¡n nÃ y khÃ´ng thá»ƒ cÃ³ Ä‘Æ°á»£c náº¿u thiáº¿u sá»± há»£p tÃ¡c cá»§a toÃ n bá»™ cÃ¡c thÃ nh viÃªn.',
+      exampleAnswerJa: 'ã“ã®ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆã®æˆåŠŸã¯ã€ãƒ¡ãƒ³ãƒãƒ¼å…¨å“¡ã®å”åŠ›ãªã—ã«ã¯ã‚ã‚Šå¾—ãªã‹ã£ãŸã€‚',
+      targetVocabulary: ['æˆåŠŸ (ã›ã„ã“ã†)', 'å”åŠ› (ãã‚‡ã†ã‚Šã‚‡ã)', 'ã‚ã‚Šå¾—ã‚‹ (ã‚ã‚Šãˆã‚‹)'],
+      targetGrammar: ['ï½žãªã—ã«ã¯ï½žãªã„'],
       difficulty: 'N1',
-      hintVi: 'Nếu không có A thì không thể B: [Danh từ] + なしには + [Phủ định].'
+      hintVi: 'Náº¿u khÃ´ng cÃ³ A thÃ¬ khÃ´ng thá»ƒ B: [Danh tá»«] + ãªã—ã«ã¯ + [Phá»§ Ä‘á»‹nh].'
     }
   ]
 };
@@ -183,7 +183,7 @@ function getNextLocalQuestion(level: string, currentSentenceVi?: string): Practi
 }
 
 function normalizeJa(text: string): string {
-  return text.replace(/[\s。、！？!?,\\.「」『』（）()]/g, '');
+  return text.replace(/[\sã€‚ã€ï¼ï¼Ÿ!?,\\.ã€Œã€ã€Žã€ï¼ˆï¼‰()]/g, '');
 }
 
 function computeBigramSimilarity(s1: string, s2: string): number {
@@ -225,7 +225,7 @@ export function evaluateLocally(userAnswer: string, question: PracticeQuestion):
       vocabularyErrors: [],
       suggestedAnswer: expected,
       explanationVi:
-        'Xuất sắc! Câu dịch tiếng Nhật của bạn hoàn toàn chính xác cả về ý nghĩa, ngữ pháp lẫn cách diễn đạt tự nhiên của người bản xứ.'
+        'Xuáº¥t sáº¯c! CÃ¢u dá»‹ch tiáº¿ng Nháº­t cá»§a báº¡n hoÃ n toÃ n chÃ­nh xÃ¡c cáº£ vá» Ã½ nghÄ©a, ngá»¯ phÃ¡p láº«n cÃ¡ch diá»…n Ä‘áº¡t tá»± nhiÃªn cá»§a ngÆ°á»i báº£n xá»©.'
     };
   }
 
@@ -235,30 +235,30 @@ export function evaluateLocally(userAnswer: string, question: PracticeQuestion):
 
   let vocabMatched = 0;
   for (const vTag of question.targetVocabulary) {
-    const head = vTag.split('(')[0].trim().replace(/する$/, '');
+    const head = vTag.split('(')[0].trim().replace(/ã™ã‚‹$/, '');
     const readingMatch = vTag.match(/\(([^)]+)\)/);
     const reading = readingMatch ? readingMatch[1].trim() : '';
     const stem = head.length > 1 ? head.slice(0, -1) : head;
     if (actual.includes(head) || actual.includes(stem) || (reading && actual.includes(reading))) {
       vocabMatched++;
     } else {
-      vocabularyErrors.push(`Chưa sử dụng hoặc viết sai từ vựng mục tiêu: 「${vTag}」`);
+      vocabularyErrors.push(`ChÆ°a sá»­ dá»¥ng hoáº·c viáº¿t sai tá»« vá»±ng má»¥c tiÃªu: ã€Œ${vTag}ã€`);
     }
   }
 
   let grammarMatched = 0;
   for (const gTag of question.targetGrammar) {
-    const cleaned = gTag.replace('～', '').replace(/\(.*?\)/g, '').split('/')[0].trim();
+    const cleaned = gTag.replace('ï½ž', '').replace(/\(.*?\)/g, '').split('/')[0].trim();
     const core = cleaned.length > 4 ? cleaned.slice(0, 4) : cleaned;
     if (core && actual.includes(core)) {
       grammarMatched++;
     } else {
-      grammarErrors.push(`Cần áp dụng đúng mẫu ngữ pháp mục tiêu: 「${gTag}」`);
+      grammarErrors.push(`Cáº§n Ã¡p dá»¥ng Ä‘Ãºng máº«u ngá»¯ phÃ¡p má»¥c tiÃªu: ã€Œ${gTag}ã€`);
     }
   }
 
-  if (expected.includes('を') && !actual.includes('を') && actual.length > 4) {
-    grammarErrors.push('Thiếu trợ từ 「を」 chỉ tân ngữ trực tiếp của hành động.');
+  if (expected.includes('ã‚’') && !actual.includes('ã‚’') && actual.length > 4) {
+    grammarErrors.push('Thiáº¿u trá»£ tá»« ã€Œã‚’ã€ chá»‰ tÃ¢n ngá»¯ trá»±c tiáº¿p cá»§a hÃ nh Ä‘á»™ng.');
   }
 
   const vocabRatio = question.targetVocabulary.length > 0 ? vocabMatched / question.targetVocabulary.length : charSim;
@@ -279,14 +279,14 @@ export function evaluateLocally(userAnswer: string, question: PracticeQuestion):
 
   let explanationVi = '';
   if (score >= 90) {
-    explanationVi = 'Câu dịch của bạn rất chuẩn xác và tự nhiên! Bạn đã vận dụng tốt cả từ vựng lẫn cấu trúc ngữ pháp mục tiêu của câu.';
+    explanationVi = 'CÃ¢u dá»‹ch cá»§a báº¡n ráº¥t chuáº©n xÃ¡c vÃ  tá»± nhiÃªn! Báº¡n Ä‘Ã£ váº­n dá»¥ng tá»‘t cáº£ tá»« vá»±ng láº«n cáº¥u trÃºc ngá»¯ phÃ¡p má»¥c tiÃªu cá»§a cÃ¢u.';
   } else if (correct) {
     explanationVi =
-      'Câu của bạn diễn đạt đúng ý chính và cấu trúc trọng tâm! Hãy lưu ý các điểm góp ý bên dưới để câu văn tự nhiên như người bản xứ hơn.';
+      'CÃ¢u cá»§a báº¡n diá»…n Ä‘áº¡t Ä‘Ãºng Ã½ chÃ­nh vÃ  cáº¥u trÃºc trá»ng tÃ¢m! HÃ£y lÆ°u Ã½ cÃ¡c Ä‘iá»ƒm gÃ³p Ã½ bÃªn dÆ°á»›i Ä‘á»ƒ cÃ¢u vÄƒn tá»± nhiÃªn nhÆ° ngÆ°á»i báº£n xá»© hÆ¡n.';
   } else {
-    explanationVi = `Câu trả lời của bạn chưa khớp với cấu trúc hoặc từ vựng yêu cầu. ${
+    explanationVi = `CÃ¢u tráº£ lá»i cá»§a báº¡n chÆ°a khá»›p vá»›i cáº¥u trÃºc hoáº·c tá»« vá»±ng yÃªu cáº§u. ${
       question.hintVi ? question.hintVi + ' ' : ''
-    }Hãy đối chiếu với đáp án chuẩn 「${expected}」 và thử lại nhé!`;
+    }HÃ£y Ä‘á»‘i chiáº¿u vá»›i Ä‘Ã¡p Ã¡n chuáº©n ã€Œ${expected}ã€ vÃ  thá»­ láº¡i nhÃ©!`;
   }
 
   return {
@@ -311,9 +311,9 @@ export const api = {
       return await res.json();
     } catch {
       return [
-        { id: 1, word: '映画', reading: 'えいが', meaningVi: 'Bộ phim', jlptLevel: 'N4', partOfSpeech: 'Danh từ' },
-        { id: 2, word: '見る', reading: 'みる', meaningVi: 'Xem / Nhìn', jlptLevel: 'N5', partOfSpeech: 'Động từ nhóm 2' },
-        { id: 3, word: '友達', reading: 'ともだち', meaningVi: 'Bạn bè', jlptLevel: 'N5', partOfSpeech: 'Danh từ' }
+        { id: 1, word: 'æ˜ ç”»', reading: 'ãˆã„ãŒ', meaningVi: 'Bá»™ phim', jlptLevel: 'N4', partOfSpeech: 'Danh tá»«' },
+        { id: 2, word: 'è¦‹ã‚‹', reading: 'ã¿ã‚‹', meaningVi: 'Xem / NhÃ¬n', jlptLevel: 'N5', partOfSpeech: 'Äá»™ng tá»« nhÃ³m 2' },
+        { id: 3, word: 'å‹é”', reading: 'ã¨ã‚‚ã ã¡', meaningVi: 'Báº¡n bÃ¨', jlptLevel: 'N5', partOfSpeech: 'Danh tá»«' }
       ];
     }
   },
@@ -341,8 +341,8 @@ export const api = {
       return await res.json();
     } catch {
       return [
-        { id: 1, pattern: '～たことがある', meaningVi: 'Đã từng làm gì', structure: 'V-た + ことがある', jlptLevel: 'N4' },
-        { id: 2, pattern: '～つもりです', meaningVi: 'Dự định làm gì', structure: 'V-plain + つもりです', jlptLevel: 'N4' }
+        { id: 1, pattern: 'ï½žãŸã“ã¨ãŒã‚ã‚‹', meaningVi: 'ÄÃ£ tá»«ng lÃ m gÃ¬', structure: 'V-ãŸ + ã“ã¨ãŒã‚ã‚‹', jlptLevel: 'N4' },
+        { id: 2, pattern: 'ï½žã¤ã‚‚ã‚Šã§ã™', meaningVi: 'Dá»± Ä‘á»‹nh lÃ m gÃ¬', structure: 'V-plain + ã¤ã‚‚ã‚Šã§ã™', jlptLevel: 'N4' }
       ];
     }
   },
@@ -377,8 +377,8 @@ export const api = {
       if (res.ok) {
         const data: PracticeQuestion = await res.json();
         const isLegacyBrokenMock =
-          data.sentenceVi.includes('bộ phim') &&
-          data.targetVocabulary.some((v) => v.includes('約束'));
+          data.sentenceVi.includes('bá»™ phim') &&
+          data.targetVocabulary.some((v) => v.includes('ç´„æŸ'));
         const isDuplicate = currentSentenceVi && data.sentenceVi === currentSentenceVi;
         if (!isLegacyBrokenMock && !isDuplicate) {
           return data;
@@ -429,8 +429,8 @@ export const api = {
       // Fallback response
     }
     return {
-      aiReply: '京都へ行ったことがありますか。とてもきれいな街ですよ。',
-      correctionVi: 'Câu của bạn khá tốt! AI gợi ý tự nhiên hơn: 「～へ行ったことがありますか」 sử dụng từ vựng đã học 京都.'
+      aiReply: 'äº¬éƒ½ã¸è¡Œã£ãŸã“ã¨ãŒã‚ã‚Šã¾ã™ã‹ã€‚ã¨ã¦ã‚‚ãã‚Œã„ãªè¡—ã§ã™ã‚ˆã€‚',
+      correctionVi: 'CÃ¢u cá»§a báº¡n khÃ¡ tá»‘t! AI gá»£i Ã½ tá»± nhiÃªn hÆ¡n: ã€Œï½žã¸è¡Œã£ãŸã“ã¨ãŒã‚ã‚Šã¾ã™ã‹ã€ sá»­ dá»¥ng tá»« vá»±ng Ä‘Ã£ há»c äº¬éƒ½.'
     };
   },
 
@@ -478,6 +478,29 @@ export const api = {
       }
     } catch (e) {
       console.warn('AI Kanji lookup failed:', e);
+    }
+    return null;
+  },
+
+  // Grammar Anki SRS APIs
+  getGrammarStudySession: async (level: string = 'ALL', limit: number = 5): Promise<any[]> => {
+    try {
+      const res = await fetch(`${BASE_URL}/grammars/study-session?level=${encodeURIComponent(level)}&limit=${limit}`);
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Failed to load grammar study session:', e);
+    }
+    return [];
+  },
+
+  submitGrammarReview: async (id: number, rating: string): Promise<any> => {
+    try {
+      const res = await fetch(`${BASE_URL}/grammars/${id}/review?rating=${encodeURIComponent(rating)}`, {
+        method: 'POST'
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Failed to submit grammar review:', e);
     }
     return null;
   }
