@@ -9,13 +9,14 @@ import { KaiwaPage } from './features/kaiwa/pages/KaiwaPage';
 import { ReviewPage } from './features/review/pages/ReviewPage';
 import { StatisticsPage } from './features/statistics/pages/StatisticsPage';
 import { SettingsPage } from './features/settings/pages/SettingsPage';
+import { PvpPage } from './features/pvp/PvpPage';
 import { api } from './services/apiConfig';
 import { Flashcard } from './types';
 import { X } from 'lucide-react';
 import './styles/index.css';
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<TabType>('review');
+  const [activeTab, setActiveTab] = useState<TabType>('decks');
   const [showQuickAddModal, setShowQuickAddModal] = useState<boolean>(false);
   const [quickWord, setQuickWord] = useState<string>('');
   const [quickReading, setQuickReading] = useState<string>('');
@@ -62,6 +63,8 @@ export function App() {
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'pvp':
+        return <PvpPage />;
       case 'review':
         return (
           <ReviewPage 
@@ -85,7 +88,7 @@ export function App() {
       case 'sync':
         return <SettingsPage />;
       default:
-        return <ReviewPage onBackToDecks={() => setActiveTab('decks')} />;
+        return <DecksPage onStudyDeck={handleStudyDeck} />;
     }
   };
 
