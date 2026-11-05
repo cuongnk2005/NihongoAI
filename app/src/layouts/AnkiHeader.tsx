@@ -3,6 +3,7 @@ import { Sun, Moon, Layers, BookOpen, Scroll, PenTool, MessageSquare, BarChart2,
 
 export type TabType = 
   | 'review'
+  | 'pvp'
   | 'decks' 
   | 'add' 
   | 'browse' 
@@ -38,21 +39,16 @@ export const AnkiHeader: React.FC<AnkiHeaderProps> = ({
       {/* Main Navigation Tabs */}
       <nav className="app-nav">
         <button
-          onClick={() => setActiveTab('review')}
-          className={`nav-tab ${activeTab === 'review' ? 'active' : ''}`}
-          id="tabReview"
-        >
-          <Zap size={16} />
-          <span>Ôn tập Flashcard</span>
-        </button>
-
-        <button
           onClick={() => setActiveTab('decks')}
           className={`nav-tab ${activeTab === 'decks' ? 'active' : ''}`}
           id="tabDecks"
         >
           <Layers size={16} />
           <span>Bộ thẻ</span>
+        </button>
+
+        <button onClick={() => setActiveTab('pvp')} className={`nav-tab ${activeTab === 'pvp' ? 'active' : ''}`} id="tabPvp">
+          <Zap size={16} /><span>Đấu PvP</span>
         </button>
 
         <button
