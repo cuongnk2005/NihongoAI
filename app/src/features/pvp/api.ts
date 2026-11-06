@@ -2,10 +2,11 @@ import { BASE_URL } from '../../services/apiConfig';
 
 export { BASE_URL };
 export interface Room {
-  code: string; phase: 'WAITING' | 'PLAYING' | 'REVEAL' | 'FINISHED';
+  code: string; phase: 'WAITING' | 'PLAYING' | 'REVEAL' | 'RANKING' | 'FINISHED';
+  mode: 'DUEL' | 'QUIZ'; seconds: number; sourceName: string;
   round: number; total: number; serverTime: number; deadline: number; nextAt: number; you: number;
-  players: { name: string; score: number; answered: boolean; choice: number | null; earned: number }[];
-  question: { type: 'JAPANESE_TO_VIETNAMESE' | 'VIETNAMESE_TO_JAPANESE' | 'KANJI_TO_HIRAGANA'; word: string; options: string[]; correct: number | null } | null;
+  players: { id: number; name: string; avatar: string; score: number; answered: boolean; choice: number | null; earned: number; elapsedMs: number | null }[];
+  question: { type: 'JAPANESE_TO_VIETNAMESE' | 'VIETNAMESE_TO_JAPANESE' | 'KANJI_TO_HIRAGANA' | 'IMPORTED'; word: string; options: string[]; correct: number | null; section: string } | null;
 }
 export interface Session { token: string; room: Room }
 export async function request<T>(base: string, path: string, token?: string, body?: unknown): Promise<T> {
