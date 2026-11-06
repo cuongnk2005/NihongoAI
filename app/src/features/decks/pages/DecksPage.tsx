@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { Flashcard, CardType } from '../../../types';
 import { CsvImportModal, DeckOption, CsvImportResult, buildAiCsvPrompt } from '../components/CsvImportModal';
+import { useSavedDecks } from '../useSavedDecks';
 
 export interface DeckNode {
   id: string;
@@ -22,7 +23,7 @@ export interface DecksPageProps {
   onStudyDeck?: (deck: { id: string; name: string; cards: Flashcard[] }) => void;
 }
 
-const initialDecks: DeckNode[] = [
+export const initialDecks: DeckNode[] = [
   {
     id: 'minna',
     name: 'Minna no Nihongo (Bài 1 - 25)',
@@ -438,7 +439,7 @@ export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
   const [draggedDeckId, setDraggedDeckId] = useState<string | null>(null);
   const [dragOverDeckId, setDragOverDeckId] = useState<string | null>(null);
 
-  const [decks, setDecks] = useState<DeckNode[]>(initialDecks);
+  const { decks, setDecks, loaded, saving, error: storageError, retry: retryStorage, backup } = useSavedDecks(initialDecks);
 
   // Add Card State
   const [deckForAddCard, setDeckForAddCard] = useState<DeckNode | null>(null);
@@ -951,8 +952,20 @@ export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
     });
   };
 
+  if (!loaded) return <div role="status" style={{ padding: 24 }}>
+    <p>{storageError || 'Đang khôi phục bộ thẻ đã lưu…'}</p>
+    {storageError && <button className="btn-tactile" onClick={retryStorage}>Thử lại</button>}
+  </div>;
+
   return (
     <div style={{ width: '100%', maxWidth: '940px', margin: '0 auto' }}>
+      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+        <small role="status">{saving ? 'Đang lưu bộ thẻ…' : storageError ? 'Bộ thẻ chưa được lưu' : 'Bộ thẻ đã lưu trên trình duyệt này'}</small>
+        <button className="btn-tactile sm" onClick={backup}>Tải bản sao lưu</button>
+      </div>
+      {storageError && <div role="alert" style={{ marginBottom: 16, color: 'var(--accent-vermilion)' }}>
+        <p>{storageError}</p><button className="btn-tactile sm" onClick={retryStorage}>Thử lưu lại</button>
+      </div>}
       {/* Header bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div>

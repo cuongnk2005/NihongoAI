@@ -42,7 +42,12 @@ class PvpServiceTest {
         var view = service.start(host.room().code(), host.token()); int choice = correct(view);
         assertNull(view.question().correct());
         var first = service.answer(view.code(), host.token(), 1, choice);
-        assertNull(first.players().get(0).choice()); assertEquals(0, first.players().get(0).score());
+        assertEquals(choice, first.players().get(0).choice()); assertEquals(0L, first.players().get(0).elapsedMs());
+        assertEquals(0, first.players().get(0).score());
+        var opponentView = service.state(view.code(), guest.token());
+        assertNull(opponentView.players().get(0).choice());
+        assertNull(opponentView.players().get(0).elapsedMs());
+        assertNull(opponentView.question().correct());
         assertThrows(ResponseStatusException.class, () -> service.answer(view.code(), host.token(), 1, choice));
         time += 7500;
         var result = service.answer(view.code(), guest.token(), 1, choice);
