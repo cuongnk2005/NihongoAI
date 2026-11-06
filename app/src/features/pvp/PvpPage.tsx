@@ -54,13 +54,18 @@ export function PvpPage() {
     window.scrollTo(0, 0);
     const fit = () => {
       const element = playArea.current;
-      if (element) element.style.setProperty('--quiz-height', `${window.innerHeight - element.getBoundingClientRect().top - 12}px`);
+      if (element) {
+        const viewport = window.visualViewport;
+        const bottom = viewport ? viewport.offsetTop + viewport.height : window.innerHeight;
+        element.style.setProperty('--quiz-height', `${Math.max(280, bottom - element.getBoundingClientRect().top - 12)}px`);
+      }
     };
     fit(); window.addEventListener('resize', fit);
+    window.visualViewport?.addEventListener('resize', fit);
     const observer = new ResizeObserver(fit);
     const header = document.querySelector('.app-header');
     if (header) observer.observe(header);
-    return () => { window.removeEventListener('resize', fit); observer.disconnect(); };
+    return () => { window.removeEventListener('resize', fit); window.visualViewport?.removeEventListener('resize', fit); observer.disconnect(); };
   }, [session]);
   const accept = (value: Room) => {
     offset.current = value.serverTime - Date.now();

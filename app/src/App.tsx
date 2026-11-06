@@ -14,6 +14,7 @@ import { api } from './services/apiConfig';
 import { Flashcard } from './types';
 import { X } from 'lucide-react';
 import './styles/index.css';
+import './styles/mobile.css';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<TabType>('decks');
