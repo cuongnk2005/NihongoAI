@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "test:quiz-import": "node --test scripts/tests/quizImport.test.mjs",
     "preview": "vite preview",
     "tauri": "tauri"
   },

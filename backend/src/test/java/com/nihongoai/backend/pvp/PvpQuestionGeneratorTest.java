@@ -26,6 +26,7 @@ class PvpQuestionGeneratorTest {
                 case JAPANESE_TO_VIETNAMESE -> v.getWord().equals(q.word()) && v.getMeaningVi().equals(correct);
                 case VIETNAMESE_TO_JAPANESE -> v.getMeaningVi().equals(q.word()) && v.getWord().equals(correct);
                 case KANJI_TO_HIRAGANA -> v.getWord().equals(q.word()) && v.getReading().equals(correct);
+                case IMPORTED -> false;
             }).findFirst().orElseThrow();
             assertTrue(used.add(source.getWord()), "A source word must not repeat across types");
             if (q.type() == PvpQuestionGenerator.Type.KANJI_TO_HIRAGANA) {

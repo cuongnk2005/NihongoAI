@@ -6,8 +6,10 @@ import java.util.*;
 
 /** Creates questions from a snapshot of the host's vocabulary without changing stored text. */
 final class PvpQuestionGenerator {
-    enum Type { JAPANESE_TO_VIETNAMESE, VIETNAMESE_TO_JAPANESE, KANJI_TO_HIRAGANA }
-    record Question(Type type, String word, List<String> options, int correct) {}
+    enum Type { JAPANESE_TO_VIETNAMESE, VIETNAMESE_TO_JAPANESE, KANJI_TO_HIRAGANA, IMPORTED }
+    record Question(Type type, String word, List<String> options, int correct, String section) {
+        Question(Type type, String word, List<String> options, int correct) { this(type, word, options, correct, ""); }
+    }
     private record Entry(String word, String meaning, String reading) {}
     private record Candidate(Type type, String source, String prompt, String answer) {}
 
@@ -27,6 +29,7 @@ final class PvpQuestionGenerator {
                             && entry.reading.matches("[\\p{IsHiragana}ー]+"))
                             candidates.add(new Candidate(type, entry.word, entry.word, entry.reading));
                     }
+                    case IMPORTED -> { /* Imported exams bypass vocabulary generation. */ }
                 }
             }
             // Skip ambiguous prompts, e.g. one Vietnamese meaning mapped to multiple Japanese words.
