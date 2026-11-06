@@ -1,0 +1,99 @@
+/* Phone/tablet overrides. Keep desktop styling and keyboard zoom available. */
+@media (max-width: 860px) {
+  .app-header { gap: 8px; padding: 8px max(12px, env(safe-area-inset-right)) 6px max(12px, env(safe-area-inset-left)); }
+  .app-header .app-nav { flex-wrap: nowrap; min-width: 0; padding: 2px 0 5px; gap: 5px; scrollbar-width: thin; }
+  .app-nav .nav-tab { flex: 0 0 auto; min-height: 42px; white-space: nowrap; padding: 7px 10px; font-size: 13px; }
+  .main-content { min-width: 0; margin: 16px auto; padding: 0 12px; }
+  .table-container { overflow-x: auto; overscroll-behavior-x: contain; }
+  .tactile-table { min-width: 540px; }
+}
+
+@media (max-width: 600px) {
+  /* 16px inputs prevent Safari's focus zoom; controls remain finger-sized. */
+  .main-content input:not([type=radio]):not([type=checkbox]),
+  .main-content select, .main-content textarea { font-size: 16px; }
+  .btn-tactile, .btn-tactile.sm { min-height: 40px; touch-action: manipulation; }
+  .brand-section { gap: 7px; }
+  .brand-title { font-size: 18px; }
+  .brand-badge { display: none; }
+  .brand-stamp { font-size: 18px; padding: 2px 7px; }
+  .header-actions { margin-left: auto; gap: 6px; }
+  .header-actions .btn-tactile { padding: 5px 8px; font-size: 11px; min-height: 36px; }
+  .modal-backdrop { padding: 8px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+  .modal-box { width: 100%; max-height: 90dvh; overflow-y: auto; }
+  .pvp-page { width: 100%; max-width: 100%; padding: 12px 0 28px; }
+  .pvp-heading h1 { font-size: 23px; }
+  .pvp-intro { padding: 18px; gap: 16px; }
+  .pvp-intro h2 { font-size: 24px; }
+  .pvp-intro p, .pvp-card p { font-size: 13px; }
+  .pvp-kanji { font-size: 36px; }
+  .pvp-connection { gap: 14px; margin: 18px 0; }
+  .pvp-columns, .pvp-connection { grid-template-columns: minmax(0, 1fr); }
+  .pvp-columns > *, .pvp-connection > * { min-width: 0; }
+  .pvp-card { padding: 18px; }
+  .pvp-page select { max-width: 100%; text-overflow: ellipsis; }
+  .quiz-avatar-picker { gap: 7px; padding: 12px; }
+  .quiz-avatar-picker button { min-width: 44px; min-height: 44px; padding: 7px; font-size: 26px; }
+  .quiz-settings { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .quiz-settings > label { min-width: 0; }
+  .exam-source-actions { gap: 6px; }
+  .exam-source-actions button { flex: 1 0 auto; }
+
+  /* A live round uses the remaining viewport below the two-row app header. */
+  .main-content:has(.quiz-in-game) { padding: 0 8px; margin: 6px auto 0; }
+  .quiz-in-game { padding: 0 0 env(safe-area-inset-bottom); gap: 5px; }
+  .quiz-in-game .pvp-heading { min-height: 41px; }
+  .quiz-in-game .pvp-heading h1 { font-size: 15px; gap: 5px; }
+  .quiz-in-game .pvp-heading h1 svg { width: 17px; }
+  .quiz-in-game .pvp-room-line { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto auto; gap: 5px; }
+  .quiz-in-game .pvp-room-line > span { min-width: 0; font-size: 10px; }
+  .quiz-in-game .pvp-room-line strong { font-size: 15px; }
+  .quiz-in-game .pvp-room-line button { padding: 5px 7px; font-size: 10px; box-shadow: 1px 1px 0 var(--ink-primary); }
+  .quiz-in-game .quiz-host-badge { padding: 4px 8px; font-size: 11px; }
+  .quiz-in-game .pvp-question { padding: 9px; margin-bottom: 0; gap: 5px; }
+  .quiz-in-game .pvp-question-meta { font-size: 11px; }
+  .quiz-in-game .pvp-question h2 { font-size: clamp(28px, 5dvh, 44px); }
+  .quiz-in-game .pvp-question h2.exam-prompt { font-size: clamp(16px, 2.7dvh, 22px); line-height: 1.5; }
+  .quiz-in-game .pvp-options { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+  .quiz-in-game .pvp-options button { min-width: 0; min-height: 48px; padding: 8px 6px; gap: 5px; }
+  .quiz-in-game .pvp-options button > span:first-child { font-size: 10px; padding: 3px 5px; }
+  .quiz-in-game .pvp-options button .quiz-option-text { font-size: 14px; }
+  .quiz-in-game .pvp-options button[lang=ja] .quiz-option-text { font-size: 17px; }
+  .quiz-in-game .pvp-feedback { font-size: 10px; line-height: 1.45; }
+  .quiz-in-game .quiz-answer-progress { font-size: 10px; gap: 6px; }
+  .quiz-in-game .quiz-answer-progress progress { max-width: 100px; }
+  .quiz-in-game .quiz-answer-activity { min-height: 57px; }
+  .quiz-in-game .quiz-answer-track { gap: 8px; padding-top: 8px; margin-top: -8px; }
+  .quiz-in-game .quiz-answer-chip { flex-basis: 58px; max-width: 64px; }
+  .quiz-in-game .quiz-avatar-orbit { width: 36px; height: 36px; }
+  .quiz-in-game .quiz-chip-avatar { font-size: 23px; }
+  .quiz-in-game .quiz-chip-name { font-size: 10px; max-width: 62px; }
+  .quiz-in-game .quiz-host-controls { padding: 2px 0; }
+  .quiz-in-game .quiz-host-controls .btn-tactile { font-size: 11px; min-height: 38px; }
+  .quiz-in-game .quiz-racer { flex-basis: 94px; }
+
+  /* The editor has its own scroll area; save/error controls remain reachable. */
+  .exam-modal { width: 100%; height: 94dvh; max-height: 94dvh; padding: 12px; gap: 9px; }
+  .exam-modal h2 { font-size: 19px; }
+  .exam-modal > header p { display: none; }
+  .exam-import-tools { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 8px; }
+  .exam-import-tools .btn-tactile { padding: 8px; font-size: 11px; }
+  .exam-modal .exam-import-summary { font-size: 11px; padding: 8px; flex-shrink: 0; }
+  .exam-save-blocker { font-size: 11px; gap: 5px; }
+  .exam-editor { grid-template-columns: minmax(0, 1fr); grid-template-rows: 62px minmax(0, 1fr); }
+  .exam-question-editor { min-width: 0; padding-right: 3px; overscroll-behavior: contain; }
+  .exam-editor > nav > button { min-width: 82px; padding: 7px; }
+  .exam-modal label.exam-edit-option { grid-template-columns: 22px 18px minmax(0, 1fr); padding: 7px; gap: 7px; }
+  .exam-modal .exam-edit-option input[type=radio] { width: 20px; height: 20px; min-width: 20px; }
+  .exam-modal > footer { flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
+  .exam-modal > footer button { width: 100%; justify-content: center; min-height: 44px; }
+}
+
+/* On a very short landscape viewport, readable content takes priority over clipping. */
+@media (max-height: 560px) and (max-width: 950px) {
+  .quiz-in-game { height: auto; min-height: var(--quiz-height); }
+  .quiz-in-game .pvp-question { flex: none; min-height: 410px; }
+  .quiz-in-game .pvp-question h2 { min-height: 70px; }
+  .quiz-in-game .pvp-options { min-height: 120px; }
+  .quiz-in-game .quiz-ranking-list { max-height: 300px; }
+}
