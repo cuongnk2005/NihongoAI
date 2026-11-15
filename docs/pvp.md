@@ -10,6 +10,12 @@
 6. Sau đáp án, trò chơi tự chuyển câu sau 3 giây (lượt cuối chuyển đến kết quả). Trong thời gian công bố đáp án, host có thể bấm **Xem bảng xếp hạng** để tạm dừng tự chuyển và mở bảng điểm cho cả phòng. Host bấm **Câu tiếp theo** để tiếp tục, hoặc **Kết thúc & vinh danh** ở lượt cuối. Khách không có quyền chuyển câu.
 7. Icon xếp hàng ngang từ trái sang phải theo tổng điểm giảm dần, có hiệu ứng đổi vị trí. Sau mỗi câu hiển thị thêm điểm nhận được và thời gian trả lời; không trả lời nhận 0 điểm. Bằng điểm thì đồng hạng, thứ tự hiển thị ổn định theo lúc vào phòng.
 
+## Link mời vào phòng
+
+Sau khi tạo phòng, host thấy **Link mời vào phòng** và nút **Sao chép link mời**. Mở link sẽ tự chuyển đến Đấu PvP và điền sẵn mã phòng/máy chủ. Khách chỉ nhập tên, chọn icon và nhấn **Vào phòng**; vẫn dùng quy tắc phòng đầy, đã bắt đầu hoặc hết hạn như khi nhập mã thủ công. Link không chứa token người chơi hoặc quyền host.
+
+Link có dạng `https://<frontend>/?room=ABC123`. Nếu dùng API khác cấu hình mặc định, link mang thêm tham số `api`. Trên HTTPS, API cũng phải HTTPS. Phiên cũ chỉ được tiếp tục nếu khớp cả phòng lẫn máy chủ. Link localhost chỉ dùng trên cùng máy; để mời từ xa dùng domain Vercel và backend Render truy cập được.
+
 ## Nhập bộ đề CSV có đáp án
 
 Trong phần tạo phòng, chọn **Nguồn câu hỏi → Bộ đề CSV đã nhập → Nhập CSV**. File UTF-8 tối đa 2 MB, 1–500 câu, có các cột (có thể đổi thứ tự):
@@ -26,6 +32,12 @@ Màn xem trước hiển thị số câu hợp lệ và số câu cần sửa. C
 Host chọn bộ đề, nhóm (hoặc tất cả), số câu (hoặc toàn bộ) và có thể xáo trộn câu hỏi. Thứ tự A–D giữ nguyên. Câu hỏi và đáp án được chụp tại lúc tạo phòng, chỉnh bộ đề sau đó không làm thay đổi trận đã tạo. Phần trong `【…】` được tô nổi bật khi chơi. Máy chủ kiểm tra lại dữ liệu và giữ đáp án đúng kín đến lúc công bố; bộ đề không được lưu vào kho từ vựng chung.
 
 Kiểm thử parser: `cd app` rồi `npm run test:quiz-import`.
+
+## Xem lại và ôn câu sai sau trận
+
+Sau khi kết thúc, chọn **Xem câu sai** cạnh **Bảng xếp hạng**. Mỗi người chỉ nhận lịch sử trả lời của chính mình, bao gồm câu sai và câu chưa trả lời/hết giờ. Mỗi câu hiển thị nguyên câu hỏi, 4 lựa chọn, lựa chọn của bạn và đáp án đúng. Không có lời giải AI tự suy đoán.
+
+**Làm lại câu sai** là lượt ôn cá nhân: đáp án chỉ hiện sau khi chọn, có tổng kết số câu ôn đúng và có thể làm lại. Việc ôn không thay đổi điểm trận hay FSRS. **Lưu bộ ôn tập** lưu các câu sai/chưa trả lời thành bộ đề local, có thể mở lại qua **Bộ đề CSV đã nhập** và xuất CSV. Nên lưu trước khi rời phòng vì lịch sử trận trên backend vẫn nằm trong RAM và mất khi phòng hết hạn hoặc máy chủ restart. Tải lại cùng tab khi phòng còn tồn tại sẽ lấy lại được lịch sử riêng của người chơi.
 
 Màn chơi dùng bố cục gọn theo chiều cao cửa sổ: câu hỏi và bốn đáp án cùng hiện, không đặt bảng xếp hạng lớn phía trên. Bảng điểm đầy đủ chỉ mở khi host yêu cầu hoặc trận kết thúc; danh sách dài cuộn bên trong bảng.
 

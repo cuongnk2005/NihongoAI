@@ -17,7 +17,7 @@ import './styles/index.css';
 import './styles/mobile.css';
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<TabType>('decks');
+  const [activeTab, setActiveTab] = useState<TabType>(() => new URLSearchParams(window.location.search).has('room') ? 'pvp' : 'decks');
   const [showQuickAddModal, setShowQuickAddModal] = useState<boolean>(false);
   const [quickWord, setQuickWord] = useState<string>('');
   const [quickReading, setQuickReading] = useState<string>('');
