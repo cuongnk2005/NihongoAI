@@ -1,4 +1,4 @@
-import { Vocabulary, Grammar, PracticeQuestion, EvaluationResult } from '../types';
+import { Vocabulary, Grammar, PracticeQuestion, EvaluationResult, DashboardSummary, StatisticsDetail } from '../types';
 
 export const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8088/api';
 
@@ -567,6 +567,27 @@ export const api = {
       }
     } catch (e) {
       console.warn('Sync deck to backend failed:', e);
+    }
+    return null;
+  },
+
+  // Dashboard & Statistics APIs
+  getDashboardSummary: async (): Promise<DashboardSummary | null> => {
+    try {
+      const res = await fetch(`${BASE_URL}/statistics/dashboard`);
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Failed to load dashboard summary:', e);
+    }
+    return null;
+  },
+
+  getStatisticsDetail: async (): Promise<StatisticsDetail | null> => {
+    try {
+      const res = await fetch(`${BASE_URL}/statistics/detail`);
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Failed to load statistics detail:', e);
     }
     return null;
   }

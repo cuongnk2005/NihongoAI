@@ -89,3 +89,38 @@ export interface GrammarStudyItem extends Grammar {
   difficulty: number;
   due: string;
 }
+
+export interface DashboardSummary {
+  dueCardsCount: number;
+  vocabularyCount: number;
+  grammarCount: number;
+  totalReviewsCompleted: number;
+  newCardsCount: number;
+  learningCardsCount: number;
+}
+
+export interface HeatmapDay {
+  day: number;
+  date: string;
+  count: number;
+}
+
+export interface RatingDistribution {
+  againCount: number;
+  againPercent: number;
+  hardCount: number;
+  hardPercent: number;
+  goodCount: number;
+  goodPercent: number;
+  easyCount: number;
+  easyPercent: number;
+}
+
+export interface StatisticsDetail {
+  todayReviews: number;
+  retentionRate: number;
+  streakDays: number;
+  averageSpeedSeconds: number;
+  heatmap: HeatmapDay[];
+  distribution: RatingDistribution;
+}

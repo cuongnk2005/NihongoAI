@@ -1,11 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrendingUp, Calendar, Award, CheckCircle2, Clock } from 'lucide-react';
+import { api } from '../../../services/apiConfig';
+import { StatisticsDetail } from '../../../types';
 
 export const StatisticsPage: React.FC = () => {
-  const heatmapDays = Array.from({ length: 28 }, (_, i) => {
-    const count = Math.floor(Math.random() * 45);
-    return { day: i + 1, count };
-  });
+  const [detail, setDetail] = useState<StatisticsDetail | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let active = true;
+    api.getStatisticsDetail().then((data) => {
+      if (active && data) {
+        setDetail(data);
+      }
+    }).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const heatmapDays = detail?.heatmap || Array.from({ length: 28 }, (_, i) => ({
+    day: i + 1,
+    date: '',
+    count: 0
+  }));
+
+  const dist = detail?.distribution || {
+    easyCount: 0,
+    easyPercent: 0,
+    goodCount: 0,
+    goodPercent: 0,
+    hardCount: 0,
+    hardPercent: 0,
+    againCount: 0,
+    againPercent: 0
+  };
 
   return (
     <div style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
@@ -15,7 +46,7 @@ export const StatisticsPage: React.FC = () => {
           📊 Thống Kê & Phân Tích Tiến Độ Học Tập
         </h2>
         <p style={{ color: 'var(--ink-secondary)', fontSize: '0.9rem' }}>
-          Đo lường hiệu quả thuật toán FSRS, tỷ lệ duy trì trí nhớ và tần suất ôn luyện hàng ngày.
+          Đo lường hiệu quả thuật toán FSRS, tỷ lệ duy trì trí nhớ và tần suất ôn luyện hàng ngày dựa trên dữ liệu thật.
         </p>
       </div>
 
@@ -27,7 +58,7 @@ export const StatisticsPage: React.FC = () => {
             <CheckCircle2 size={16} color="var(--accent-pine)" />
           </div>
           <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.8rem', fontWeight: 900 }}>
-            42 <span style={{ fontSize: '0.9rem', color: 'var(--ink-secondary)', fontWeight: 600 }}>thẻ</span>
+            {loading ? '...' : detail?.todayReviews ?? 0} <span style={{ fontSize: '0.9rem', color: 'var(--ink-secondary)', fontWeight: 600 }}>thẻ</span>
           </div>
         </div>
 
@@ -37,7 +68,7 @@ export const StatisticsPage: React.FC = () => {
             <TrendingUp size={16} color="var(--accent-cobalt)" />
           </div>
           <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.8rem', fontWeight: 900, color: 'var(--accent-cobalt)' }}>
-            92.4%
+            {loading ? '...' : `${detail?.retentionRate ?? 100}%`}
           </div>
         </div>
 
@@ -47,7 +78,7 @@ export const StatisticsPage: React.FC = () => {
             <Award size={16} color="var(--accent-amber)" />
           </div>
           <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.8rem', fontWeight: 900, color: 'var(--accent-amber)' }}>
-            14 <span style={{ fontSize: '0.9rem', color: 'var(--ink-secondary)', fontWeight: 600 }}>ngày</span>
+            {loading ? '...' : detail?.streakDays ?? 0} <span style={{ fontSize: '0.9rem', color: 'var(--ink-secondary)', fontWeight: 600 }}>ngày</span>
           </div>
         </div>
 
@@ -57,7 +88,7 @@ export const StatisticsPage: React.FC = () => {
             <Clock size={16} color="var(--accent-vermilion)" />
           </div>
           <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.8rem', fontWeight: 900 }}>
-            6.8s <span style={{ fontSize: '0.9rem', color: 'var(--ink-secondary)', fontWeight: 600 }}>/thẻ</span>
+            {loading ? '...' : detail?.averageSpeedSeconds ?? 6.5}s <span style={{ fontSize: '0.9rem', color: 'var(--ink-secondary)', fontWeight: 600 }}>/thẻ</span>
           </div>
         </div>
       </div>
@@ -79,10 +110,12 @@ export const StatisticsPage: React.FC = () => {
             else if (item.count > 15) { bg = '#BBF7D0'; textColor = '#0F172A'; }
             else if (item.count > 0) { bg = '#E2E8F0'; textColor = '#0F172A'; }
 
+            const label = item.date ? `${item.date}: ${item.count} thẻ` : `Ngày ${item.day}: ${item.count} thẻ`;
+
             return (
               <div
                 key={item.day}
-                title={`Ngày ${item.day}: ${item.count} thẻ ôn tập`}
+                title={label}
                 style={{
                   background: bg,
                   border: 'var(--border-dark)',
@@ -116,41 +149,41 @@ export const StatisticsPage: React.FC = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 700, marginBottom: '6px' }}>
-              <span>Easy (Dễ)</span>
-              <span style={{ color: 'var(--accent-cobalt)' }}>58%</span>
+              <span>Easy (Dễ) ({dist.easyCount})</span>
+              <span style={{ color: 'var(--accent-cobalt)' }}>{dist.easyPercent}%</span>
             </div>
             <div style={{ background: 'var(--bg-stone)', border: 'var(--border-dark)', height: '12px', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}>
-              <div style={{ width: '58%', background: 'var(--accent-cobalt)', height: '100%' }} />
+              <div style={{ width: `${dist.easyPercent}%`, background: 'var(--accent-cobalt)', height: '100%', transition: 'width 0.3s ease' }} />
             </div>
           </div>
 
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 700, marginBottom: '6px' }}>
-              <span>Good (Tốt)</span>
-              <span style={{ color: 'var(--accent-pine)' }}>28%</span>
+              <span>Good (Tốt) ({dist.goodCount})</span>
+              <span style={{ color: 'var(--accent-pine)' }}>{dist.goodPercent}%</span>
             </div>
             <div style={{ background: 'var(--bg-stone)', border: 'var(--border-dark)', height: '12px', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}>
-              <div style={{ width: '28%', background: 'var(--accent-pine)', height: '100%' }} />
+              <div style={{ width: `${dist.goodPercent}%`, background: 'var(--accent-pine)', height: '100%', transition: 'width 0.3s ease' }} />
             </div>
           </div>
 
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 700, marginBottom: '6px' }}>
-              <span>Hard (Khó)</span>
-              <span style={{ color: 'var(--accent-amber)' }}>10%</span>
+              <span>Hard (Khó) ({dist.hardCount})</span>
+              <span style={{ color: 'var(--accent-amber)' }}>{dist.hardPercent}%</span>
             </div>
             <div style={{ background: 'var(--bg-stone)', border: 'var(--border-dark)', height: '12px', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}>
-              <div style={{ width: '10%', background: 'var(--accent-amber)', height: '100%' }} />
+              <div style={{ width: `${dist.hardPercent}%`, background: 'var(--accent-amber)', height: '100%', transition: 'width 0.3s ease' }} />
             </div>
           </div>
 
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 700, marginBottom: '6px' }}>
-              <span>Again (Học Lại)</span>
-              <span style={{ color: 'var(--accent-vermilion)' }}>4%</span>
+              <span>Again (Học Lại) ({dist.againCount})</span>
+              <span style={{ color: 'var(--accent-vermilion)' }}>{dist.againPercent}%</span>
             </div>
             <div style={{ background: 'var(--bg-stone)', border: 'var(--border-dark)', height: '12px', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}>
-              <div style={{ width: '4%', background: 'var(--accent-vermilion)', height: '100%' }} />
+              <div style={{ width: `${dist.againPercent}%`, background: 'var(--accent-vermilion)', height: '100%', transition: 'width 0.3s ease' }} />
             </div>
           </div>
         </div>
