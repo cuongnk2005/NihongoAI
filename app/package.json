@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "test:quiz-import": "node --test scripts/tests/quizImport.test.mjs",
+    "test:room-invite": "node --test scripts/tests/roomInvite.test.mjs",
     "preview": "vite preview",
     "tauri": "tauri"
   },

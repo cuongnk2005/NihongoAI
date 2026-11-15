@@ -20,8 +20,10 @@ public class PvpService {
 
     public record PlayerView(int id, String name, String avatar, int score, boolean answered, Integer choice, int earned, Long elapsedMs) {}
     public record QuestionView(String type, String word, List<String> options, Integer correct, String section) {}
+    public record ReviewItem(int round, String type, String question, List<String> options, int correct,
+                             Integer choice, int earned, String section) {}
     public record View(String code, String phase, int round, int total, long serverTime, long deadline,
-                       long nextAt, int you, String mode, int seconds, String sourceName, List<PlayerView> players, QuestionView question) {}
+                       long nextAt, int you, String mode, int seconds, String sourceName, List<PlayerView> players, QuestionView question, List<ReviewItem> review) {}
     public record Session(String token, View room) {}
     public record DeckWord(String word, String reading, String meaningVi) {}
     public record DeckSource(String name, List<DeckWord> cards) {}
@@ -29,6 +31,7 @@ public class PvpService {
     public record ExamSource(String name, List<ExamQuestion> questions, boolean shuffle) {}
     private static class Player {
         String name, avatar, token = UUID.randomUUID().toString(); int score, earned; Integer choice; Long elapsedMs;
+        final List<ReviewItem> history = new ArrayList<>();
         Player(String name, String avatar) { this.name = name; this.avatar = avatar; }
     }
     private static class Room {
@@ -171,7 +174,12 @@ public class PvpService {
         for (int i = 0; i < r.players.size(); i++) if (r.players.get(i).token.equals(token)) return i;
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Phiên chơi không hợp lệ.");
     }
-    private void reveal(Room r) { r.phase = "REVEAL"; r.nextAt = clock.millis() + REVEAL_MS; }
+    private void reveal(Room r) {
+        PvpQuestionGenerator.Question question = r.questions.get(r.index);
+        for (Player p : r.players) p.history.add(new ReviewItem(r.index + 1, question.type().name(), question.word(),
+            question.options(), question.correct(), p.choice, p.earned, question.section()));
+        r.phase = "REVEAL"; r.nextAt = clock.millis() + REVEAL_MS;
+    }
     private void nextQuestion(Room r) {
         if (r.index + 1 == r.questions.size()) r.phase = "FINISHED";
         else { r.index++; r.phase = "PLAYING"; r.deadline = clock.millis() + r.seconds * 1000L;
@@ -190,6 +198,7 @@ public class PvpService {
                 return new PlayerView(i, p.name, p.avatar, reveal ? p.score : p.score - p.earned,
                     p.choice != null, reveal || i == you ? p.choice : null, reveal ? p.earned : 0, reveal || i == you ? p.elapsedMs : null);
             }).toList(),
-            r.phase.equals("WAITING") ? null : new QuestionView(q.type().name(), q.word(), q.options(), reveal ? q.correct() : null, q.section()));
+            r.phase.equals("WAITING") ? null : new QuestionView(q.type().name(), q.word(), q.options(), reveal ? q.correct() : null, q.section()),
+            r.phase.equals("FINISHED") ? List.copyOf(r.players.get(you).history) : List.of());
     }
 }
