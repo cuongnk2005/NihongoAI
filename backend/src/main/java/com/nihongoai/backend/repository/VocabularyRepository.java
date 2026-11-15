@@ -11,6 +11,10 @@ public interface VocabularyRepository extends JpaRepository<VocabularyEntity, Lo
 
     List<VocabularyEntity> findByJlptLevel(String jlptLevel);
 
+    java.util.Optional<VocabularyEntity> findFirstByWordAndReading(String word, String reading);
+
+    java.util.Optional<VocabularyEntity> findFirstByWord(String word);
+
     @Query("SELECT v FROM VocabularyEntity v WHERE " +
            "LOWER(v.word) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            "LOWER(v.reading) LIKE LOWER(CONCAT('%', :query, '%')) OR " +

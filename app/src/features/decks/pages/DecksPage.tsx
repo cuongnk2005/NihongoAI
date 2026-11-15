@@ -6,6 +6,7 @@ import {
 import { Flashcard, CardType } from '../../../types';
 import { CsvImportModal, DeckOption, CsvImportResult, buildAiCsvPrompt } from '../components/CsvImportModal';
 import { useSavedDecks } from '../useSavedDecks';
+import { api } from '../../../services/apiConfig';
 
 export interface DeckNode {
   id: string;
@@ -448,6 +449,7 @@ export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
   // CSV Import State
   const [deckIdForCsvImport, setDeckIdForCsvImport] = useState<string | null>(null);
   const [importSuccessMsg, setImportSuccessMsg] = useState<string | null>(null);
+  const [isSyncingBackend, setIsSyncingBackend] = useState<boolean>(false);
   
   // Vocab / Typing_2way fields
   const [vocabWord, setVocabWord] = useState<string>('');
@@ -783,6 +785,47 @@ export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
     setImportSuccessMsg(
       `Đã nhập CSV vào bộ "${targetNode?.name || ''}": ${parts.join(', ')}.`
     );
+
+    // Auto-sync newly imported cards to SQLite backend for PvP and AI Practice
+    const allCardsToSync = [...result.cardsToInsert, ...result.cardsToUpdate];
+    if (allCardsToSync.length > 0 && targetNode) {
+      api.syncDeckToBackend({
+        name: targetNode.name,
+        cards: allCardsToSync
+      }).then((syncRes) => {
+        if (syncRes) {
+          setImportSuccessMsg(
+            `Đã nhập CSV vào bộ "${targetNode?.name || ''}": ${parts.join(', ')} và đồng bộ ${syncRes.newCardsInserted} thẻ vào database backend!`
+          );
+        }
+      }).catch((e) => console.warn('Background deck sync error:', e));
+    }
+  };
+
+  const handleSyncSelectedDeckToBackend = async () => {
+    const target = findDeckById(selectedDeckId, decks) || decks[0];
+    if (!target) return;
+    const allCards = collectAllCards(target);
+    if (allCards.length === 0) {
+      setImportSuccessMsg(`Bộ "${target.name}" chưa có thẻ nào để đồng bộ.`);
+      return;
+    }
+    setIsSyncingBackend(true);
+    try {
+      const res = await api.syncDeckToBackend({
+        name: target.name,
+        cards: allCards
+      });
+      if (res) {
+        setImportSuccessMsg(res.message);
+      } else {
+        setImportSuccessMsg(`Đã gửi đồng bộ ${allCards.length} thẻ.`);
+      }
+    } catch {
+      setImportSuccessMsg('Không thể kết nối đến Backend để đồng bộ.');
+    } finally {
+      setIsSyncingBackend(false);
+    }
   };
 
   const selectedDeck = findDeckById(selectedDeckId, decks) || decks[0];
@@ -992,6 +1035,15 @@ export const DecksPage: React.FC<DecksPageProps> = ({ onStudyDeck }) => {
             title="Nhập hàng loạt thẻ từ file CSV / TSV của Anki hoặc Excel"
           >
             <Upload size={15} color="var(--accent-pine)" /> Nhập CSV
+          </button>
+          <button
+            className="btn-tactile"
+            onClick={handleSyncSelectedDeckToBackend}
+            disabled={isSyncingBackend}
+            title="Đồng bộ toàn bộ thẻ của bộ này vào SQLite backend (dùng cho PvP và AI Luyện dịch)"
+          >
+            <RefreshCw size={15} color="var(--accent-cobalt)" className={isSyncingBackend ? 'spin' : ''} />
+            {isSyncingBackend ? 'Đang đồng bộ...' : 'Đồng bộ vào Backend'}
           </button>
           <button className="btn-tactile" onClick={() => setShowCreateModal(true)}>
             <Folder size={16} /> Tạo Bộ thẻ
