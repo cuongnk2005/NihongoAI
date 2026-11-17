@@ -493,9 +493,9 @@ export const api = {
     return [];
   },
 
-  submitGrammarReview: async (id: number, rating: string): Promise<any> => {
+  submitGrammarReview: async (id: number, rating: string, durationMs?: number): Promise<any> => {
     try {
-      const res = await fetch(`${BASE_URL}/grammars/${id}/review?rating=${encodeURIComponent(rating)}`, {
+      const res = await fetch(`${BASE_URL}/grammars/${id}/review?rating=${encodeURIComponent(rating)}${durationMs === undefined ? '' : `&durationMs=${Math.round(durationMs)}`}`, {
         method: 'POST'
       });
       if (res.ok) return await res.json();
