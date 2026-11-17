@@ -1,11 +1,10 @@
 import React from 'react';
-import { Sun, Moon, Layers, BookOpen, Scroll, PenTool, MessageSquare, BarChart2, Settings, Zap } from 'lucide-react';
+import { Sun, Moon, Layers, Scroll, PenTool, MessageSquare, BarChart2, Settings, Zap } from 'lucide-react';
 
 export type TabType = 
   | 'review'
   | 'pvp'
   | 'decks' 
-  | 'add' 
   | 'browse' 
   | 'practice' 
   | 'kaiwa' 
@@ -17,15 +16,13 @@ interface AnkiHeaderProps {
   setActiveTab: (tab: TabType) => void;
   theme: 'light' | 'dark';
   toggleTheme: () => void;
-  onQuickAdd?: () => void;
 }
 
 export const AnkiHeader: React.FC<AnkiHeaderProps> = ({ 
   activeTab, 
   setActiveTab, 
   theme, 
-  toggleTheme,
-  onQuickAdd
+  toggleTheme
 }) => {
   return (
     <header className="app-header">
@@ -49,15 +46,6 @@ export const AnkiHeader: React.FC<AnkiHeaderProps> = ({
 
         <button onClick={() => setActiveTab('pvp')} className={`nav-tab ${activeTab === 'pvp' ? 'active' : ''}`} id="tabPvp">
           <Zap size={16} /><span>Đấu PvP</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('add')}
-          className={`nav-tab ${activeTab === 'add' ? 'active' : ''}`}
-          id="tabVocabulary"
-        >
-          <BookOpen size={16} />
-          <span>Từ vựng</span>
         </button>
 
         <button
@@ -108,15 +96,7 @@ export const AnkiHeader: React.FC<AnkiHeaderProps> = ({
 
       {/* Header Actions */}
       <div className="header-actions">
-        {onQuickAdd && (
-          <button 
-            className="btn-tactile primary sm"
-            onClick={onQuickAdd}
-            title="Thêm từ vựng nhanh"
-          >
-            + Thêm từ
-          </button>
-        )}
+
 
         <button
           onClick={toggleTheme}
