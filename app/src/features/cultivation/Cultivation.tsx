@@ -5,7 +5,7 @@ const activities = ['review', 'practice', 'kaiwa'] as const;
 type Activity = typeof activities[number];
 type Progress = Record<Activity, number>;
 
-function read(): Progress {
+export function readCultivation(): Progress {
   const result: Progress = { review: 0, practice: 0, kaiwa: 0 };
   try {
     const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
@@ -28,7 +28,7 @@ export function useCultivationTimer(tab: string) {
       const elapsed = visible ? Math.max(0, Math.min(now, lastInteraction + 60_000) - lastTick) : 0;
       if (elapsed > 0) {
         try {
-          const progress = read();
+          const progress = readCultivation();
           progress[activity] += elapsed;
           localStorage.setItem(KEY, JSON.stringify(progress));
           window.dispatchEvent(new Event('cultivation-change'));
@@ -56,9 +56,9 @@ export function useCultivationTimer(tab: string) {
 const realms = ['Phàm Nhân', 'Luyện Khí', 'Trúc Cơ', 'Kim Đan', 'Nguyên Anh', 'Hóa Thần', 'Luyện Hư', 'Hợp Thể', 'Đại Thừa', 'Độ Kiếp', 'Chân Tiên'];
 
 export function CultivationCard() {
-  const [progress, setProgress] = useState(read);
+  const [progress, setProgress] = useState(readCultivation);
   useEffect(() => {
-    const refresh = () => setProgress(read());
+    const refresh = () => setProgress(readCultivation());
     window.addEventListener('cultivation-change', refresh);
     window.addEventListener('storage', refresh);
     return () => { window.removeEventListener('cultivation-change', refresh); window.removeEventListener('storage', refresh); };

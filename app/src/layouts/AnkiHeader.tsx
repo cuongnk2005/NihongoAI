@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, Moon, Layers, Scroll, PenTool, MessageSquare, BarChart2, Settings, Zap } from 'lucide-react';
+import { Sun, Moon, Layers, Scroll, PenTool, MessageSquare, BarChart2, Settings, Zap, Swords } from 'lucide-react';
 
 export type TabType = 
   | 'review'
@@ -8,6 +8,7 @@ export type TabType =
   | 'browse' 
   | 'practice' 
   | 'kaiwa' 
+  | 'cultivation'
   | 'statistics' 
   | 'sync';
 
@@ -73,6 +74,10 @@ export const AnkiHeader: React.FC<AnkiHeaderProps> = ({
         >
           <MessageSquare size={16} />
           <span>AI Kaiwa</span>
+        </button>
+
+        <button onClick={() => setActiveTab('cultivation')} className={`nav-tab ${activeTab === 'cultivation' ? 'active' : ''}`} id="tabCultivation">
+          <Swords size={16} /><span>Tu tiên</span>
         </button>
 
         <button

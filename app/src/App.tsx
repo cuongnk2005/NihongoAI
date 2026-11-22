@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useCultivationTimer } from './features/cultivation/Cultivation';
+import { CultivationPage } from './features/cultivation/CultivationPage';
 import { MainLayout } from './layouts/MainLayout';
 import { TabType } from './layouts/AnkiHeader';
 import { DecksPage } from './features/decks/pages/DecksPage';
@@ -59,6 +60,8 @@ export function App() {
         return <KaiwaPage />;
       case 'statistics':
         return <StatisticsPage />;
+      case 'cultivation':
+        return <CultivationPage />;
       case 'sync':
         return <SettingsPage />;
       default:
