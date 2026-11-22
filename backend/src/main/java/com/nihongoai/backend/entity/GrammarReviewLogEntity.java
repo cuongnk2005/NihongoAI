@@ -32,6 +32,12 @@ public class GrammarReviewLogEntity {
     @Column(name = "review_time")
     private LocalDateTime reviewTime = LocalDateTime.now();
 
+    @Column(name = "duration_ms")
+    private Long durationMs;
+
+    public Long getDurationMs() { return durationMs; }
+    public void setDurationMs(Long value) { durationMs = value; }
+
     public GrammarReviewLogEntity() {}
 
     public GrammarReviewLogEntity(Long grammarId, String rating, Double stabilityBefore, Double difficultyBefore, Integer elapsedDays, Integer scheduledDays) {

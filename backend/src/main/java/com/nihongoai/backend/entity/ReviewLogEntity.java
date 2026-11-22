@@ -32,6 +32,12 @@ public class ReviewLogEntity {
     @Column(name = "review_time")
     private LocalDateTime reviewTime = LocalDateTime.now();
 
+    @Column(name = "duration_ms")
+    private Long durationMs;
+
+    public Long getDurationMs() { return durationMs; }
+    public void setDurationMs(Long value) { durationMs = value; }
+
     public ReviewLogEntity() {}
 
     public ReviewLogEntity(Long cardId, String rating, Double stabilityBefore, Double difficultyBefore, Integer elapsedDays, Integer scheduledDays) {

@@ -39,9 +39,10 @@ public class GrammarController {
     @PostMapping("/{id}/review")
     public ResponseEntity<FSRSResult> processReview(
             @PathVariable Long id,
-            @RequestParam(defaultValue = "Good") String rating
+            @RequestParam(defaultValue = "Good") String rating,
+            @RequestParam(required = false) Long durationMs
     ) {
-        return ResponseEntity.ok(grammarService.processGrammarReview(id, rating));
+        return ResponseEntity.ok(grammarService.processGrammarReview(id, rating, durationMs == null ? null : Math.max(0, Math.min(86400000, durationMs))));
     }
 
     @GetMapping("/{id}")

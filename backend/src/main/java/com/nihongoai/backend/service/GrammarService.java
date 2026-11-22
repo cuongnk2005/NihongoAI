@@ -151,6 +151,11 @@ public class GrammarService {
      */
     @Transactional
     public FSRSResult processGrammarReview(Long grammarId, String ratingStr) {
+        return processGrammarReview(grammarId, ratingStr, null);
+    }
+
+    @Transactional
+    public FSRSResult processGrammarReview(Long grammarId, String ratingStr, Long durationMs) {
         FSRSRating rating = FSRSRating.fromString(ratingStr);
         LocalDateTime now = LocalDateTime.now();
 
@@ -191,6 +196,7 @@ public class GrammarService {
                 result.scheduledDays(),
                 result.scheduledDays()
         );
+        log.setDurationMs(durationMs);
         reviewLogRepository.save(log);
 
         return result;

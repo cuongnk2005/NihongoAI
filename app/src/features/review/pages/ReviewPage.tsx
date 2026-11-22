@@ -3,7 +3,10 @@ import { Flashcard } from '../../../types';
 import { RotateCcw, CheckCircle, ArrowLeft, Volume2, Check, X as XIcon, Eye, EyeOff } from 'lucide-react';
 import { getButtonIntervals, applyAnkiRating, resolveCardState, RatingType } from '../../../utils/ankiScheduler';
 
+import { recordReview, undoReview } from '../../statistics/api';
+
 interface QueueSnapshot {
+  activityId: string;
   cards: Flashcard[];
   currentIndex: number;
 }
@@ -140,6 +143,11 @@ export const ReviewPage: React.FC<ReviewPageProps> = ({ deckTitle, customCards, 
   const [completed, setCompleted] = useState<boolean>(false);
   const [history, setHistory] = useState<QueueSnapshot[]>([]);
   const [typedAnswer, setTypedAnswer] = useState<string>('');
+  const savingReview = useRef(false);
+  const startedAt = useRef(performance.now());
+  const pendingActivityId = useRef<string | null>(null);
+  const [saveError, setSaveError] = useState('');
+  useEffect(() => { startedAt.current = performance.now(); pendingActivityId.current = null; }, [currentIndex, completed, customCards]);
   const typingInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -205,9 +213,23 @@ export const ReviewPage: React.FC<ReviewPageProps> = ({ deckTitle, customCards, 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showAnswer, currentIndex, completed, cards]);
 
-  const handleRating = (rating: RatingType) => {
+  const handleRating = async (rating: RatingType) => {
+    if (savingReview.current || !showAnswer || completed) return;
+    savingReview.current = true;
+    const activityId = pendingActivityId.current ?? crypto.randomUUID();
+    pendingActivityId.current = activityId;
+    try {
+      await recordReview(activityId, `${deckTitle || 'deck'}:${currentCard.id}`.slice(0, 300), rating, performance.now() - startedAt.current);
+      setSaveError('');
+    } catch {
+      setSaveError('Chưa lưu được lượt ôn. Kiểm tra kết nối backend rồi đánh giá lại.');
+      savingReview.current = false;
+      return;
+    }
+    savingReview.current = false;
+    pendingActivityId.current = null;
     // Save snapshot for Undo
-    setHistory((prev) => [...prev, { cards: [...cards], currentIndex }]);
+    setHistory((prev) => [...prev, { cards: [...cards], currentIndex, activityId }]);
     setShowAnswer(false);
     setTypedAnswer('');
 
@@ -232,6 +254,10 @@ export const ReviewPage: React.FC<ReviewPageProps> = ({ deckTitle, customCards, 
   };
 
   const handleRestart = () => {
+    if (savingReview.current) return;
+    startedAt.current = performance.now();
+    pendingActivityId.current = null;
+    setSaveError('');
     setCards(customCards && customCards.length > 0 ? customCards : defaultCards);
     setCurrentIndex(0);
     setShowAnswer(false);
@@ -240,8 +266,13 @@ export const ReviewPage: React.FC<ReviewPageProps> = ({ deckTitle, customCards, 
     setTypedAnswer('');
   };
 
-  const handleUndo = () => {
-    if (history.length === 0) return;
+  const handleUndo = async () => {
+    if (history.length === 0 || savingReview.current) return;
+    savingReview.current = true;
+    try { await undoReview(history[history.length - 1].activityId); setSaveError(''); }
+    catch { setSaveError('Chưa hoàn tác được lượt ôn. Vui lòng thử lại.'); savingReview.current = false; return; }
+    savingReview.current = false;
+    startedAt.current = performance.now();
     const prevSnapshot = history[history.length - 1];
     setHistory((prev) => prev.slice(0, -1));
     setCards(prevSnapshot.cards);
@@ -277,6 +308,7 @@ export const ReviewPage: React.FC<ReviewPageProps> = ({ deckTitle, customCards, 
   if (completed) {
     return (
       <div style={{ maxWidth: '640px', margin: '40px auto', textAlign: 'center' }}>
+      {saveError && <p role="alert" style={{ color: 'var(--accent-vermilion)' }}>{saveError}</p>}
         <div className="card-tactile" style={{ padding: '48px 36px' }}>
           <CheckCircle size={64} color="var(--accent-pine)" style={{ margin: '0 auto 16px auto' }} />
           <h2 style={{ fontFamily: 'var(--font-grotesk)', fontSize: '2rem', marginBottom: '8px' }}>
@@ -307,6 +339,7 @@ export const ReviewPage: React.FC<ReviewPageProps> = ({ deckTitle, customCards, 
 
   return (
     <div style={{ width: '100%', maxWidth: '920px', margin: '0 auto' }}>
+      {saveError && <p role="alert" style={{ color: 'var(--accent-vermilion)' }}>{saveError}</p>}
       {/* ===================================================================== */}
       {/* SINGLE UNIFIED TOP BAR: Deck Name + Progress Bar + Quick Controls     */}
       {/* ===================================================================== */}
