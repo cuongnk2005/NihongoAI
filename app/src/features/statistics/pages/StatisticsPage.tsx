@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { CultivationCard } from '../../cultivation/Cultivation';
 import { TrendingUp, Calendar, Award, CheckCircle2, Clock } from 'lucide-react';
 import { getStatistics, StudyStatistics } from '../api';
 
@@ -40,6 +41,7 @@ export const StatisticsPage: React.FC = () => {
       <p style={{ color: 'var(--ink-secondary)', marginTop: '8px' }}>Lịch sử ôn bộ thẻ và ngữ pháp được lưu trên máy của bạn.</p>
       <button className="btn-tactile sm" disabled={loading} onClick={() => setRevision(n => n + 1)} style={{ marginTop: '12px' }}>{loading ? 'Đang tải…' : 'Làm mới'}</button>
     </div>
+    <CultivationCard />
     {error && <p role="alert" style={{ color: 'var(--accent-vermilion)', marginBottom: '16px' }}>{error}</p>}
     {!data && loading && <p role="status">Đang tải lịch sử học tập…</p>}
     {data && <>
