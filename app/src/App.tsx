@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useCultivationTimer } from './features/cultivation/Cultivation';
 import { MainLayout } from './layouts/MainLayout';
 import { TabType } from './layouts/AnkiHeader';
 import { DecksPage } from './features/decks/pages/DecksPage';
@@ -15,6 +16,7 @@ import './styles/mobile.css';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<TabType>(() => new URLSearchParams(window.location.search).has('room') ? 'pvp' : 'decks');
+  useCultivationTimer(activeTab);
   const [studyingDeck, setStudyingDeck] = useState<{ id: string; name: string; cards: Flashcard[] } | null>(null);
 
   const handleStudyDeck = (deck: { id: string; name: string; cards: Flashcard[] }) => {
