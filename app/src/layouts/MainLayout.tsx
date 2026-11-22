@@ -6,7 +6,6 @@ interface MainLayoutProps {
   setActiveTab: (tab: TabType) => void;
   theme: 'light' | 'dark';
   toggleTheme: () => void;
-  onQuickAdd?: () => void;
   children: React.ReactNode;
 }
 
@@ -15,7 +14,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   setActiveTab, 
   theme, 
   toggleTheme, 
-  onQuickAdd,
   children 
 }) => {
   return (
@@ -25,7 +23,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
         setActiveTab={setActiveTab} 
         theme={theme} 
         toggleTheme={toggleTheme} 
-        onQuickAdd={onQuickAdd}
       />
       <main className="main-content">
         {children}

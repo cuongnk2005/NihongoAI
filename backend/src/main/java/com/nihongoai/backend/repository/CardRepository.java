@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface CardRepository extends JpaRepository<CardEntity, Long> {
     List<CardEntity> findByDeckId(Long deckId);
+    boolean existsByDeckIdAndFrontContent(Long deckId, String frontContent);
 }

@@ -1,7 +1,9 @@
 package com.nihongoai.backend.controller;
 
+import com.nihongoai.backend.dto.SyncDeckRequestDto;
 import com.nihongoai.backend.entity.DeckEntity;
 import com.nihongoai.backend.service.DeckService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +39,12 @@ public class DeckController {
         String description = body.getOrDefault("description", "");
         DeckEntity created = deckService.createDeck(name, description);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PostMapping("/sync")
+    public ResponseEntity<Map<String, Object>> syncDeck(@Valid @RequestBody SyncDeckRequestDto request) {
+        Map<String, Object> result = deckService.syncDeck(request.name(), request.description(), request.cards());
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping("/{id}")

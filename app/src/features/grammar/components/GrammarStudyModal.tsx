@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { GrammarStudyItem } from '../../../types';
 import { api } from '../../../services/apiConfig';
 import {
@@ -55,6 +55,10 @@ export const GrammarStudyModal: React.FC<GrammarStudyModalProps> = ({
     loadSession(level);
   }, [level, loadSession]);
 
+  const startedAt = useRef(performance.now());
+  const submitting = useRef(false);
+  const [saveError, setSaveError] = useState('');
+  useEffect(() => { startedAt.current = performance.now(); }, [currentIndex, isLoading]);
   const currentItem: GrammarStudyItem | undefined = queue[currentIndex];
 
   const handlePlayAudio = (e: React.MouseEvent, text: string) => {
@@ -73,10 +77,14 @@ export const GrammarStudyModal: React.FC<GrammarStudyModalProps> = ({
   }, []);
 
   const handleRate = useCallback(async (rating: 'Again' | 'Hard' | 'Good' | 'Easy') => {
-    if (!currentItem) return;
+    if (!currentItem || submitting.current) return;
+    submitting.current = true;
 
     // Send review rating to backend FSRS engine
-    api.submitGrammarReview(currentItem.id, rating);
+    const result = await api.submitGrammarReview(currentItem.id, rating, Math.min(86400000, performance.now() - startedAt.current));
+    submitting.current = false;
+    if (!result) { setSaveError('Chưa lưu được lượt ôn. Vui lòng thử lại.'); return; }
+    setSaveError('');
 
     if (rating === 'Again') {
       setAgainCount((prev) => prev + 1);
@@ -88,7 +96,7 @@ export const GrammarStudyModal: React.FC<GrammarStudyModalProps> = ({
 
     setIsAnswerRevealed(false);
 
-    if (currentIndex + 1 < queue.length) {
+    if (rating === 'Again' || currentIndex + 1 < queue.length) {
       setCurrentIndex((prev) => prev + 1);
     } else {
       setIsFinished(true);
@@ -142,6 +150,7 @@ export const GrammarStudyModal: React.FC<GrammarStudyModalProps> = ({
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        {saveError && <p role="alert" style={{ color: 'var(--accent-vermilion)' }}>{saveError}</p>}
         {/* Header: Title, Level Selector & Close */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
