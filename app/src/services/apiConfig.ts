@@ -1,4 +1,4 @@
-import { Vocabulary, Grammar, PracticeQuestion, EvaluationResult } from '../types';
+import { Vocabulary, Grammar, PracticeQuestion, EvaluationResult, DashboardSummary, StatisticsDetail } from '../types';
 
 export const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8088/api';
 
@@ -501,6 +501,93 @@ export const api = {
       if (res.ok) return await res.json();
     } catch (e) {
       console.warn('Failed to submit grammar review:', e);
+    }
+    return null;
+  },
+
+  // Bulk Vocabulary and Deck Sync APIs
+  bulkImportVocabularies: async (
+    items: {
+      word: string;
+      reading?: string;
+      meaningVi: string;
+      meaningEn?: string;
+      partOfSpeech?: string;
+      jlptLevel?: string;
+      exampleJa?: string;
+      exampleVi?: string;
+    }[],
+    overwriteExisting: boolean = false
+  ): Promise<{ total: number; inserted: number; updated: number; skipped: number; message: string }> => {
+    try {
+      const res = await fetch(`${BASE_URL}/vocabularies/bulk`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items, overwriteExisting })
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn('Bulk import vocabulary failed:', e);
+    }
+    return { total: items.length, inserted: items.length, updated: 0, skipped: 0, message: 'Đã lưu cục bộ' };
+  },
+
+  syncDeckToBackend: async (deck: {
+    name: string;
+    description?: string;
+    cards: {
+      word: string;
+      reading?: string;
+      meaningVi?: string;
+      jlptLevel?: string;
+      partOfSpeech?: string;
+      exampleSentenceJa?: string;
+      exampleSentenceVi?: string;
+    }[];
+  }): Promise<{ deckId: number; name: string; newCardsInserted: number; message: string } | null> => {
+    try {
+      const cards = deck.cards.map(c => ({
+        word: c.word,
+        reading: c.reading || '',
+        meaningVi: c.meaningVi || '',
+        jlptLevel: c.jlptLevel || 'N5',
+        partOfSpeech: c.partOfSpeech,
+        exampleJa: c.exampleSentenceJa,
+        exampleVi: c.exampleSentenceVi
+      }));
+      const res = await fetch(`${BASE_URL}/decks/sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: deck.name, description: deck.description || '', cards })
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn('Sync deck to backend failed:', e);
+    }
+    return null;
+  },
+
+  // Dashboard & Statistics APIs
+  getDashboardSummary: async (): Promise<DashboardSummary | null> => {
+    try {
+      const res = await fetch(`${BASE_URL}/statistics/dashboard`);
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Failed to load dashboard summary:', e);
+    }
+    return null;
+  },
+
+  getStatisticsDetail: async (): Promise<StatisticsDetail | null> => {
+    try {
+      const res = await fetch(`${BASE_URL}/statistics/detail`);
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('Failed to load statistics detail:', e);
     }
     return null;
   }
