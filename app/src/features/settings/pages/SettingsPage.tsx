@@ -7,7 +7,6 @@ import {
   BookOpen,
   Calendar,
   Layers,
-  ShieldCheck,
   Languages
 } from 'lucide-react';
 
@@ -237,27 +236,6 @@ export const SettingsPage: React.FC = () => {
               </div>
             </label>
           </div>
-        </div>
-
-        {/* Section 4: Security & Backend Architecture Note */}
-        <div
-          style={{
-            background: '#F8FAFC',
-            border: '1.5px solid #CBD5E1',
-            padding: '14px 18px',
-            borderRadius: 'var(--radius-btn)',
-            fontSize: '0.84rem',
-            color: 'var(--ink-secondary)',
-            display: 'flex',
-            gap: '12px',
-            alignItems: 'center',
-            marginBottom: '26px'
-          }}
-        >
-          <ShieldCheck size={26} color="var(--accent-pine)" style={{ flexShrink: 0 }} />
-          <span>
-            <strong>Bảo mật chuẩn hệ thống:</strong> Toàn bộ API Key và mô hình AI được quản lý độc lập tại file cấu hình bảo mật <code>.env</code> ở Backend. Không lưu trữ hay để lộ thông tin nhạy cảm trên giao diện web.
-          </span>
         </div>
 
         {/* Submit button */}

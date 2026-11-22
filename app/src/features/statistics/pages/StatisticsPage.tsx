@@ -1,193 +1,78 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { CultivationCard } from '../../cultivation/Cultivation';
 import { TrendingUp, Calendar, Award, CheckCircle2, Clock } from 'lucide-react';
-import { api } from '../../../services/apiConfig';
-import { StatisticsDetail } from '../../../types';
+import { getStatistics, StudyStatistics } from '../api';
 
+const groups = [
+  { key: 'EASY', label: 'Easy (Dễ)', color: 'var(--accent-cobalt)' },
+  { key: 'GOOD', label: 'Good (Tốt)', color: 'var(--accent-pine)' },
+  { key: 'HARD', label: 'Hard (Khó)', color: 'var(--accent-amber)' },
+  { key: 'AGAIN', label: 'Again (Học lại)', color: 'var(--accent-vermilion)' }
+];
+const dateLabel = (date: string) => new Date(`${date}T12:00:00`).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
 export const StatisticsPage: React.FC = () => {
-  const [detail, setDetail] = useState<StatisticsDetail | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-
+  const [data, setData] = useState<StudyStatistics | null>(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [revision, setRevision] = useState(0);
   useEffect(() => {
     let active = true;
-    api.getStatisticsDetail().then((data) => {
-      if (active && data) {
-        setDetail(data);
-      }
-    }).finally(() => {
-      if (active) setLoading(false);
-    });
-    return () => {
-      active = false;
+    const load = async () => {
+      setLoading(true); setError('');
+      try { const result = await getStatistics(); if (active) setData(result); }
+      catch { if (active) setError('Không tải được thống kê. Kiểm tra backend và thử lại.'); }
+      finally { if (active) setLoading(false); }
     };
-  }, []);
-
-  const heatmapDays = detail?.heatmap || Array.from({ length: 28 }, (_, i) => ({
-    day: i + 1,
-    date: '',
-    count: 0
-  }));
-
-  const dist = detail?.distribution || {
-    easyCount: 0,
-    easyPercent: 0,
-    goodCount: 0,
-    goodPercent: 0,
-    hardCount: 0,
-    hardPercent: 0,
-    againCount: 0,
-    againPercent: 0
-  };
-
-  return (
-    <div style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ marginBottom: '20px' }}>
-        <h2 style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.6rem', fontWeight: 700, marginBottom: '4px' }}>
-          📊 Thống Kê & Phân Tích Tiến Độ Học Tập
-        </h2>
-        <p style={{ color: 'var(--ink-secondary)', fontSize: '0.9rem' }}>
-          Đo lường hiệu quả thuật toán FSRS, tỷ lệ duy trì trí nhớ và tần suất ôn luyện hàng ngày dựa trên dữ liệu thật.
-        </p>
-      </div>
-
-      {/* Top 4 Metric Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '24px' }}>
-        <div className="card-tactile" style={{ padding: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--ink-secondary)' }}>HÔM NAY</span>
-            <CheckCircle2 size={16} color="var(--accent-pine)" />
-          </div>
-          <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.8rem', fontWeight: 900 }}>
-            {loading ? '...' : detail?.todayReviews ?? 0} <span style={{ fontSize: '0.9rem', color: 'var(--ink-secondary)', fontWeight: 600 }}>thẻ</span>
-          </div>
-        </div>
-
-        <div className="card-tactile" style={{ padding: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--ink-secondary)' }}>TỶ LỆ NHỚ</span>
-            <TrendingUp size={16} color="var(--accent-cobalt)" />
-          </div>
-          <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.8rem', fontWeight: 900, color: 'var(--accent-cobalt)' }}>
-            {loading ? '...' : `${detail?.retentionRate ?? 100}%`}
-          </div>
-        </div>
-
-        <div className="card-tactile" style={{ padding: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--ink-secondary)' }}>STREAK</span>
-            <Award size={16} color="var(--accent-amber)" />
-          </div>
-          <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.8rem', fontWeight: 900, color: 'var(--accent-amber)' }}>
-            {loading ? '...' : detail?.streakDays ?? 0} <span style={{ fontSize: '0.9rem', color: 'var(--ink-secondary)', fontWeight: 600 }}>ngày</span>
-          </div>
-        </div>
-
-        <div className="card-tactile" style={{ padding: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--ink-secondary)' }}>TỐC ĐỘ</span>
-            <Clock size={16} color="var(--accent-vermilion)" />
-          </div>
-          <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.8rem', fontWeight: 900 }}>
-            {loading ? '...' : detail?.averageSpeedSeconds ?? 6.5}s <span style={{ fontSize: '0.9rem', color: 'var(--ink-secondary)', fontWeight: 600 }}>/thẻ</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Study Activity Heatmap */}
-      <div className="card-tactile" style={{ marginBottom: '24px', padding: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-          <Calendar size={18} color="var(--accent-pine)" />
-          <h3 style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.1rem', fontWeight: 700 }}>
-            Biểu Đồ Tần Suất Ôn Luyện (4 Tuần Gần Nhất)
-          </h3>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '10px' }}>
-          {heatmapDays.map((item) => {
-            let bg = 'var(--bg-stone)';
-            let textColor = 'var(--ink-primary)';
-            if (item.count > 30) { bg = 'var(--accent-pine)'; textColor = '#FFFFFF'; }
-            else if (item.count > 15) { bg = '#BBF7D0'; textColor = '#0F172A'; }
-            else if (item.count > 0) { bg = '#E2E8F0'; textColor = '#0F172A'; }
-
-            const label = item.date ? `${item.date}: ${item.count} thẻ` : `Ngày ${item.day}: ${item.count} thẻ`;
-
-            return (
-              <div
-                key={item.day}
-                title={label}
-                style={{
-                  background: bg,
-                  border: 'var(--border-dark)',
-                  boxShadow: 'var(--shadow-sm)',
-                  borderRadius: 'var(--radius-btn)',
-                  height: '46px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: textColor,
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  transition: 'transform 0.1s ease',
-                  cursor: 'pointer'
-                }}
-              >
-                <span style={{ opacity: 0.65, fontSize: '0.68rem' }}>N.{item.day}</span>
-                <span>{item.count}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* FSRS Retention Distribution */}
-      <div className="card-tactile" style={{ padding: '24px' }}>
-        <h3 style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.1rem', fontWeight: 700, marginBottom: '16px' }}>
-          Phân Nhóm Đánh Giá Theo Chu Kỳ FSRS
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 700, marginBottom: '6px' }}>
-              <span>Easy (Dễ) ({dist.easyCount})</span>
-              <span style={{ color: 'var(--accent-cobalt)' }}>{dist.easyPercent}%</span>
-            </div>
-            <div style={{ background: 'var(--bg-stone)', border: 'var(--border-dark)', height: '12px', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}>
-              <div style={{ width: `${dist.easyPercent}%`, background: 'var(--accent-cobalt)', height: '100%', transition: 'width 0.3s ease' }} />
-            </div>
-          </div>
-
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 700, marginBottom: '6px' }}>
-              <span>Good (Tốt) ({dist.goodCount})</span>
-              <span style={{ color: 'var(--accent-pine)' }}>{dist.goodPercent}%</span>
-            </div>
-            <div style={{ background: 'var(--bg-stone)', border: 'var(--border-dark)', height: '12px', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}>
-              <div style={{ width: `${dist.goodPercent}%`, background: 'var(--accent-pine)', height: '100%', transition: 'width 0.3s ease' }} />
-            </div>
-          </div>
-
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 700, marginBottom: '6px' }}>
-              <span>Hard (Khó) ({dist.hardCount})</span>
-              <span style={{ color: 'var(--accent-amber)' }}>{dist.hardPercent}%</span>
-            </div>
-            <div style={{ background: 'var(--bg-stone)', border: 'var(--border-dark)', height: '12px', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}>
-              <div style={{ width: `${dist.hardPercent}%`, background: 'var(--accent-amber)', height: '100%', transition: 'width 0.3s ease' }} />
-            </div>
-          </div>
-
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 700, marginBottom: '6px' }}>
-              <span>Again (Học Lại) ({dist.againCount})</span>
-              <span style={{ color: 'var(--accent-vermilion)' }}>{dist.againPercent}%</span>
-            </div>
-            <div style={{ background: 'var(--bg-stone)', border: 'var(--border-dark)', height: '12px', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}>
-              <div style={{ width: `${dist.againPercent}%`, background: 'var(--accent-vermilion)', height: '100%', transition: 'width 0.3s ease' }} />
-            </div>
-          </div>
-        </div>
-      </div>
+    void load();
+    const refresh = () => { if (document.visibilityState === 'visible') void load(); };
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', refresh);
+    return () => { active = false; window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh); };
+  }, [revision]);
+  const metrics = data ? [
+    { label: 'HÔM NAY', value: data.todayReviews, unit: 'lượt ôn', icon: CheckCircle2, color: 'var(--accent-pine)' },
+    { label: 'TỶ LỆ NHỚ', value: data.retentionPercent === null ? '—' : `${data.retentionPercent.toFixed(1)}%`, unit: '', icon: TrendingUp, color: 'var(--accent-cobalt)' },
+    { label: 'CHUỖI NGÀY HỌC', value: data.streakDays, unit: 'ngày', icon: Award, color: 'var(--accent-amber)' },
+    { label: 'THỜI GIAN TRUNG BÌNH', value: data.averageSeconds === null ? '—' : `${data.averageSeconds.toFixed(1)}s`, unit: '/lượt', icon: Clock, color: 'var(--accent-vermilion)' }
+  ] : [];
+  return <div style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }} aria-busy={loading}>
+    <div style={{ marginBottom: '20px' }}>
+      <h2 style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.6rem', fontWeight: 700 }}>📊 Thống Kê & Phân Tích Tiến Độ Học Tập</h2>
+      <p style={{ color: 'var(--ink-secondary)', marginTop: '8px' }}>Lịch sử ôn bộ thẻ và ngữ pháp được lưu trên máy của bạn.</p>
+      <button className="btn-tactile sm" disabled={loading} onClick={() => setRevision(n => n + 1)} style={{ marginTop: '12px' }}>{loading ? 'Đang tải…' : 'Làm mới'}</button>
     </div>
-  );
+    <CultivationCard />
+    {error && <p role="alert" style={{ color: 'var(--accent-vermilion)', marginBottom: '16px' }}>{error}</p>}
+    {!data && loading && <p role="status">Đang tải lịch sử học tập…</p>}
+    {data && <>
+      {data.totalReviews === 0 && <p style={{ marginBottom: '16px' }}>Chưa có lượt ôn trong 28 ngày qua. Hoàn thành một lượt ôn để bắt đầu theo dõi tiến độ.</p>}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '24px' }}>
+        {metrics.map(({ label, value, unit, icon: Icon, color }) => <div key={label} className="card-tactile" style={{ padding: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}><span style={{ fontSize: '0.78rem', fontWeight: 700 }}>{label}</span><Icon size={16} color={color} /></div>
+          <div style={{ fontFamily: 'var(--font-grotesk)', fontSize: '1.8rem', fontWeight: 900 }}>{value} <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{unit}</span></div>
+        </div>)}
+      </div>
+      <p style={{ color: 'var(--ink-secondary)', fontSize: '0.85rem', marginBottom: '20px' }}>Tỷ lệ nhớ = Hard, Good và Easy / tổng lượt ôn trong 28 ngày. Thời gian tính từ lúc hiện thẻ đến khi đánh giá, trên {data.timedReviews} lượt có đo thời gian. Chuỗi ngày học được giữ nếu bạn đã học hôm qua.</p>
+      <div className="card-tactile" style={{ padding: '24px', marginBottom: '24px' }}>
+        <h3 style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '16px' }}><Calendar size={18} /> Tần Suất Ôn Luyện (28 Ngày Gần Nhất)</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: '8px' }}>
+          {data.days.map(day => <div key={day.date} title={`${dateLabel(day.date)}: ${day.count} lượt ôn`} style={{ background: day.count > 30 ? 'var(--accent-pine)' : day.count > 15 ? '#BBF7D0' : day.count > 0 ? '#E2E8F0' : 'var(--bg-stone)', color: day.count > 30 ? '#fff' : day.count > 0 ? '#0F172A' : 'var(--ink-primary)', border: 'var(--border-dark)', borderRadius: 'var(--radius-btn)', padding: '8px 0', textAlign: 'center', fontSize: '0.8rem' }}>
+            <div style={{ opacity: 0.7, fontSize: '0.7rem' }}>{dateLabel(day.date)}</div><strong>{day.count}</strong>
+          </div>)}
+        </div>
+        <p style={{ fontSize: '0.8rem', marginTop: '14px', color: 'var(--ink-secondary)' }}>Tổng: {data.totalReviews} lượt ôn · Một thẻ có thể được ôn nhiều lần trong ngày.</p>
+      </div>
+      <div className="card-tactile" style={{ padding: '24px' }}>
+        <h3 style={{ marginBottom: '16px' }}>Phân Bố Đánh Giá (28 Ngày)</h3>
+        {groups.map(group => {
+          const count = data.ratings[group.key] || 0;
+          const percent = data.totalReviews ? count * 100 / data.totalReviews : 0;
+          return <div key={group.key} style={{ marginBottom: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '6px' }}><span>{group.label}</span><span>{count} lượt · {percent.toFixed(1)}%</span></div>
+            <div role="progressbar" aria-label={group.label} aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} style={{ background: 'var(--bg-stone)', height: '12px', borderRadius: 'var(--radius-pill)', overflow: 'hidden' }}><div style={{ width: `${percent}%`, background: group.color, height: '100%' }} /></div>
+          </div>;
+        })}
+      </div>
+    </>}
+  </div>;
 };

@@ -1,101 +1,31 @@
 package com.nihongoai.backend.service;
-
-import com.nihongoai.backend.dto.DashboardSummaryDto;
-import com.nihongoai.backend.dto.StatisticsDetailDto;
-import com.nihongoai.backend.entity.ReviewLogEntity;
-import com.nihongoai.backend.repository.*;
-import org.junit.jupiter.api.BeforeEach;
+import com.nihongoai.backend.repository.StatisticsRepository.Entry;
 import org.junit.jupiter.api.Test;
-
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 class StatisticsServiceTest {
-
-    private ReviewStateRepository reviewStateRepository;
-    private ReviewLogRepository reviewLogRepository;
-    private GrammarReviewStateRepository grammarReviewStateRepository;
-    private GrammarReviewLogRepository grammarReviewLogRepository;
-    private VocabularyRepository vocabularyRepository;
-    private GrammarRepository grammarRepository;
-
-    private StatisticsService statisticsService;
-
-    @BeforeEach
-    void setUp() {
-        reviewStateRepository = mock(ReviewStateRepository.class);
-        reviewLogRepository = mock(ReviewLogRepository.class);
-        grammarReviewStateRepository = mock(GrammarReviewStateRepository.class);
-        grammarReviewLogRepository = mock(GrammarReviewLogRepository.class);
-        vocabularyRepository = mock(VocabularyRepository.class);
-        grammarRepository = mock(GrammarRepository.class);
-
-        statisticsService = new StatisticsService(
-                reviewStateRepository,
-                reviewLogRepository,
-                grammarReviewStateRepository,
-                grammarReviewLogRepository,
-                vocabularyRepository,
-                grammarRepository
-        );
+    private final LocalDate today = LocalDate.of(2026,11,17);
+    private Entry entry(int daysAgo, String rating, Long ms) {
+        return new Entry(today.minusDays(daysAgo).atTime(12,0), rating, ms);
     }
-
-    @Test
-    void testGetDashboardSummary() {
-        when(reviewStateRepository.countDueCards(any())).thenReturn(5L);
-        when(grammarReviewStateRepository.countDueGrammars(any())).thenReturn(2L);
-        when(vocabularyRepository.count()).thenReturn(45L);
-        when(grammarRepository.count()).thenReturn(15L);
-        when(reviewLogRepository.count()).thenReturn(100L);
-        when(grammarReviewLogRepository.count()).thenReturn(20L);
-        when(reviewStateRepository.countNewCards()).thenReturn(10L);
-        when(reviewStateRepository.countLearningCards()).thenReturn(8L);
-
-        DashboardSummaryDto summary = statisticsService.getDashboardSummary();
-
-        assertNotNull(summary);
-        assertEquals(7L, summary.dueCardsCount());
-        assertEquals(45L, summary.vocabularyCount());
-        assertEquals(15L, summary.grammarCount());
-        assertEquals(120L, summary.totalReviewsCompleted());
-        assertEquals(10L, summary.newCardsCount());
-        assertEquals(8L, summary.learningCardsCount());
+    @Test void emptyHistoryHasNoInventedMetrics() {
+        var s = StatisticsService.summarize(List.of(),today);
+        assertEquals(0,s.todayReviews()); assertNull(s.retentionPercent()); assertNull(s.averageSeconds());
+        assertEquals(28,s.days().size()); assertEquals(today.minusDays(27),s.days().get(0).date());
+        assertEquals(today,s.days().get(27).date()); assertEquals(0,s.streakDays());
     }
-
-    @Test
-    void testGetStatisticsDetailCalculatesMetrics() {
-        ReviewLogEntity log1 = new ReviewLogEntity();
-        log1.setRating("GOOD");
-        log1.setReviewTime(LocalDateTime.now().minusHours(1));
-
-        ReviewLogEntity log2 = new ReviewLogEntity();
-        log2.setRating("EASY");
-        log2.setReviewTime(LocalDateTime.now().minusHours(2));
-
-        ReviewLogEntity log3 = new ReviewLogEntity();
-        log3.setRating("AGAIN");
-        log3.setReviewTime(LocalDateTime.now().minusDays(1));
-
-        when(reviewLogRepository.findAll()).thenReturn(List.of(log1, log2, log3));
-        when(reviewLogRepository.findAllSince(any())).thenReturn(List.of(log1, log2, log3));
-        when(grammarReviewLogRepository.findAll()).thenReturn(List.of());
-        when(grammarReviewLogRepository.findAllSince(any())).thenReturn(List.of());
-
-        StatisticsDetailDto detail = statisticsService.getStatisticsDetail();
-
-        assertNotNull(detail);
-        assertEquals(2L, detail.todayReviews());
-        assertEquals(66.7, detail.retentionRate());
-        assertEquals(2, detail.streakDays());
-        assertEquals(28, detail.heatmap().size());
-
-        assertEquals(1L, detail.distribution().againCount());
-        assertEquals(1L, detail.distribution().goodCount());
-        assertEquals(1L, detail.distribution().easyCount());
-        assertEquals(0L, detail.distribution().hardCount());
+    @Test void includesBoundariesExcludesFutureAndHandlesLegacyTimings() {
+        var s = StatisticsService.summarize(List.of(entry(0,"GOOD",2000L),entry(0,"AGAIN",4000L),
+            entry(1,"HARD",null),entry(27,"EASY",null),entry(28,"AGAIN",9000L),entry(-1,"GOOD",1000L)),today);
+        assertEquals(2,s.todayReviews()); assertEquals(4,s.totalReviews());
+        assertEquals(75.0,s.retentionPercent()); assertEquals(3.0,s.averageSeconds());
+        assertEquals(2,s.timedReviews()); assertEquals(2,s.streakDays());
+        assertEquals(1,s.days().get(0).count()); assertEquals(2,s.days().get(27).count());
+    }
+    @Test void streakSurvivesUntilEndOfTodayAndIsNotLimitedToHeatmap() {
+        var entries = java.util.stream.IntStream.rangeClosed(1,40).mapToObj(i -> entry(i,"GOOD",null)).toList();
+        assertEquals(40,StatisticsService.summarize(entries,today).streakDays());
+        assertEquals(0,StatisticsService.summarize(List.of(entry(2,"GOOD",null)),today).streakDays());
     }
 }
