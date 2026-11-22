@@ -1,19 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '../../../components/ui/Card';
 import { Sparkles, RotateCw, BookOpen, Puzzle } from 'lucide-react';
 import { TabType } from '../../../layouts/Sidebar';
+import { api } from '../../../services/apiConfig';
+import { DashboardSummary } from '../../../types';
 
 interface DashboardProps {
   onNavigate: (tab: TabType) => void;
 }
 
 export const DashboardPage: React.FC<DashboardProps> = ({ onNavigate }) => {
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let active = true;
+    api.getDashboardSummary().then((data) => {
+      if (active && data) {
+        setSummary(data);
+      }
+    }).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div>
         <h2 className="title-lg">Dashboard Tổng Quan</h2>
         <p className="text-muted" style={{ marginTop: '4px' }}>
-          Chào mừng bạn quay trở lại! Hãy chọn một chế độ học để bắt đầu.
+          Chào mừng bạn quay trở lại! Dưới đây là tiến độ học tập thực tế từ cơ sở dữ liệu của bạn.
         </p>
       </div>
 
@@ -21,19 +40,27 @@ export const DashboardPage: React.FC<DashboardProps> = ({ onNavigate }) => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
         <Card>
           <div style={{ fontSize: '13px', color: '#94a3b8' }}>Thẻ đến hạn hôm nay</div>
-          <div style={{ fontSize: '28px', fontWeight: '700', color: '#6366f1', marginTop: '6px' }}>15 Cards</div>
+          <div style={{ fontSize: '28px', fontWeight: '700', color: '#6366f1', marginTop: '6px' }}>
+            {loading ? '...' : `${summary?.dueCardsCount ?? 0} Thẻ`}
+          </div>
         </Card>
         <Card>
           <div style={{ fontSize: '13px', color: '#94a3b8' }}>Từ vựng đã lưu</div>
-          <div style={{ fontSize: '28px', fontWeight: '700', color: '#10b981', marginTop: '6px' }}>48 Words</div>
+          <div style={{ fontSize: '28px', fontWeight: '700', color: '#10b981', marginTop: '6px' }}>
+            {loading ? '...' : `${summary?.vocabularyCount ?? 0} Từ`}
+          </div>
         </Card>
         <Card>
           <div style={{ fontSize: '13px', color: '#94a3b8' }}>Mẫu ngữ pháp</div>
-          <div style={{ fontSize: '28px', fontWeight: '700', color: '#06b6d4', marginTop: '6px' }}>12 Patterns</div>
+          <div style={{ fontSize: '28px', fontWeight: '700', color: '#06b6d4', marginTop: '6px' }}>
+            {loading ? '...' : `${summary?.grammarCount ?? 0} Mẫu`}
+          </div>
         </Card>
         <Card>
-          <div style={{ fontSize: '13px', color: '#94a3b8' }}>Bài dịch câu AI đã hoàn thành</div>
-          <div style={{ fontSize: '28px', fontWeight: '700', color: '#f59e0b', marginTop: '6px' }}>24 Sentences</div>
+          <div style={{ fontSize: '13px', color: '#94a3b8' }}>Lượt ôn tập đã hoàn thành</div>
+          <div style={{ fontSize: '28px', fontWeight: '700', color: '#f59e0b', marginTop: '6px' }}>
+            {loading ? '...' : `${summary?.totalReviewsCompleted ?? 0} Lượt`}
+          </div>
         </Card>
       </div>
 

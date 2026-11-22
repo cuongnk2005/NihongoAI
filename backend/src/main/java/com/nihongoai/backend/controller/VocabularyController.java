@@ -1,7 +1,10 @@
 package com.nihongoai.backend.controller;
 
+import com.nihongoai.backend.dto.BulkImportResultDto;
+import com.nihongoai.backend.dto.BulkImportVocabularyRequestDto;
 import com.nihongoai.backend.entity.VocabularyEntity;
 import com.nihongoai.backend.service.VocabularyService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +40,14 @@ public class VocabularyController {
     public ResponseEntity<VocabularyEntity> createVocabulary(@RequestBody VocabularyEntity vocab) {
         VocabularyEntity created = vocabularyService.createVocabulary(vocab);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<BulkImportResultDto> bulkImportVocabularies(
+            @Valid @RequestBody BulkImportVocabularyRequestDto request
+    ) {
+        BulkImportResultDto result = vocabularyService.bulkImport(request.items(), request.overwriteExisting());
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/{id}")
